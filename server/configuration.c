@@ -25,7 +25,7 @@ int config_get_int(const char *name, int def)
   case LUA_TNUMBER:
     return (int) lua_tonumber(LUA_STATE, -1);
   default:
-    WARN("%s should be a number (but is a %d), using default value (%d)", name, lua_type(LUA_STATE, -1), def);
+    WARN("%s should be a number, using default value (%d)", name, def);
     return def;
   }
 }
@@ -57,8 +57,7 @@ GSList *config_get_list(const char *name, GSList *def)
   case LUA_TTABLE:
     size = luaL_getn(LUA_STATE, -1);
     for (i = 1; i <= size; i++) {
-      lua_pushnumber(LUA_STATE, i);
-      lua_gettable(LUA_STATE, -2);
+      lua_rawgeti(LUA_STATE, -1, i);
       if (lua_isstring(LUA_STATE, -1))
         list = g_slist_prepend(list, (void *) lua_tostring(LUA_STATE, -1));
       else
