@@ -34,31 +34,21 @@ void network_loop(Network *network)
     enet_host_service(network->server, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_CONNECT:
-      printf("New client  connected from %x:%u\n", event.peer->address.host,
-             event.peer->address.port);
       event.peer->data = (void *) gen_id();
-      //plugins_on_connect((int) event.peer->data);
+      plugins_on_action(PLUGIN_CONNECT, (int) event.peer->data, NULL, NULL);
       break;
     case ENET_EVENT_TYPE_RECEIVE:
-      printf("A packet of length %u containing %s was received from %s on channel %u\n",
-             event.packet->dataLength,
-             (char *) event.packet->data,
-             (char *) event.peer->data,
-             event.channelID);
       extract_command(event.packet, &command, &args);
-      printf("%s -- %s\n", command, args);
-      //plugins_on_recv((int) event.peer->data, command, args);
+      plugins_on_action(PLUGIN_RECV, (int) event.peer->data, command, args);
       free(command);
       free(args);
       enet_packet_destroy(event.packet);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
-      //plugins_on_disconnect((int) event.peer->data);
-      printf("%s disconnected\n", (char *) event.peer->data);
+      plugins_on_action(PLUGIN_DISCONNECT, (int) event.peer->data, NULL, NULL);
       event.peer->data = NULL;
       break;
     case ENET_EVENT_TYPE_NONE:
-      printf("Nothing happened\n");
       break;
     }
   }

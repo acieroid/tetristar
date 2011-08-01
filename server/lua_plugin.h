@@ -11,7 +11,7 @@
 #include "global_state.h"
 #include "util.h"
 
-typedef const void* LuaFunction;
+typedef int LuaFunction;
 
 typedef enum PluginType {
   PLUGIN_CONNECT,

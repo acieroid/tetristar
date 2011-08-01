@@ -12,6 +12,9 @@ void lua_plugin_load(const char *file, void *data)
 void lua_plugin_free(LuaPlugin *plugin, void *data)
 {
   assert(plugin != NULL);
+  if (plugin->recv_command != NULL)
+    free(plugin->recv_command);
+  luaL_unref(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
   free(plugin);
 }
 
@@ -57,7 +60,8 @@ int l_register(lua_State *l)
     WARN("Second argument to register should be a function");
     return 0;
   }
-  function = lua_topointer(LUA_STATE, 2);
+  lua_pushvalue(LUA_STATE, 2);
+  function = luaL_ref(LUA_STATE, LUA_REGISTRYINDEX);
 
   if (type == PLUGIN_RECV) {
     if (!lua_isstring(LUA_STATE, 3)) {

@@ -8,12 +8,8 @@
 #include "lua_plugin.h"
 
 void plugins_init();
-#if 0
-void plugins_on_connect(Plugins *plugins, int id);
-void plugins_on_disconnect(Plugins *plugins, int id);
-void plugins_on_recv(Plugins *plugins, int id, char *command, char *args);
-#endif
 void plugins_deinit();
+void plugins_on_action(PluginType type, int id, char *command, char *args);
 
 #endif /* PLUGINS_H */
 
