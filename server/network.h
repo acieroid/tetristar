@@ -4,16 +4,16 @@
 #include <enet/enet.h>
 #include <assert.h>
 
+#include "plugins.h"
 #include "configuration.h"
 #include "config.h"
 #include "util.h"
 
 typedef struct Network {
-  Config *config;
   ENetHost *server;
 } Network;
 
-Network *network_init(Config *config);
+Network *network_init();
 void network_loop(Network *network);
 void network_free(Network *network);
 

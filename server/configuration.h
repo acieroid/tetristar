@@ -7,17 +7,15 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <glib.h>
 
+#include "global_state.h"
 #include "util.h"
 
-
-typedef struct Config {
-  lua_State *state;
-} Config;
-
-Config *config_init(const char *file);
-int config_get_int(Config *config, const char *name, int def);
-const char *config_get_string(Config *config, const char *name, const char *def);
-void config_free(Config *config);
+void config_init(const char *file);
+int config_get_int(const char *name, int def);
+const char *config_get_string(const char *name, const char *def);
+GSList *config_get_list(const char *name, GSList *def);
+void config_deinit();
 
 #endif /* CONFIGURATION_H */

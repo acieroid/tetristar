@@ -1,16 +1,15 @@
 #include "network.h"
 
-Network *network_init(Config *config)
+Network *network_init()
 {
   ENetAddress address;
   int status;
   Network *network = malloc(sizeof(*network));
-  const char *server = config_get_string(config, "server", default_server);
-  int port = config_get_int(config, "port", default_port);
-  int max_clients = config_get_int(config, "max_clients", default_max_clients);
+  const char *server = config_get_string("server", default_server);
+  int port = config_get_int("port", default_port);
+  int max_clients = config_get_int("max_clients", default_max_clients);
 
   assert(network != NULL);
-  network->config = config;
 
   status = enet_initialize();
   assert(status == 0);
