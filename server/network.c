@@ -45,7 +45,8 @@ void network_loop(Network *network)
              (char *) event.packet->data,
              (char *) event.peer->data,
              event.channelID);
-      extract_command((const char *) event.packet->data, &command, &args);
+      extract_command(event.packet, &command, &args);
+      printf("%s -- %s\n", command, args);
       //plugins_on_recv((int) event.peer->data, command, args);
       free(command);
       free(args);

@@ -43,7 +43,7 @@ int main()
   }
 
   /* send packet */
-  packet = enet_packet_create("packet", strlen("packet") + 1,
+  packet = enet_packet_create("HELLO foo", strlen("HELLO foo") + 1,
                               ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(peer, 0, packet);
   enet_host_flush(client);

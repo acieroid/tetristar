@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <string.h>
 
+#include <enet/enet.h>
+
 #define WARN(...)                               \
   {                                             \
     fprintf(stderr, "[warning] " __VA_ARGS__);  \
@@ -27,6 +29,6 @@
 
 int gen_id();
 
-void extract_command(const char *string, char **command, char **args);
+void extract_command(ENetPacket *packet, char **command, char **args);
 
 #endif /* UTIL_H */
