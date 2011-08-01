@@ -16,8 +16,7 @@ int main(int argc, char *argv[])
     configfile = strdup("conf.lua");
 
   config = config_init(configfile);
-  network = network_init(config_get_string(config, "server", default_server),
-                         config_get_int(config, "port", default_port));
+  network = network_init(config);
 
   config_free(config);
   network_free(network);
