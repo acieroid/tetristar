@@ -27,6 +27,10 @@ void plugins_on_action(PluginType type, int id, char *command, char *args)
   for (elem = PLUGINS; elem != NULL; elem = elem->next) {
     plugin = elem->data;
 
+    /* the function */
+    lua_rawgeti(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
+
+    /* the arguments */
     nargs = 1;
     lua_pushnumber(LUA_STATE, id);
     if (plugin->type == type) {
@@ -36,7 +40,6 @@ void plugins_on_action(PluginType type, int id, char *command, char *args)
         lua_pushstring(LUA_STATE, args);
         nargs = 3;
       }
-      lua_rawgeti(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
       printf("Function: %d\n", lua_isfunction(LUA_STATE, -1));
       if (lua_pcall(LUA_STATE, nargs, 0, 0) != 0)
         WARN("Error when calling a plugin action: %s",
