@@ -26,7 +26,6 @@ void lua_plugin_register(PluginType type, char *recv_command, LuaFunction functi
 
   PLUGINS = g_slist_prepend(PLUGINS, (void *) plugin);
   DBG("Plugin of type %d registered for action %s", type, recv_command);
-
 }
 
 int l_register(lua_State *l)

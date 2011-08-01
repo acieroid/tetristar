@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
+#include <string.h>
 
 #define WARN(...)                               \
   {                                             \
@@ -22,5 +24,9 @@
     fprintf(stderr, "[debug] " __VA_ARGS__);    \
     fprintf(stderr, "\n");                      \
   }
+
+int gen_id();
+
+void extract_command(const char *string, char **command, char **args);
 
 #endif /* UTIL_H */

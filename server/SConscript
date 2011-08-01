@@ -1,6 +1,6 @@
 Import('env', 'CFLAGS')
 
-sources = ['main.c', 'global_state.c', 'configuration.c',
+sources = ['main.c', 'global_state.c', 'configuration.c', 'util.c',
            'network.c', 'plugins.c', 'lua_plugin.c']
 sources += ['/usr/local/lib/libenet.a']
 LIBS = ['lua-5.1', 'glib-2.0']

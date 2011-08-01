@@ -28,6 +28,7 @@ Network *network_init()
 void network_loop(Network *network)
 {
   ENetEvent event;
+  char *command, *args;
   assert(network != NULL);
   while (1) {
     enet_host_service(network->server, &event, 1000);
@@ -35,7 +36,8 @@ void network_loop(Network *network)
     case ENET_EVENT_TYPE_CONNECT:
       printf("New client  connected from %x:%u\n", event.peer->address.host,
              event.peer->address.port);
-      event.peer->data = "lol";
+      event.peer->data = (void *) gen_id();
+      //plugins_on_connect((int) event.peer->data);
       break;
     case ENET_EVENT_TYPE_RECEIVE:
       printf("A packet of length %u containing %s was received from %s on channel %u\n",
@@ -43,9 +45,14 @@ void network_loop(Network *network)
              (char *) event.packet->data,
              (char *) event.peer->data,
              event.channelID);
+      extract_command((const char *) event.packet->data, &command, &args);
+      //plugins_on_recv((int) event.peer->data, command, args);
+      free(command);
+      free(args);
       enet_packet_destroy(event.packet);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
+      //plugins_on_disconnect((int) event.peer->data);
       printf("%s disconnected\n", (char *) event.peer->data);
       event.peer->data = NULL;
       break;
