@@ -32,6 +32,7 @@ void plugins_on_action(PluginType type, int id, char *command, char *args)
 
     /* the arguments */
     nargs = 1;
+
     lua_pushnumber(LUA_STATE, id);
     if (plugin->type == type) {
       if (type == PLUGIN_RECV &&
@@ -40,7 +41,6 @@ void plugins_on_action(PluginType type, int id, char *command, char *args)
         lua_pushstring(LUA_STATE, args);
         nargs = 3;
       }
-      printf("Function: %d\n", lua_isfunction(LUA_STATE, -1));
       if (lua_pcall(LUA_STATE, nargs, 0, 0) != 0)
         WARN("Error when calling a plugin action: %s",
              lua_tostring(LUA_STATE, -1));

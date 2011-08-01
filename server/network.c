@@ -34,7 +34,7 @@ void network_loop(Network *network)
     enet_host_service(network->server, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_CONNECT:
-      event.peer->data = (void *) gen_id();
+      event.peer->data = (void *) new_id();
       plugins_on_action(PLUGIN_CONNECT, (int) event.peer->data, NULL, NULL);
       break;
     case ENET_EVENT_TYPE_RECEIVE:
@@ -46,6 +46,7 @@ void network_loop(Network *network)
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       plugins_on_action(PLUGIN_DISCONNECT, (int) event.peer->data, NULL, NULL);
+      free_id((int) event.peer->data);
       event.peer->data = NULL;
       break;
     case ENET_EVENT_TYPE_NONE:

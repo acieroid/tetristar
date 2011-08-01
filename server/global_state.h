@@ -11,6 +11,7 @@
 typedef struct GlobalState {
   lua_State *lua_state;
   GSList *plugins;
+  int *ids;
 } GlobalState;
 
 extern GlobalState *global_state;

@@ -1,9 +1,37 @@
 #include "util.h"
 
-int gen_id()
+int new_id()
 {
-  static int id = 0;
-  return id++;
+  int i, size;
+
+  size = config_get_int("max_clients", default_max_clients);
+  /* keep a track of assigned and free ids */
+  if (global_state->ids == NULL) {
+    global_state->ids = malloc(size*sizeof(*global_state->ids));
+    assert(global_state->ids != NULL);
+    for (i = 0; i < size; i++) {
+      global_state->ids[i] = 0;
+    }
+  }
+
+  /* find the first free id */
+  for (i = 0; i < size; i++) {
+    if (global_state->ids[i] == 0) {
+      global_state->ids[i] = 1;
+      return i;
+    }
+  }
+
+  /* no more ids available */
+  return -1;
+}
+
+void free_id(int id)
+{
+  assert(global_state != NULL);
+  assert(global_state->ids != NULL);
+
+  global_state->ids[id] = 0;
 }
 
 void extract_command(ENetPacket *packet, char **command, char **args)

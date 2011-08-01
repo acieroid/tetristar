@@ -8,6 +8,9 @@
 
 #include <enet/enet.h>
 
+#include "configuration.h"
+#include "config.h"
+
 #define WARN(...)                               \
   {                                             \
     fprintf(stderr, "[warning] " __VA_ARGS__);  \
@@ -27,8 +30,8 @@
     fprintf(stderr, "\n");                      \
   }
 
-int gen_id();
-
+int new_id();
+void free_id(int id);
 void extract_command(ENetPacket *packet, char **command, char **args);
 
 #endif /* UTIL_H */
