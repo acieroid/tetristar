@@ -1,4 +1,6 @@
 #include "configuration.h"
+#include "config.h"
+#include "network.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -6,6 +8,7 @@
 int main(int argc, char *argv[])
 {
   Config *config;
+  Network *network;
   char *configfile;
   if (argc > 1)
     configfile = argv[1];
@@ -13,9 +16,11 @@ int main(int argc, char *argv[])
     configfile = strdup("conf.lua");
 
   config = config_init(configfile);
-
-  printf("Listening on %s:%d\n", config_get_string(config, "server", "localhost"),
-         config_get_int(config, "port", 12345));
+  network = network_init(config_get_string(config, "server", default_server),
+                         config_get_int(config, "port", default_port));
 
   config_free(config);
+  network_free(network);
+
+  return 0;
 }

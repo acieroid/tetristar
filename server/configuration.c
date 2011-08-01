@@ -1,8 +1,4 @@
 #include "configuration.h"
-#include "util.h"
-
-#include <assert.h>
-#include <unistd.h>
 
 Config *config_init(const char *file)
 {
@@ -10,11 +6,13 @@ Config *config_init(const char *file)
   assert(config != NULL);
 
   config->state = lua_open();
+  luaL_openlibs(config->state);
 
+  DBG("Reading configuration file: %s", file);
   if (luaL_loadfile(config->state, file) ||
       lua_pcall(config->state, 0, 0, 0))
-    WARN("Unable to load or run the configuration file %s: %s",
-         file, lua_tostring(config->state, -1));
+    WARN("Unable to load or run the configuration file: %s",
+         lua_tostring(config->state, -1));
 
   return config;
 }
@@ -36,7 +34,7 @@ int config_get_int(Config *config, const char *name, int def)
   }
 }
 
-const char *config_get_string(Config *config, const char *name, char *def)
+const char *config_get_string(Config *config, const char *name, const char *def)
 {
   assert(config != NULL);
   lua_getglobal(config->state, name);

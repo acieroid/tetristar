@@ -17,4 +17,10 @@
     exit(1);                                            \
   }
 
+#define DBG(...)                                \
+  {                                             \
+    fprintf(stderr, "Debug: " __VA_ARGS__);     \
+    fprintf(stderr, "\n");                      \
+  }
+
 #endif /* UTIL_H */
