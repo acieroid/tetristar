@@ -26,6 +26,37 @@ Network *network_init(Config *config)
   return network;
 }
 
+void network_loop(Network *network)
+{
+  ENetEvent event;
+  assert(network != NULL);
+  while (1) {
+    enet_host_service(network->server, &event, 1000);
+    switch (event.type) {
+    case ENET_EVENT_TYPE_CONNECT:
+      printf("New client  connected from %x:%u\n", event.peer->address.host,
+             event.peer->address.port);
+      event.peer->data = "lol";
+      break;
+    case ENET_EVENT_TYPE_RECEIVE:
+      printf("A packet of length %u containing %s was received from %s on channel %u\n",
+             event.packet->dataLength,
+             (char *) event.packet->data,
+             (char *) event.peer->data,
+             event.channelID);
+      enet_packet_destroy(event.packet);
+      break;
+    case ENET_EVENT_TYPE_DISCONNECT:
+      printf("%s disconnected\n", (char *) event.peer->data);
+      event.peer->data = NULL;
+      break;
+    case ENET_EVENT_TYPE_NONE:
+      printf("Nothing happened\n");
+      break;
+    }
+  }
+}
+
 void network_free(Network *network)
 {
   assert(network != NULL);
@@ -33,4 +64,3 @@ void network_free(Network *network)
   enet_host_destroy(network->server);
   enet_deinitialize();
 }
-  

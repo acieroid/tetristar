@@ -14,6 +14,7 @@ typedef struct Network {
 } Network;
 
 Network *network_init(Config *config);
+void network_loop(Network *network);
 void network_free(Network *network);
 
 #endif /* NETWORK_H */

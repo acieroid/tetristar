@@ -18,6 +18,8 @@ int main(int argc, char *argv[])
   config = config_init(configfile);
   network = network_init(config);
 
+  network_loop(network);
+
   config_free(config);
   network_free(network);
 
