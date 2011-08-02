@@ -42,10 +42,7 @@ int l_register(lua_State *l)
   char *type_descr, *recv_command;
   LuaFunction function;
 
-  if (!lua_isstring(l, 1)) {
-    WARN("First argument to server.register should be a string");
-    return 0;
-  }
+  luaL_checktype(l, 1, LUA_TSTRING);
     
   type_descr = strdup(lua_tostring(l, 1));
   recv_command = NULL;
@@ -61,18 +58,12 @@ int l_register(lua_State *l)
     return 0;
   }
 
-  if (!lua_isfunction(l, 2)) {
-    WARN("Second argument to server.register should be a function");
-    return 0;
-  }
+  luaL_checktype(l, 2, LUA_TFUNCTION);
   lua_pushvalue(l, 2);
   function = luaL_ref(l, LUA_REGISTRYINDEX);
 
   if (type == PLUGIN_RECV) {
-    if (!lua_isstring(l, 3)) {
-      WARN("Third argument to server.register should be a string");
-      return 0;
-    }
+    luaL_checktype(l, 3, LUA_TSTRING);
     recv_command = strdup(lua_tostring(l, 3));
     assert(recv_command != NULL);
   }
@@ -85,11 +76,8 @@ int l_send(lua_State *l)
 {
   int id;
   char *str = NULL;
-  /* TODO: use luaL_checktype */
-  if (!lua_isnumber(l, 1))
-    WARN("First argument to server.send should be a number");
-  if (!lua_isstring(l, 2))
-    WARN("Second argument to server.send should be a string");
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  luaL_checktype(l, 2, LUA_TSTRING);
 
   id = lua_tonumber(l, 1);
   str = strdup(lua_tostring(l, 2));
@@ -103,6 +91,7 @@ int l_send(lua_State *l)
 int l_send_to_all(lua_State *l)
 {
   char *str = NULL;
+  luaL_checktype(l, 1, LUA_TSTRING);
   if (!lua_isstring(l, 1))
     WARN("First argument to server.send_to_all should be a number");
   str = strdup(lua_tostring(l, 1));
