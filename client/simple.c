@@ -56,6 +56,11 @@ int main()
     enet_host_flush(client);
   }
 
+  while (enet_host_service(client, &event, 1000) > 0) {
+    if (event.type == ENET_EVENT_TYPE_RECEIVE)
+      printf("> %s\n", event.packet->data);
+  }
+
   /* disconnect client */
   enet_peer_disconnect(peer, 0);
   while (connected && enet_host_service(client, &event, 3000) > 0) {

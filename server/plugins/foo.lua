@@ -1,5 +1,10 @@
 
 foo = {}
+tetris = {}
+
+function tetris.nick_available(nick)
+   return true
+end
 
 function foo.connect(id)
    print("Player " .. id .. " connected");
@@ -12,8 +17,8 @@ function foo.hello(id, command, args)
    if tetris.nick_available(nick) then
       print("Ok, player added")
       --tetris.players.set_nick(id, nick)
-      --server.send(id, "HELLO " .. id .. " " .. nick)
-      --server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
+      server.send(id, "HELLO " .. id .. " " .. nick)
+      server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
    else
       print("Nick already taken, adding a _")
       foo.hello(id, command, args .. "_")
