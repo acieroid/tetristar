@@ -9,7 +9,6 @@
 
 int main(int argc, char *argv[])
 {
-  Network *network;
   char *configfile;
 
   if (argc > 1)
@@ -17,14 +16,18 @@ int main(int argc, char *argv[])
   else
     configfile = strdup("conf.lua");
 
+  DBG("Initializing global state");
   global_state_init();
+  DBG("Initializing configuration");
   config_init(configfile);
+  DBG("Initializing plugins");
   plugins_init();
-  network = network_init();
+  DBG("Initializing network");
+  network_init();
 
-  network_loop(network);
+  network_loop();
 
-  network_free(network);
+  network_deinit();
   plugins_deinit();
   config_deinit();
   global_state_deinit();

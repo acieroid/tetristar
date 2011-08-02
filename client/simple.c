@@ -58,8 +58,7 @@ int main()
 
   /* disconnect client */
   enet_peer_disconnect(peer, 0);
-  while (enet_host_service(client, &event, 3000) > 0 &&
-         connected) {
+  while (connected && enet_host_service(client, &event, 3000) > 0) {
       switch (event.type) {
       case ENET_EVENT_TYPE_RECEIVE:
         enet_packet_destroy(event.packet);

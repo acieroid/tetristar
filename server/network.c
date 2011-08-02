@@ -1,15 +1,19 @@
 #include "network.h"
 
-Network *network_init()
+void network_init()
 {
   ENetAddress address;
-  int status;
-  Network *network = malloc(sizeof(*network));
-  const char *server = config_get_string("server", default_server);
-  int port = config_get_int("port", default_port);
-  int max_clients = config_get_int("max_clients", default_max_clients);
+  int status, port, max_clients;
+  const char *server;
 
-  assert(network != NULL);
+  assert(global_state != NULL);
+  NETWORK = malloc(sizeof(*NETWORK));
+  assert(NETWORK != NULL);
+
+  server = config_get_string("server", default_server);
+  port = config_get_int("port", default_port);
+  max_clients = config_get_int("max_clients", default_max_clients);
+
 
   status = enet_initialize();
   assert(status == 0);
@@ -17,25 +21,58 @@ Network *network_init()
   enet_address_set_host(&address, server);
   address.port = port;
 
-  network->server = enet_host_create(&address, max_clients, 0, 0);
-  assert(network->server != NULL);
+  NETWORK->server = enet_host_create(&address, max_clients, 0, 0);
+  assert(NETWORK->server != NULL);
+
+  NETWORK->clients = NULL;
 
   DBG("Listening on %s:%d", server, port);
-
-  return network;
 }
 
-void network_loop(Network *network)
+void network_deinit()
+{
+  assert(NETWORK != NULL);
+  DBG("Stopping server");
+  enet_host_destroy(NETWORK->server);
+  enet_deinitialize();
+}
+
+void network_add_client(Client *client)
+{
+  NETWORK->clients = g_slist_prepend(NETWORK->clients, client);
+}
+
+void network_remove_client(Client *client)
+{
+  NETWORK->clients = g_slist_remove(NETWORK->clients, client);
+}
+
+Client *network_find_client(int id)
+{
+  GSList *elem;
+  Client *client;
+
+  for (elem = NETWORK->clients; elem != NULL; elem = elem->next) {
+    client = (Client *) elem->data;
+    if ((int) client->data == id)
+      return client;
+  }
+  WARN("Client wih id %d not found", id);
+  return NULL;
+}
+
+void network_loop()
 {
   ENetEvent event;
   char *command, *args;
-  assert(network != NULL);
+  assert(NETWORK != NULL);
   while (1) {
-    enet_host_service(network->server, &event, 1000);
+    enet_host_service(NETWORK->server, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_CONNECT:
       event.peer->data = (void *) new_id();
       plugins_on_action(PLUGIN_CONNECT, (int) event.peer->data, NULL, NULL);
+      network_add_client(event.peer);
       break;
     case ENET_EVENT_TYPE_RECEIVE:
       extract_command(event.packet, &command, &args);
@@ -46,6 +83,7 @@ void network_loop(Network *network)
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       plugins_on_action(PLUGIN_DISCONNECT, (int) event.peer->data, NULL, NULL);
+      network_remove_client(event.peer);
       free_id((int) event.peer->data);
       event.peer->data = NULL;
       break;
@@ -55,10 +93,19 @@ void network_loop(Network *network)
   }
 }
 
-void network_free(Network *network)
+void network_send(Client *client, const char *string)
 {
-  assert(network != NULL);
-  DBG("Stopping server");
-  enet_host_destroy(network->server);
-  enet_deinitialize();
+  ENetPacket *packet;
+  assert(string != NULL);
+  packet = enet_packet_create(string, strlen(string) + 1,
+                              ENET_PACKET_FLAG_RELIABLE);
+  enet_peer_send(client, 0, packet);
+  enet_host_flush(NETWORK->server);
+  enet_packet_destroy(packet);
 }
+
+void network_send_to_all(const char *string)
+{
+  g_slist_foreach(NETWORK->clients, (GFunc) network_send, (void *) string);
+}
+ 

@@ -42,12 +42,12 @@ int l_register(lua_State *l)
   char *type_descr, *recv_command;
   LuaFunction function;
 
-  if (!lua_isstring(LUA_STATE, 1)) {
-    WARN("First argument to register should be a string");
+  if (!lua_isstring(l, 1)) {
+    WARN("First argument to server.register should be a string");
     return 0;
   }
     
-  type_descr = strdup(lua_tostring(LUA_STATE, 1));
+  type_descr = strdup(lua_tostring(l, 1));
   recv_command = NULL;
 
   if (strcmp(type_descr, "CONNECT") == 0)
@@ -61,22 +61,67 @@ int l_register(lua_State *l)
     return 0;
   }
 
-  if (!lua_isfunction(LUA_STATE, 2)) {
-    WARN("Second argument to register should be a function");
+  if (!lua_isfunction(l, 2)) {
+    WARN("Second argument to server.register should be a function");
     return 0;
   }
-  lua_pushvalue(LUA_STATE, 2);
-  function = luaL_ref(LUA_STATE, LUA_REGISTRYINDEX);
+  lua_pushvalue(l, 2);
+  function = luaL_ref(l, LUA_REGISTRYINDEX);
 
   if (type == PLUGIN_RECV) {
-    if (!lua_isstring(LUA_STATE, 3)) {
-      WARN("Third argument to register should be a string");
+    if (!lua_isstring(l, 3)) {
+      WARN("Third argument to server.register should be a string");
       return 0;
     }
-    recv_command = strdup(lua_tostring(LUA_STATE, 3));
+    recv_command = strdup(lua_tostring(l, 3));
+    assert(recv_command != NULL);
   }
 
   lua_plugin_register(type, recv_command, function);
   return 0;
 }
-  
+
+int l_send(lua_State *l)
+{
+  int id;
+  char *str = NULL;
+  /* TODO: use luaL_checktype */
+  if (!lua_isnumber(l, 1))
+    WARN("First argument to server.send should be a number");
+  if (!lua_isstring(l, 2))
+    WARN("Second argument to server.send should be a string");
+
+  id = lua_tonumber(l, 1);
+  str = strdup(lua_tostring(l, 2));
+  assert(str != NULL);
+
+  network_send(network_find_client(id), str);
+  free(str);
+  return 0;
+}
+
+int l_send_to_all(lua_State *l)
+{
+  char *str = NULL;
+  if (!lua_isstring(l, 1))
+    WARN("First argument to server.send_to_all should be a number");
+  str = strdup(lua_tostring(l, 1));
+  network_send_to_all(str);
+  free(str);
+  return 0;
+}
+
+void lua_plugin_setup_functions()
+{
+  int i;
+  /* embed functions in a table */
+  lua_newtable(LUA_STATE);
+
+  for (i = 0; functions_to_export[i].fun != NULL; i++) {
+    /* set server.function_name */
+    lua_pushcfunction(LUA_STATE, functions_to_export[i].fun);
+    lua_setfield(LUA_STATE, -2, functions_to_export[i].name);
+  }
+
+  lua_setglobal(LUA_STATE, "server");
+}

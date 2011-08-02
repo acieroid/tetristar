@@ -9,7 +9,7 @@
 
 void plugins_init();
 void plugins_deinit();
-void plugins_on_action(PluginType type, int id, char *command, char *args);
+void plugins_on_action(int type, int id, char *command, char *args);
 
 #endif /* PLUGINS_H */
 
