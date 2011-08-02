@@ -1,4 +1,5 @@
-server = "localhost"
-port = 12345
+config = {}
 
-plugins = {'plugins/foo.lua', 'plugins/bar.lua'}
+config.server = "localhost"
+config.port = 12345
+config.plugins = {'plugins/foo.lua', 'plugins/bar.lua'}

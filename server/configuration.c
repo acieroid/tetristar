@@ -16,7 +16,8 @@ void config_init(const char *file)
 
 int config_get_int(const char *name, int def)
 {
-  lua_getglobal(LUA_STATE, name);
+  lua_getglobal(LUA_STATE, "config");
+  lua_getfield(LUA_STATE, -1, name);
 
   switch (lua_type(LUA_STATE, -1)) {
   case LUA_TNIL:
@@ -32,7 +33,8 @@ int config_get_int(const char *name, int def)
 
 const char *config_get_string(const char *name, const char *def)
 {
-  lua_getglobal(LUA_STATE, name);
+  lua_getglobal(LUA_STATE, "config");
+  lua_getfield(LUA_STATE, -1, name);
 
   switch (lua_type(LUA_STATE, -1)) {
   case LUA_TNIL:
@@ -49,7 +51,8 @@ GSList *config_get_list(const char *name, GSList *def)
 {
   int i, size;
   GSList *list = NULL;
-  lua_getglobal(LUA_STATE, name);
+  lua_getglobal(LUA_STATE, "config");
+  lua_getfield(LUA_STATE, -1, name);
 
   switch (lua_type(LUA_STATE, -1)) {
   case LUA_TNIL:

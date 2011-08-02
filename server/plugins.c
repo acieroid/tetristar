@@ -27,14 +27,14 @@ void plugins_on_action(PluginType type, int id, char *command, char *args)
   for (elem = PLUGINS; elem != NULL; elem = elem->next) {
     plugin = elem->data;
 
-    /* the function */
-    lua_rawgeti(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
-
-    /* the arguments */
-    nargs = 1;
-
-    lua_pushnumber(LUA_STATE, id);
     if (plugin->type == type) {
+      /* the function */
+      lua_rawgeti(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
+
+      /* the arguments */
+      nargs = 1;
+      lua_pushnumber(LUA_STATE, id);
+
       if (type == PLUGIN_RECV &&
           strcmp(plugin->recv_command, command) == 0) {
         lua_pushstring(LUA_STATE, command);

@@ -28,7 +28,12 @@ void lua_plugin_register(PluginType type, char *recv_command, LuaFunction functi
   plugin->function = function;
 
   PLUGINS = g_slist_prepend(PLUGINS, (void *) plugin);
-  DBG("Plugin of type %d registered for action %s", type, recv_command);
+  if (type == PLUGIN_RECV)
+    DBG("Plugin of type RECV registered for action %s", recv_command);
+  else if (type == PLUGIN_CONNECT)
+    DBG("Plugin of type CONNECT registered");
+  else if (type == PLUGIN_DISCONNECT)
+    DBG("Plugin of type DISCONNECT registered");
 }
 
 int l_register(lua_State *l)

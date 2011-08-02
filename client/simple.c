@@ -10,6 +10,7 @@ int main()
   ENetPeer *peer;
   ENetPacket *packet;
   int connected;
+  char string[1024];
 
   /* create client */
   client = enet_host_create(NULL,
@@ -42,15 +43,23 @@ int main()
     exit(1);
   }
 
-  /* send packet */
-  packet = enet_packet_create("HELLO foo", strlen("HELLO foo") + 1,
-                              ENET_PACKET_FLAG_RELIABLE);
-  enet_peer_send(peer, 0, packet);
-  enet_host_flush(client);
+  /* read and send packets */
+  while (1) {
+    if (fgets(string, 1024, stdin) == NULL)
+      /* disconnect at EOF */
+      break;
+
+    string[strlen(string)-1] = '\0'; /* drop the \n */
+    packet = enet_packet_create(string, strlen(string) + 1,
+                                ENET_PACKET_FLAG_RELIABLE);
+    enet_peer_send(peer, 0, packet);
+    enet_host_flush(client);
+  }
 
   /* disconnect client */
   enet_peer_disconnect(peer, 0);
-  while (enet_host_service(client, &event, 3000) > 0) {
+  while (enet_host_service(client, &event, 3000) > 0 &&
+         connected) {
       switch (event.type) {
       case ENET_EVENT_TYPE_RECEIVE:
         enet_packet_destroy(event.packet);
