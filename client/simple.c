@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
 #include <enet/enet.h>
+#include <sys/wait.h>
 
 int main()
 {
@@ -11,6 +13,7 @@ int main()
   ENetPacket *packet;
   int connected;
   char string[1024];
+  pid_t pid;
 
   /* create client */
   client = enet_host_create(NULL,
@@ -43,45 +46,49 @@ int main()
     exit(1);
   }
 
-  /* read and send packets */
-  while (1) {
-    if (fgets(string, 1024, stdin) == NULL)
-      /* disconnect at EOF */
-      break;
-
-    string[strlen(string)-1] = '\0'; /* drop the \n */
-    packet = enet_packet_create(string, strlen(string) + 1,
-                                ENET_PACKET_FLAG_RELIABLE);
-    enet_peer_send(peer, 0, packet);
-    enet_host_flush(client);
-  }
-
-  while (enet_host_service(client, &event, 1000) > 0) {
-    if (event.type == ENET_EVENT_TYPE_RECEIVE)
-      printf("> %s\n", event.packet->data);
-  }
-
-  /* disconnect client */
-  enet_peer_disconnect(peer, 0);
-  while (connected && enet_host_service(client, &event, 3000) > 0) {
-      switch (event.type) {
-      case ENET_EVENT_TYPE_RECEIVE:
-        enet_packet_destroy(event.packet);
+  /* fork */
+  pid = fork();
+  if (pid == 0) {
+    /* read and send packets */
+    while (1) {
+      if (fgets(string, 1024, stdin) == NULL)
+        /* disconnect at EOF */
         break;
-      case ENET_EVENT_TYPE_DISCONNECT:
-        printf("Disconnected\n");
+
+      string[strlen(string)-1] = '\0'; /* drop the \n */
+      packet = enet_packet_create(string, strlen(string) + 1,
+                                  ENET_PACKET_FLAG_RELIABLE);
+      enet_peer_send(peer, 0, packet);
+      enet_host_flush(client);
+    }
+    /* disconnect client */
+    enet_peer_disconnect(peer, 0);
+    while (enet_host_service(client, &event, 3000) > 0) {
+      if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
+        printf("Reader disconnected\n");
         connected = 0;
         break;
-      default:
+      }
+    }
+
+    if (connected)
+      /* force the deconnection */
+      enet_peer_reset(peer);
+
+    enet_host_destroy(client);
+  }
+  else {
+    while (1) {
+      enet_host_service(client, &event, 1000);
+      if (event.type == ENET_EVENT_TYPE_RECEIVE)
+        printf("> %s\n", event.packet->data);
+      if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
+        printf("Listener disconnected\n");
         break;
       }
+    }
+    wait(NULL);
   }
-
-  if (connected)
-    /* force the deconnection */
-    enet_peer_reset(peer);
-
-  enet_host_destroy(client);
   return 0;
 }
     
