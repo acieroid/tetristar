@@ -1,6 +1,5 @@
 #include "util.h"
 
-
 inline void WARN(const char *fmt, ...)
 {
   va_list ap;
@@ -34,27 +33,25 @@ inline void DBG(const char *fmt, ...)
 #endif
 }
 
-
-  
-
+static int *ids = NULL;
 int new_id()
 {
   int i, size;
 
   size = config_get_int("max_clients", default_max_clients);
   /* keep a track of assigned and free ids */
-  if (global_state->ids == NULL) {
-    global_state->ids = malloc(size*sizeof(*global_state->ids));
-    assert(global_state->ids != NULL);
+  if (ids == NULL) {
+    ids = malloc(size*sizeof(*ids));
+    assert(ids != NULL);
     for (i = 0; i < size; i++) {
-      global_state->ids[i] = 0;
+      ids[i] = 0;
     }
   }
 
   /* find the first free id */
   for (i = 0; i < size; i++) {
-    if (global_state->ids[i] == 0) {
-      global_state->ids[i] = 1;
+    if (ids[i] == 0) {
+      ids[i] = 1;
       return i;
     }
   }
@@ -65,10 +62,8 @@ int new_id()
 
 void free_id(int id)
 {
-  assert(global_state != NULL);
-  assert(global_state->ids != NULL);
-
-  global_state->ids[id] = 0;
+  assert(ids != NULL);
+  ids[id] = 0;
 }
 
 void extract_command(ENetPacket *packet, char **command, char **args)
