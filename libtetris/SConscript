@@ -1,0 +1,10 @@
+Import('env', 'CFLAGS')
+
+sources = ['libtetris.c', 'state.c', 'player.c', 'lua_functions.c']
+LIBS = ['lua-5.1', 'glib-2.0']
+
+for lib in LIBS:
+    env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
+
+libtetris = env.SharedLibrary(target = 'tetris', source = sources, 
+                              CFLAGS = CFLAGS, LIBS = LIBS)

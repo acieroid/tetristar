@@ -10,5 +10,5 @@ for lib in LIBS:
 
 server = env.Program(target = 'server', source = sources,
                      # lua seems to need -lm but its .pc file doesn't say so
-                     CFLAGS = CFLAGS, LIBS = LIBS + ['m'], 
-                     LIBPATH = ['/usr/lib', '/usr/local/lib'])
+                     CFLAGS = CFLAGS, LIBS = LIBS + ['m', 'tetris'], 
+                     LIBPATH = ['/usr/lib', '/usr/local/lib', '../libtetris'])
