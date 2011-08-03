@@ -9,7 +9,8 @@ static const struct {
 } functions_to_export[] = {
   { "players", "add", l_players_add },
   { "players", "set_nick", l_players_set_nick },
-  { "players", "delete", l_players_remove },
+  { "players", "remove", l_players_remove },
+  { "players", "nick_available", l_players_nick_available },
   { NULL, NULL, NULL }
 };
 
@@ -76,4 +77,15 @@ int l_players_remove(lua_State *l)
   player = tetris_player_find(id);
   tetris_player_remove(player);
   return 0;
+}
+
+int l_players_nick_available(lua_State *l)
+{
+  char *nick;
+  luaL_checktype(l, 1, LUA_TSTRING);
+  nick = strdup(lua_tostring(l, 1));
+
+  lua_pushboolean(l, tetris_nick_is_available(nick));
+  free(nick);
+  return 1; /* return a boolean */
 }
