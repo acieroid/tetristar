@@ -16,6 +16,7 @@ end
 
 function connection.disconnect(id)
    tetris.players.remove(id)
+   server.send_to_all("BYE " .. id)
 end
 
 server.register("DISCONNECT", connection.disconnect)

@@ -34,11 +34,15 @@ void plugins_on_action(int type, int id, char *command, char *args)
       nargs = 1;
       lua_pushnumber(LUA_STATE, id);
 
-      if (type == PLUGIN_RECV &&
-          strcmp(plugin->recv_command, command) == 0) {
-        lua_pushstring(LUA_STATE, command);
-        lua_pushstring(LUA_STATE, args);
-        nargs = 3;
+      if (type == PLUGIN_RECV) {
+        if (strcmp(plugin->recv_command, command) == 0) {
+          lua_pushstring(LUA_STATE, command);
+          lua_pushstring(LUA_STATE, args);
+          nargs = 3;
+        }
+        else {
+          continue;
+        }
       }
       if (lua_pcall(LUA_STATE, nargs, 0, 0) != 0)
         WARN("Error when calling a plugin action: %s",
