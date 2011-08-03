@@ -1,5 +1,42 @@
 #include "util.h"
 
+
+inline void WARN(const char *fmt, ...)
+{
+  va_list ap;
+  fprintf(stderr, "[warning]: ");
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+  fprintf(stderr, "\n");
+}
+
+inline void FATAL(const char *fmt, ...)
+{
+  va_list ap;
+  fprintf(stderr, "[fatal]: ");
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
+inline void DBG(const char *fmt, ...)
+{
+#ifdef DEBUG
+  va_list ap;
+  fprintf(stderr, "[debug]: ");
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  va_end(ap);
+  fprintf(stderr, "\n");
+#endif
+}
+
+
+  
+
 int new_id()
 {
   int i, size;
