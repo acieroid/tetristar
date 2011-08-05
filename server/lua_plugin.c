@@ -114,3 +114,4 @@ void lua_plugin_setup_functions()
 
   lua_setglobal(LUA_STATE, "server");
 }
+

@@ -8,6 +8,7 @@ static const struct {
   lua_CFunction fun;
 } functions_to_export[] = {
   { "players", "add", l_players_add },
+  { "players", "get_nick", l_players_get_nick },
   { "players", "set_nick", l_players_set_nick },
   { "players", "remove", l_players_remove },
   { "players", "nick_available", l_players_nick_available },
@@ -48,6 +49,19 @@ int l_players_add(lua_State *l)
   player = tetris_player_new(id);
   tetris_player_add(player);
   return 0;
+}
+
+int l_players_get_nick(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  player = tetris_player_find(id);
+  lua_pushstring(l, tetris_player_get_nick(player));
+  return 1;
 }
 
 int l_players_set_nick(lua_State *l)

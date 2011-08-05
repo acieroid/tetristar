@@ -9,6 +9,5 @@ for lib in LIBS:
     env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
 server = env.Program(target = 'server', source = sources,
-                     # lua seems to need -lm but its .pc file doesn't say so
                      CFLAGS = CFLAGS, LIBS = LIBS + ['m', 'tetris'], 
                      LIBPATH = ['/usr/lib', '/usr/local/lib', '../libtetris'])

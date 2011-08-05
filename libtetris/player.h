@@ -14,6 +14,7 @@ typedef struct TetrisPlayer {
 TetrisPlayer *tetris_player_new(int id);
 void tetris_player_free(TetrisPlayer *player);
 void tetris_player_glib_free(TetrisPlayer *player, void *data);
+char *tetris_player_get_nick(TetrisPlayer *player);
 void tetris_player_set_nick(TetrisPlayer *player, char *nick);
 TetrisPlayer *tetris_player_find(int id);
 

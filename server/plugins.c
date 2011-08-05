@@ -41,9 +41,11 @@ void plugins_on_action(int type, int id, char *command, char *args)
           nargs = 3;
         }
         else {
+          lua_pop(LUA_STATE, 2); /* leave the stack as it was before this iteration */
           continue;
         }
       }
+      printf("Executing a %d plugin for %s\n", type, command);
       if (lua_pcall(LUA_STATE, nargs, 0, 0) != 0)
         WARN("Error when calling a plugin action: %s",
              lua_tostring(LUA_STATE, -1));

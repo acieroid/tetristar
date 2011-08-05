@@ -20,6 +20,12 @@ void tetris_player_glib_free(TetrisPlayer *player, void *data)
   tetris_player_free(player);
 }
 
+char *tetris_player_get_nick(TetrisPlayer *player)
+{
+  assert(player != NULL);
+  return player->nick;
+}
+
 void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 {
   assert(player != NULL);
