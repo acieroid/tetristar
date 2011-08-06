@@ -2,7 +2,13 @@
 #include <string.h>
 #include <pthread.h>
 #include <enet/enet.h>
-#include <sys/wait.h>
+#include <signal.h>
+
+void sigchld_handler(int signum)
+{
+  printf("Exiting client\n");
+  exit(0);
+}
 
 int main()
 {
@@ -14,6 +20,8 @@ int main()
   int connected;
   char string[1024];
   pid_t pid;
+
+  signal(SIGCHLD, sigchld_handler);
 
   /* create client */
   client = enet_host_create(NULL,
@@ -63,18 +71,6 @@ int main()
     }
     /* disconnect client */
     enet_peer_disconnect(peer, 0);
-    while (enet_host_service(client, &event, 3000) > 0) {
-      if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-        printf("Reader disconnected\n");
-        connected = 0;
-        break;
-      }
-    }
-
-    if (connected)
-      /* force the deconnection */
-      enet_peer_reset(peer);
-
     enet_host_destroy(client);
   }
   else {
@@ -83,11 +79,10 @@ int main()
       if (event.type == ENET_EVENT_TYPE_RECEIVE)
         printf("> %s\n", event.packet->data);
       if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-        printf("Listener disconnected\n");
+        exit(0);
         break;
       }
     }
-    wait(NULL);
   }
   return 0;
 }
