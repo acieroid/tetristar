@@ -23,10 +23,10 @@ void network_init()
 
   NETWORK->server = enet_host_create(&address, max_clients, 0, 0);
   assert(NETWORK->server != NULL);
+  DBG("Listening on %s:%d", server, port);
 
   NETWORK->clients = NULL;
-
-  DBG("Listening on %s:%d", server, port);
+  free(server);
 }
 
 void network_deinit()
