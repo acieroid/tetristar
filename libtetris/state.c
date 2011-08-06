@@ -11,7 +11,8 @@ void tetris_state_init()
 
 void tetris_state_deinit()
 {
+  printf("tetris_state_deinit\n");
   assert(state != NULL);
-  g_slist_foreach(state->players, (GFunc) tetris_player_glib_free, NULL);
+  g_slist_free_full(state->players, (GDestroyNotify) tetris_player_free);
   free(state);
 }

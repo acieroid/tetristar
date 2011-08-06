@@ -27,7 +27,7 @@ typedef struct LuaPlugin {
 } LuaPlugin;
 
 void lua_plugin_load(const char *file, void *data);
-void lua_plugin_free(LuaPlugin *plugin, void *data);
+void lua_plugin_free(LuaPlugin *plugin);
 void lua_plugin_register(PluginType type, char *recv_command, LuaFunction function);
 void lua_plugin_setup_functions();
 

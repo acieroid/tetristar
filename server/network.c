@@ -33,8 +33,10 @@ void network_deinit()
 {
   assert(NETWORK != NULL);
   DBG("Stopping server");
+  g_slist_free_full(NETWORK->clients, (GDestroyNotify) free);
   enet_host_destroy(NETWORK->server);
   enet_deinitialize();
+  free(NETWORK);
 }
 
 void network_add_client(Client *client)

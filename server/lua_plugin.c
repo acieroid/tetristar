@@ -9,9 +9,10 @@ void lua_plugin_load(const char *file, void *data)
   DBG("Lua plugin %s loaded", file);
 }
 
-void lua_plugin_free(LuaPlugin *plugin, void *data)
+void lua_plugin_free(LuaPlugin *plugin)
 {
   assert(plugin != NULL);
+  DBG("plugin_free");
   if (plugin->recv_command != NULL)
     free(plugin->recv_command);
   luaL_unref(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
@@ -21,6 +22,7 @@ void lua_plugin_free(LuaPlugin *plugin, void *data)
 void lua_plugin_register(PluginType type, char *recv_command, LuaFunction function)
 {
   LuaPlugin *plugin = malloc(sizeof(*plugin));
+  DBG("plugin_new");
   assert(plugin != NULL);
 
   plugin->type = type;
@@ -57,6 +59,7 @@ int l_register(lua_State *l)
     WARN("Unknown plugin type: %s", type_descr);
     return 0;
   }
+  free(type_descr);
 
   luaL_checktype(l, 2, LUA_TFUNCTION);
   lua_pushvalue(l, 2);

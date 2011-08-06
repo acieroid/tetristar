@@ -2,19 +2,22 @@
 
 void plugins_init()
 {
+  GSList *plugins;
   global_state->plugins = NULL;
 
   /* setup functions */
   lua_plugin_setup_functions();
 
   /* load plugins */
+  plugins = config_get_list("plugins", NULL);;
   g_slist_foreach(config_get_list("plugins", NULL),
                   (GFunc) lua_plugin_load, NULL);
+  g_slist_free_full(plugins, (GDestroyNotify) free);
 }
 
 void plugins_deinit()
 {
-  g_slist_foreach(PLUGINS, (GFunc) lua_plugin_free, NULL);
+  g_slist_free_full(PLUGINS, (GDestroyNotify) lua_plugin_free);
 }
 
 void plugins_on_action(int type, int id, char *command, char *args)
