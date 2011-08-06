@@ -2,7 +2,6 @@
 
 TetrisPlayer *tetris_player_new(int id)
 {
-  printf("[tetris] player_new\n");
   TetrisPlayer *player = malloc(sizeof(*player));
   player->id = id;
   player->nick = NULL;
@@ -11,7 +10,6 @@ TetrisPlayer *tetris_player_new(int id)
 
 void tetris_player_free(TetrisPlayer *player)
 {
-  printf("[tetris] player_free\n");
   assert(player != NULL);
   if (player->nick != NULL)
     free(player->nick);
@@ -22,6 +20,12 @@ char *tetris_player_get_nick(TetrisPlayer *player)
 {
   assert(player != NULL);
   return player->nick;
+}
+
+int tetris_player_get_id(TetrisPlayer *player)
+{
+  assert(player != NULL);
+  return player->id;
 }
 
 void tetris_player_set_nick(TetrisPlayer *player, char *nick)
@@ -72,4 +76,9 @@ TetrisPlayer *tetris_player_find(int id)
       return player;
   }
   return NULL;
+}
+
+GSList *tetris_player_all()
+{
+  return state->players;
 }

@@ -7,6 +7,7 @@ static const struct {
   char *name;
   lua_CFunction fun;
 } functions_to_export[] = {
+  { "players", "all", l_players_all },
   { "players", "add", l_players_add },
   { "players", "get_nick", l_players_get_nick },
   { "players", "set_nick", l_players_set_nick },
@@ -40,10 +41,27 @@ void tetris_setup_lua(lua_State *l)
   lua_setglobal(l, "tetris");
 }
 
+int l_players_all(lua_State *l)
+{
+  GSList *elem;
+  TetrisPlayer *player;
+  int i = 1;
+
+  lua_newtable(l);
+  for (elem = tetris_player_all(); elem != NULL; elem = elem->next) {
+    player = elem->data;
+    lua_pushnumber(l, tetris_player_get_id(player));
+    lua_rawseti(l, -2, i);
+    i++;
+  }
+  return 1;
+}
+
 int l_players_add(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
@@ -70,7 +88,7 @@ int l_players_set_nick(lua_State *l)
   int id;
   char *nick;
   TetrisPlayer *player;
-  
+
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
   luaL_checktype(l, 2, LUA_TSTRING);
@@ -97,6 +115,7 @@ int l_players_remove(lua_State *l)
 int l_players_nick_available(lua_State *l)
 {
   char *nick;
+
   luaL_checktype(l, 1, LUA_TSTRING);
   nick = strdup(lua_tostring(l, 1));
 
@@ -108,6 +127,7 @@ int l_players_nick_available(lua_State *l)
 int l_players_exists(lua_State *l)
 {
   int id;
+
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 

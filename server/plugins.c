@@ -43,7 +43,8 @@ void plugins_on_action(int type, int id, char *command, char *args)
           nargs = 3;
         }
         else {
-          lua_pop(LUA_STATE, 2); /* leave the stack as it was before this iteration */
+          /* leave the stack as it was before this iteration */
+          lua_pop(LUA_STATE, 2);
           continue;
         }
       }
