@@ -79,6 +79,7 @@ int main()
       if (event.type == ENET_EVENT_TYPE_RECEIVE)
         printf("> %s\n", event.packet->data);
       if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
+        printf("Exiting client\n");
         exit(0);
         break;
       }
@@ -86,4 +87,3 @@ int main()
   }
   return 0;
 }
-    

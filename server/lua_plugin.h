@@ -34,6 +34,7 @@ void lua_plugin_setup_functions();
 int l_register(lua_State *l);
 int l_send(lua_State *l);
 int l_send_to_all(lua_State *l);
+int l_get_password(lua_State *l);
 
 static const struct {
   char *name;
@@ -42,7 +43,8 @@ static const struct {
   { "register", l_register },
   { "send", l_send },
   { "send_to_all", l_send_to_all },
-  {NULL, NULL}
+  { "get_password", l_get_password },
+  { NULL, NULL }
 };
 
 #endif /* LUA_PLUGIN_H */

@@ -5,6 +5,7 @@ TetrisPlayer *tetris_player_new(int id)
   TetrisPlayer *player = malloc(sizeof(*player));
   player->id = id;
   player->nick = NULL;
+  player->admin = 0;
   return player;
 }
 
@@ -22,12 +23,6 @@ char *tetris_player_get_nick(TetrisPlayer *player)
   return player->nick;
 }
 
-int tetris_player_get_id(TetrisPlayer *player)
-{
-  assert(player != NULL);
-  return player->id;
-}
-
 void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 {
   assert(player != NULL);
@@ -36,6 +31,24 @@ void tetris_player_set_nick(TetrisPlayer *player, char *nick)
   if (player->nick != NULL)
     free(player->nick);
   player->nick = nick;
+}
+
+int tetris_player_get_id(TetrisPlayer *player)
+{
+  assert(player != NULL);
+  return player->id;
+}
+
+int tetris_is_admin(TetrisPlayer *player)
+{
+  assert(player != NULL);
+  return player->admin;
+}
+
+void tetris_set_admin(TetrisPlayer *player)
+{
+  assert(player != NULL);
+  player->admin = 1;
 }
 
 int tetris_nick_is_available(char *nick)

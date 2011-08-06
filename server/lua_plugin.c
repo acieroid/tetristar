@@ -36,6 +36,21 @@ void lua_plugin_register(PluginType type, char *recv_command, LuaFunction functi
     DBG("Plugin of type DISCONNECT registered");
 }
 
+void lua_plugin_setup_functions()
+{
+  int i;
+  /* embed functions in a table */
+  lua_newtable(LUA_STATE);
+
+  for (i = 0; functions_to_export[i].fun != NULL; i++) {
+    /* set server.function_name */
+    lua_pushcfunction(LUA_STATE, functions_to_export[i].fun);
+    lua_setfield(LUA_STATE, -2, functions_to_export[i].name);
+  }
+
+  lua_setglobal(LUA_STATE, "server");
+}
+
 int l_register(lua_State *l)
 {
   int type;
@@ -101,18 +116,11 @@ int l_send_to_all(lua_State *l)
   return 0;
 }
 
-void lua_plugin_setup_functions()
+int l_get_password(lua_State *l)
 {
-  int i;
-  /* embed functions in a table */
-  lua_newtable(LUA_STATE);
-
-  for (i = 0; functions_to_export[i].fun != NULL; i++) {
-    /* set server.function_name */
-    lua_pushcfunction(LUA_STATE, functions_to_export[i].fun);
-    lua_setfield(LUA_STATE, -2, functions_to_export[i].name);
-  }
-
-  lua_setglobal(LUA_STATE, "server");
+  char *password = (char *) config_get_string("password", "foo");
+  lua_pushstring(l, password);
+  free(password);
+  return 1;
 }
-
+  
