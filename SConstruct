@@ -12,4 +12,4 @@ Export('env', 'CFLAGS')
 
 SConscript('libtetris/SConscript')
 SConscript('server/SConscript')
-SConscript('client/SConscript')
+SConscript('clients/SConscript')

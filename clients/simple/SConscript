@@ -2,5 +2,5 @@ Import('env', 'CFLAGS')
 
 sources = ['simple.c', '/usr/local/lib/libenet.a']
 
-client = env.Program(target = 'client', source = sources,
+client = env.Program(target = 'simple', source = sources,
                      CFLAGS = CFLAGS);
