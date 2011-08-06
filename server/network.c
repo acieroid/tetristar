@@ -4,13 +4,13 @@ void network_init()
 {
   ENetAddress address;
   int status, port, max_clients;
-  const char *server;
+  char *server;
 
   assert(global_state != NULL);
   NETWORK = malloc(sizeof(*NETWORK));
   assert(NETWORK != NULL);
 
-  server = config_get_string("server", default_server);
+  server = (char *) config_get_string("server", default_server);
   port = config_get_int("port", default_port);
   max_clients = config_get_int("max_clients", default_max_clients);
 
@@ -33,7 +33,10 @@ void network_deinit()
 {
   assert(NETWORK != NULL);
   DBG("Stopping server");
-  g_slist_free_full(NETWORK->clients, (GDestroyNotify) free);
+  /* ENet's documentation doesn't say anything about how to properly 
+    delete an ENetPeer, and using free on them results in a segfault,
+    so we just don't do anything */
+  g_slist_free(NETWORK->clients);
   enet_host_destroy(NETWORK->server);
   enet_deinitialize();
   free(NETWORK);

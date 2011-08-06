@@ -12,6 +12,7 @@ static const struct {
   { "players", "set_nick", l_players_set_nick },
   { "players", "remove", l_players_remove },
   { "players", "nick_available", l_players_nick_available },
+  { "players", "exists", l_players_exists },
   { NULL, NULL, NULL }
 };
 
@@ -102,4 +103,14 @@ int l_players_nick_available(lua_State *l)
   lua_pushboolean(l, tetris_nick_is_available(nick));
   free(nick);
   return 1; /* return a boolean */
+}
+
+int l_players_exists(lua_State *l)
+{
+  int id;
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  lua_pushboolean(l, tetris_player_find(id) != NULL);
+  return 1;
 }

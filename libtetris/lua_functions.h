@@ -14,5 +14,6 @@ int l_players_get_nick(lua_State *l);
 int l_players_set_nick(lua_State *l);
 int l_players_remove(lua_State *l);
 int l_players_nick_available(lua_State *l);
+int l_players_exists(lua_State *l);
 
 #endif /* LIBTETRIS_LUA_FUNCTIONS_H */
