@@ -38,7 +38,7 @@ int config_get_int(const char *name, int def)
 
 const char *config_get_string(const char *name, const char *def)
 {
-  char *res = def;
+  char *res = (char *) def;
   lua_getglobal(LUA_STATE, "config");
   lua_getfield(LUA_STATE, -1, name);
 
@@ -46,7 +46,7 @@ const char *config_get_string(const char *name, const char *def)
   case LUA_TNIL:
     break;
   case LUA_TSTRING:
-    res = lua_tostring(LUA_STATE, -1);
+    res = (char *) lua_tostring(LUA_STATE, -1);
     break;
   default:
     WARN("%s should be a string, using default value (%s)", name, def);
@@ -73,7 +73,7 @@ GSList *config_get_list(const char *name, GSList *def)
     for (i = 1; i <= size; i++) {
       lua_rawgeti(LUA_STATE, -1, i);
       if (lua_isstring(LUA_STATE, -1))
-        res = g_slist_prepend(res, (void *) lua_tostring(LUA_STATE, -1));
+        res = g_slist_prepend(res, (void *) strdup(lua_tostring(LUA_STATE, -1)));
       else
         WARN("The element %d of %s should be a string, ignoring it", i, name);
       lua_pop(LUA_STATE, 1);

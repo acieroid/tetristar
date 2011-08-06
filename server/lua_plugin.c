@@ -12,7 +12,6 @@ void lua_plugin_load(const char *file, void *data)
 void lua_plugin_free(LuaPlugin *plugin)
 {
   assert(plugin != NULL);
-  DBG("plugin_free");
   if (plugin->recv_command != NULL)
     free(plugin->recv_command);
   luaL_unref(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
@@ -22,7 +21,6 @@ void lua_plugin_free(LuaPlugin *plugin)
 void lua_plugin_register(PluginType type, char *recv_command, LuaFunction function)
 {
   LuaPlugin *plugin = malloc(sizeof(*plugin));
-  DBG("plugin_new");
   assert(plugin != NULL);
 
   plugin->type = type;

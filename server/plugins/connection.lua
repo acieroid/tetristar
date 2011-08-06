@@ -4,7 +4,6 @@ connection = {}
 function connection.hello(id, command, args)
    nick = args
    if tetris.players.nick_available(nick) then
-      print("Player " .. id .. " nicked as " .. nick)
       tetris.players.add(id)
       tetris.players.set_nick(id, nick)
       server.send(id, "HELLO " .. id .. " " .. nick)
