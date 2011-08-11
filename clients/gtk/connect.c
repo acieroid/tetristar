@@ -39,21 +39,27 @@ void connect_class_init(ConnectClass *klass)
                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 }
 
+void connect_emit(GtkWidget *widget, void *data)
+{
+  Connect *connect = (Connect *) data;
+  g_signal_emit(connect, connect_signals[CONNECTED_SIGNAL], 0);
+}
+
 void connect_init(Connect *connect)
 {
   gtk_box_set_homogeneous(GTK_BOX(connect), TRUE);
   gtk_box_set_spacing(GTK_BOX(connect), 1);
 
-  connect->username_hbox = gtk_hbox_new(TRUE, 1);
-  connect->username_label = gtk_label_new("Username");
-  connect->username_entry = gtk_entry_new();
-  gtk_label_set_mnemonic_widget(GTK_LABEL(connect->username_label),
-                                connect->username_entry);
-  gtk_box_pack_start(GTK_BOX(connect->username_hbox), connect->username_label,
+  connect->nick_hbox = gtk_hbox_new(TRUE, 1);
+  connect->nick_label = gtk_label_new("Nick");
+  connect->nick_entry = gtk_entry_new();
+  gtk_label_set_mnemonic_widget(GTK_LABEL(connect->nick_label),
+                                connect->nick_entry);
+  gtk_box_pack_start(GTK_BOX(connect->nick_hbox), connect->nick_label,
                      TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(connect->username_hbox), connect->username_entry,
+  gtk_box_pack_start(GTK_BOX(connect->nick_hbox), connect->nick_entry,
                      TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(connect), connect->username_hbox, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(connect), connect->nick_hbox, TRUE, TRUE, 0);
 
   connect->server_hbox = gtk_hbox_new(TRUE, 1);
   connect->server_label = gtk_label_new("Server");
@@ -68,9 +74,23 @@ void connect_init(Connect *connect)
 
   connect->button = gtk_button_new_with_label("Connect");
   gtk_box_pack_start(GTK_BOX(connect), connect->button, TRUE, TRUE, 0);
+
+  g_signal_connect(G_OBJECT(connect->button), "clicked",
+                   G_CALLBACK(connect_emit), (void *) connect);
 }
 
 GtkWidget *connect_new(void)
 {
   return GTK_WIDGET(g_object_new(CONNECT_TYPE, NULL));
 }
+
+const gchar *connect_get_nick(Connect *connect)
+{
+  return gtk_entry_get_text(GTK_ENTRY(connect->nick_entry));
+}
+
+const gchar *connect_get_server(Connect *connect)
+{
+  return gtk_entry_get_text(GTK_ENTRY(connect->server_entry));
+}
+

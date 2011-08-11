@@ -4,6 +4,12 @@
 
 #include "connect.h"
 
+void foo(GtkWidget *connect, void *data)
+{
+  printf("%s - %s\n", connect_get_nick(CONNECT(connect)),
+         connect_get_server(CONNECT(connect)));
+}
+
 int main(int argc, char *argv[])
 {
   GtkWidget *window;
@@ -17,6 +23,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(gtk_main_quit), NULL);
 
   connect = connect_new();
+  g_signal_connect(G_OBJECT(connect), "connect",
+                   G_CALLBACK(foo), NULL);
   gtk_container_add(GTK_CONTAINER(window), connect);
 
   gtk_widget_show_all(window);

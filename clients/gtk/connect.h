@@ -20,7 +20,7 @@ G_BEGIN_DECLS
 typedef struct Connect {
   GtkVBox vbox;
 
-  GtkWidget *username_hbox, *username_label, *username_entry;
+  GtkWidget *nick_hbox, *nick_label, *nick_entry;
   GtkWidget *server_hbox, *server_label, *server_entry;
   GtkWidget *button;
 } Connect;
@@ -33,6 +33,8 @@ typedef struct ConnectClass {
 
 GType connect_get_type(void);
 GtkWidget *connect_new(void);
+const gchar *connect_get_nick(Connect *connect);
+const gchar *connect_get_server(Connect *connect);
 
 G_END_DECLS
 
