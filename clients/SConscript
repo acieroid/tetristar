@@ -1,1 +1,2 @@
 SConscript(['simple/SConscript'])
+SConscript(['gtk/SConscript'])
