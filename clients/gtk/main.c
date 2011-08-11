@@ -6,8 +6,8 @@
 
 void foo(GtkWidget *connect, void *data)
 {
-  printf("%s - %s\n", connect_get_nick(CONNECT(connect)),
-         connect_get_server(CONNECT(connect)));
+  printf("%s @ %s:%d\n", connect_get_nick(CONNECT(connect)),
+         connect_get_server(CONNECT(connect)), connect_get_port(CONNECT(connect)));
 }
 
 int main(int argc, char *argv[])

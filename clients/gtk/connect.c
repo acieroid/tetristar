@@ -64,6 +64,7 @@ void connect_init(Connect *connect)
   connect->server_hbox = gtk_hbox_new(TRUE, 1);
   connect->server_label = gtk_label_new("Server");
   connect->server_entry = gtk_entry_new();
+  gtk_entry_set_text(GTK_ENTRY(connect->server_entry), DEFAULT_SERVER);
   gtk_label_set_mnemonic_widget(GTK_LABEL(connect->server_label),
                                 connect->server_entry);
   gtk_box_pack_start(GTK_BOX(connect->server_hbox), connect->server_label,
@@ -72,11 +73,22 @@ void connect_init(Connect *connect)
                      TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(connect), connect->server_hbox, TRUE, TRUE, 0);
 
-  connect->button = gtk_button_new_with_label("Connect");
-  gtk_box_pack_start(GTK_BOX(connect), connect->button, TRUE, TRUE, 0);
+  connect->port_hbox = gtk_hbox_new(TRUE, 1);
+  connect->port_label = gtk_label_new("Port");
+  connect->port_spin = gtk_spin_button_new_with_range(0, (2 << 16) - 1, 1);
+  gtk_spin_button_set_value(GTK_SPIN_BUTTON(connect->port_spin), DEFAULT_PORT);
+  gtk_label_set_mnemonic_widget(GTK_LABEL(connect->port_label),
+                                connect->port_spin);
+  gtk_box_pack_start(GTK_BOX(connect->port_hbox), connect->port_label,
+                     TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(connect->port_hbox), connect->port_spin,
+                     TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(connect), connect->port_hbox, TRUE, TRUE, 0);
 
+  connect->button = gtk_button_new_with_label("Connect");
   g_signal_connect(G_OBJECT(connect->button), "clicked",
                    G_CALLBACK(connect_emit), (void *) connect);
+  gtk_box_pack_start(GTK_BOX(connect), connect->button, TRUE, TRUE, 0);
 }
 
 GtkWidget *connect_new(void)
@@ -94,3 +106,7 @@ const gchar *connect_get_server(Connect *connect)
   return gtk_entry_get_text(GTK_ENTRY(connect->server_entry));
 }
 
+int connect_get_port(Connect *connect)
+{
+  return gtk_spin_button_get_value(GTK_SPIN_BUTTON(connect->port_spin));
+}
