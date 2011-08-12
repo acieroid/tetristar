@@ -1,13 +1,18 @@
 #include <stdlib.h>
-
+#include <pthread.h>
 #include <gtk/gtk.h>
 
+#include "network.h"
 #include "connect.h"
 
-void foo(GtkWidget *connect, void *data)
+void launch_network(GtkWidget *widget, void *data)
 {
-  printf("%s @ %s:%d\n", connect_get_nick(CONNECT(connect)),
-         connect_get_server(CONNECT(connect)), connect_get_port(CONNECT(connect)));
+  pthread_t thread;
+  Connect *connect = CONNECT(widget);
+  Network *network = network_new(connect_get_server(connect),
+                                 connect_get_port(connect),
+                                 connect_get_nick(connect));
+  pthread_create(&thread, NULL, (PthreadFunc) network_loop, (void *) network);
 }
 
 int main(int argc, char *argv[])
@@ -24,7 +29,7 @@ int main(int argc, char *argv[])
 
   connect = connect_new();
   g_signal_connect(G_OBJECT(connect), "connect",
-                   G_CALLBACK(foo), NULL);
+                   G_CALLBACK(launch_network), NULL);
   gtk_container_add(GTK_CONTAINER(window), connect);
 
   gtk_widget_show_all(window);
