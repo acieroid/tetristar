@@ -24,10 +24,11 @@ int main()
   signal(SIGCHLD, sigchld_handler);
 
   /* create client */
-  client = enet_host_create(NULL,
-                            1,
-                            57600 / 8,
-                            14400 / 8);
+  client = enet_host_create(NULL, 1,
+#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+                            2,
+#endif
+                            0, 0);
   if (client == NULL) {
     fprintf(stderr, "Can't create client\n");
     exit(1);
@@ -37,7 +38,11 @@ int main()
   enet_address_set_host(&address, "localhost");
   address.port = 12345;
 
-  peer = enet_host_connect(client, &address, 2);
+  peer = enet_host_connect(client, &address, 2
+#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+                           , 0
+#endif
+                          );
 
   if (peer == NULL) {
     fprintf(stderr, "Can't create peer\n");

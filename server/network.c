@@ -21,7 +21,11 @@ void network_init()
   enet_address_set_host(&address, server);
   address.port = port;
 
-  NETWORK->server = enet_host_create(&address, max_clients, 0, 0);
+  NETWORK->server = enet_host_create(&address, max_clients, 
+#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+                                     2, 
+#endif
+                                     0, 0);
   assert(NETWORK->server != NULL);
   DBG("Listening on %s:%d", server, port);
 
@@ -81,6 +85,7 @@ void network_loop()
       break;
     case ENET_EVENT_TYPE_RECEIVE:
       extract_command(event.packet, &command, &args);
+      printf("Data received: '%s' - '%s'\n", command, args);
       plugins_on_action(PLUGIN_RECV, (int) event.peer->data, command, args);
       free(command);
       free(args);

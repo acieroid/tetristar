@@ -5,7 +5,12 @@ Network *network_new(const gchar *server, int port, const gchar *nick)
   Network *network = malloc(sizeof(*network));
   assert(network != NULL);
 
-  network->client = enet_host_create(NULL, 1, 57600/8, 14400/8);
+  network->client = enet_host_create(NULL, 1, 
+#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+                                     2, 
+#endif
+                                     0, 0);
+
   assert(network->client != NULL);
 
   enet_address_set_host(&(network->address), server);
@@ -33,7 +38,12 @@ void network_connect(Network *network)
   assert(network != NULL);
 
   if (network->peer == NULL)
-    network->peer = enet_host_connect(network->client, &(network->address), 2);
+    network->peer = 
+        enet_host_connect(network->client, &(network->address), 2
+#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+                          , 0
+#endif
+                          );
 
   assert(network->peer != NULL);
 
