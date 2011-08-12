@@ -81,4 +81,6 @@ void network_loop(Network *network)
       break;
     }
   }
+  /* we're disconnected, so we can free the structure */
+  network_free(network);
 }
