@@ -1,0 +1,7 @@
+Import('env', 'CFLAGS')
+
+sources = ['simple.c']
+LIBS = ['enet']
+
+client = env.Program(target = 'simple', source = sources,
+                     CFLAGS = CFLAGS, LIBS = LIBS);
