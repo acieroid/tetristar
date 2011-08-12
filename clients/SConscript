@@ -1,2 +1,8 @@
-SConscript(['simple/SConscript'])
-SConscript(['gtk/SConscript'])
+Import('LINUX')
+subdirs = ['simple', 'gtk']
+suffix = '/SConscript'
+
+if LINUX == '1':
+    suffix += '.linux'
+
+SConscript(map(lambda dir: dir+suffix, subdirs))
