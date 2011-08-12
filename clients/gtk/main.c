@@ -15,6 +15,12 @@ void launch_network(GtkWidget *widget, void *data)
   pthread_create(&thread, NULL, (PthreadFunc) network_loop, (void *) network);
 }
 
+void remove_connect(GtkWidget *connect, void *data)
+{
+  GtkWidget *container = (GtkWidget *) data;
+  gtk_container_remove(GTK_CONTAINER(container), connect);
+}
+
 int main(int argc, char *argv[])
 {
   GtkWidget *window;
@@ -30,6 +36,8 @@ int main(int argc, char *argv[])
   connect = connect_new();
   g_signal_connect(G_OBJECT(connect), "connect",
                    G_CALLBACK(launch_network), NULL);
+  g_signal_connect(G_OBJECT(connect), "connect",
+                   G_CALLBACK(remove_connect), window);
   gtk_container_add(GTK_CONTAINER(window), connect);
 
   gtk_widget_show_all(window);
