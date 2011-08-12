@@ -111,7 +111,6 @@ void network_send(Client *client, const char *string)
                               ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(client, 0, packet);
   enet_host_flush(NETWORK->server);
-  enet_packet_destroy(packet);
 }
 
 void network_send_to_all(const char *string)
