@@ -38,7 +38,7 @@ int config_get_int(const char *name, int def)
 
 const char *config_get_string(const char *name, const char *def)
 {
-  char *res = (char *) strdup(def);
+  char *res = strdup(def);
   lua_getglobal(LUA_STATE, "config");
   lua_getfield(LUA_STATE, -1, name);
 
@@ -46,7 +46,8 @@ const char *config_get_string(const char *name, const char *def)
   case LUA_TNIL:
     break;
   case LUA_TSTRING:
-    res = (char *) strdup(lua_tostring(LUA_STATE, -1));
+    free(res);
+    res = strdup(lua_tostring(LUA_STATE, -1));
     break;
   default:
     WARN("%s should be a string, using default value (%s)", name, def);
