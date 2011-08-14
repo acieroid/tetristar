@@ -45,6 +45,8 @@ void chat_init(Chat *chat)
   gtk_box_set_spacing(GTK_BOX(chat), 1);
 
   chat->text_view = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(chat->text_view), FALSE);
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_box_pack_start(GTK_BOX(chat), chat->text_view, TRUE, TRUE, 0);
 
   chat->entry = gtk_entry_new();
@@ -56,7 +58,19 @@ GtkWidget *chat_new(void)
   return GTK_WIDGET(g_object_new(CHAT_TYPE, NULL));
 }
 
-void chat_add_line(GtkWidget *chat, const gchar *nick, const gchar *line)
+void chat_add_line(GtkWidget *widget, const gchar *nick, const gchar *line)
 {
-  /* TODO */
+  gchar *text;
+  GtkTextIter end;
+  Chat *chat;
+  GtkTextBuffer *buffer;
+
+  text = g_strdup_printf("<%s> %s\n", nick, line);
+
+  chat = CHAT(widget);
+  buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat->text_view));
+  gtk_text_buffer_get_end_iter(buffer, &end);
+  gtk_text_buffer_insert(buffer, &end, text, -1);
+
+  g_free(text);
 }
