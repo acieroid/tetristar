@@ -21,7 +21,7 @@ void network_init()
   address.port = port;
 
   NETWORK->server = enet_host_create(&address, max_clients, 
-#if HAS_RECENT_ENET
+#ifdef HAS_RECENT_ENET
                                      2, 
 #endif
                                      0, 0);

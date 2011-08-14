@@ -22,7 +22,6 @@ int main()
   ENetEvent event;
   ENetPeer *peer;
   ENetPacket *packet;
-  int connected;
   char string[1024];
   pid_t pid;
 
@@ -30,7 +29,7 @@ int main()
 
   /* create client */
   client = enet_host_create(NULL, 1,
-#if HAS_RECENT_ENET
+#ifdef HAS_RECENT_ENET
                             2,
 #endif
                             0, 0);
@@ -44,7 +43,7 @@ int main()
   address.port = 12345;
 
   peer = enet_host_connect(client, &address, 2
-#if HAS_RECENT_ENET
+#ifdef HAS_RECENT_ENET
                            , 0
 #endif
                           );
@@ -57,7 +56,6 @@ int main()
   if (enet_host_service(client, &event, 5000) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {
     printf("Connected\n");
-    connected = 1;
   }
   else {
     fprintf(stderr, "Connection failed\n");

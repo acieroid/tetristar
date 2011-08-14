@@ -3,12 +3,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <gtk/gtkvbox.h>
-#include <gtk/gtkhbox.h>
-#include <gtk/gtklabel.h>
-#include <gtk/gtkentry.h>
-#include <gtk/gtkbutton.h>
-#include <gtk/gtkspinbutton.h>
+#include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
