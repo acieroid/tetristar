@@ -22,7 +22,7 @@ GType chat_get_type(void)
       (GInstanceInitFunc) chat_init,
     };
 
-    chat_type = g_type_register_static(GTK_TYPE_VBOX, "Chat",
+    chat_type = g_type_register_static(GTK_TYPE_TABLE, "Chat",
                                        &chat_info, 0);
   }
 
@@ -41,16 +41,17 @@ void chat_class_init(ChatClass *klass)
 
 void chat_init(Chat *chat)
 {
-  gtk_box_set_homogeneous(GTK_BOX(chat), TRUE);
-  gtk_box_set_spacing(GTK_BOX(chat), 1);
+  gtk_table_resize(GTK_TABLE(chat), 3, 3);
 
   chat->text_view = gtk_text_view_new();
   gtk_text_view_set_editable(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat->text_view), FALSE);
-  gtk_box_pack_start(GTK_BOX(chat), chat->text_view, TRUE, TRUE, 0);
+  gtk_table_attach(GTK_TABLE(chat), chat->text_view, 0, 1, 0, 1,
+                   GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
 
   chat->entry = gtk_entry_new();
-  gtk_box_pack_start(GTK_BOX(chat), chat->entry, TRUE, TRUE, 0);
+  gtk_table_attach(GTK_TABLE(chat), chat->entry, 0, 1, 1, 2,
+                   GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 }
 
 GtkWidget *chat_new(void)

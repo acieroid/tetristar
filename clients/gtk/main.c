@@ -32,7 +32,7 @@ void connected_layout(GtkWidget *widget, void *data)
   gtk_container_remove(GTK_CONTAINER(window->window), window->connect);
   gtk_container_add(GTK_CONTAINER(window->window), window->chat);
   gtk_widget_show_all(window->chat);
-  chat_add_line(CHAT(window->chat), "system", "Connected.");
+  chat_add_line(window->chat, "system", "Connected.");
 }
 
 void disconnected_layout(GtkWidget *widget, void *data)

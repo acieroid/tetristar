@@ -14,13 +14,13 @@ G_BEGIN_DECLS
 #define IS_CHAT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE(klass), CHAT_TYPE)
 
 typedef struct Chat {
-  GtkVBox vbox;
+  GtkTable table;
   GtkWidget *text_view;
   GtkWidget *entry;
 } Chat;
 
 typedef struct ChatClass {
-  GtkVBoxClass parent_class;
+  GtkTableClass parent_class;
 
   void (* chat) (Chat *chat);
 } ChatClass;
