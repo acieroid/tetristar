@@ -11,6 +11,14 @@
 #include "config.h"
 #include "util.h"
 
+#ifdef ENET_VERSION
+  /* Before ENet 1.3, ENET_VERSION was an enum value, and since ENet
+     1.3 it's defined as a macro. Since ENet 1.3 isn't compatible with
+     older versions, we'd like to know if we're using a "recent"
+     version of ENet (ie. >= 1.3) */
+  #define HAS_RECENT_ENET
+#endif
+
 typedef ENetPeer Client;
 
 void network_init();

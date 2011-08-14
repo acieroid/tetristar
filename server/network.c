@@ -14,7 +14,6 @@ void network_init()
   port = config_get_int("port", default_port);
   max_clients = config_get_int("max_clients", default_max_clients);
 
-
   status = enet_initialize();
   assert(status == 0);
 
@@ -22,7 +21,7 @@ void network_init()
   address.port = port;
 
   NETWORK->server = enet_host_create(&address, max_clients, 
-#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+#if HAS_RECENT_ENET
                                      2, 
 #endif
                                      0, 0);

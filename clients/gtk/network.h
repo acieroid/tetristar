@@ -11,6 +11,12 @@
 
 #define WAIT_TIME_FOR_CONNECTION 5000
 
+#ifdef ENET_VERSION
+  /* See server/network.h for an explanation of this */
+  #define HAS_RECENT_ENET
+#endif
+
+
 typedef struct Network {
   ENetHost *client;
   ENetAddress address;

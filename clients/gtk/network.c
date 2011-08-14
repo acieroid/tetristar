@@ -6,7 +6,7 @@ Network *network_new(const gchar *server, int port, const gchar *nick)
   assert(network != NULL);
 
   network->client = enet_host_create(NULL, 1, 
-#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+#ifdef HAS_RECENT_ENET
                                      2, 
 #endif
                                      0, 0);
@@ -40,7 +40,7 @@ void network_connect(Network *network)
   if (network->peer == NULL)
     network->peer = 
         enet_host_connect(network->client, &(network->address), 2
-#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+#ifdef HAS_RECENT_ENET 
                           , 0
 #endif
                           );

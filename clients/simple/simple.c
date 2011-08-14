@@ -4,6 +4,11 @@
 #include <enet/enet.h>
 #include <signal.h>
 
+#ifdef ENET_VERSION
+  /* See server/network.h for an explanation of this */
+  #define HAS_RECENT_ENET
+#endif
+
 void sigchld_handler(int signum)
 {
   printf("Exiting client\n");
@@ -25,7 +30,7 @@ int main()
 
   /* create client */
   client = enet_host_create(NULL, 1,
-#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+#if HAS_RECENT_ENET
                             2,
 #endif
                             0, 0);
@@ -39,7 +44,7 @@ int main()
   address.port = 12345;
 
   peer = enet_host_connect(client, &address, 2
-#if (ENET_VERSION >= ENET_VERSION_CREATE(1,3,0))
+#if HAS_RECENT_ENET
                            , 0
 #endif
                           );
