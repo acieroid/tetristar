@@ -1,25 +1,81 @@
 #include "network.h"
 
-Network *network_new(const gchar *server, int port, const gchar *nick)
-{
-  Network *network = malloc(sizeof(*network));
-  assert(network != NULL);
+enum {
+  NEWPLAYER,
+  LAST_SIGNAL
+};
 
+static struct {
+  int signal;
+  const gchar *command;
+} signals[] = {
+  { NEWPLAYER, "NEWPLAYER" },
+};
+
+static void network_class_init(NetworkClass *klass);
+static void network_init(Network *network);
+
+static guint network_signals[LAST_SIGNAL] = { 0 };
+
+GType network_get_type(void)
+{
+  static GType network_type = 0;
+
+  if (!network_type) {
+    const GTypeInfo network_info = {
+      sizeof(NetworkClass), NULL, NULL,
+      (GClassInitFunc) network_class_init, NULL, NULL,
+      sizeof(Network), 0,
+      (GInstanceInitFunc) network_init,
+    };
+
+    network_type = g_type_register_static (G_TYPE_OBJECT, "Network",
+                                           &network_info, 0);
+  }
+
+  return network_type;
+}
+
+void network_class_init(NetworkClass *klass)
+{
+}
+
+void network_init(Network *network)
+{
   network->client = enet_host_create(NULL, 1, 
 #ifdef HAS_RECENT_ENET
                                      2, 
 #endif
                                      0, 0);
-
   assert(network->client != NULL);
 
+  network->nick = NULL;
+  network->peer = NULL;
+  network->connected = 0;
+}
+
+Network *network_new(const gchar *server, int port, const gchar *nick)
+{
+  Network *network = NETWORK(g_object_new(NETWORK_TYPE, NULL));
+  assert(network != NULL);
+
+  network_set_host(network, server, port);
+  network_set_nick(network, nick);
+  return network;
+}
+
+void network_set_host(Network *network, const gchar *server, int port)
+{
+  assert(network != NULL);
   enet_address_set_host(&(network->address), server);
   network->address.port = port;
+}
 
-  network->peer = NULL;
+void network_set_nick(Network *network, const gchar *nick)
+{
+  if (network->nick != NULL)
+    g_free(network->nick);
   network->nick = g_strdup(nick);
-  network->connected = 0;
-  return network;
 }
 
 void network_free(Network *network)
@@ -27,8 +83,9 @@ void network_free(Network *network)
   assert(network != NULL);
   enet_peer_disconnect(network->peer, 0);
   enet_host_destroy(network->client);
-  g_free(network->nick);
-  free(network);
+  if (network->nick != NULL)
+    g_free(network->nick);
+  g_free(network);
 }
 
 void network_connect(Network *network)
