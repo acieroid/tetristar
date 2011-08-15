@@ -14,14 +14,12 @@ typedef struct MainWindow {
   int connected;
 } MainWindow;
 
+typedef void *(*PthreadFunc) (void*);
+
 void launch_network(GtkWidget *widget, void *data)
 {
   pthread_t thread;
-  Connect *connect = CONNECT(widget);
-  Network *network = network_new(connect_get_server(connect),
-                                 connect_get_port(connect),
-                                 connect_get_nick(connect));
-
+  Network *network = (Network *) data;
   pthread_create(&thread, NULL, (PthreadFunc) network_loop, (void *) network);
 }
 
@@ -63,6 +61,14 @@ int main(int argc, char *argv[])
                    G_CALLBACK(launch_network), window);
   g_signal_connect(G_OBJECT(window->connect), "connect",
                    G_CALLBACK(connected_layout), window);
+
+  window->network = network_new(connect_get_server(CONNECT(window->connect)),
+                                connect_get_port(CONNECT(window->connect)),
+                                connect_get_nick(CONNECT(window->connect)));
+  g_signal_connect(G_OBJECT(window->network), "connected",
+                   G_CALLBACK(connected_layout), window);
+  g_signal_connect(G_OBJECT(window->network), "disconnected",
+                   G_CALLBACK(disconnected_layout), window);
 
   window->chat = chat_new();
 

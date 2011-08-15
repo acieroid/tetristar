@@ -9,6 +9,7 @@
 #include <glib-object.h>
 #include <glib/gstdio.h>
 #include <enet/enet.h>
+#include <libtetris.h>
 
 G_BEGIN_DECLS
 
@@ -37,9 +38,9 @@ typedef struct Network {
 
 typedef struct NetworkClass {
   GObjectClass parent_class;
-} NetworkClass;
 
-typedef void *(*PthreadFunc) (void*);
+  void (* network) (Network *network);
+} NetworkClass;
 
 GType network_get_type(void);
 Network *network_new(const gchar *server, int port, const gchar *nick);

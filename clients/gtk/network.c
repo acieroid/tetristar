@@ -1,6 +1,8 @@
 #include "network.h"
 
 enum {
+  CONNECTED,
+  DISCONNECTED,
   NEWPLAYER,
   SAY,
   LAST_SIGNAL
@@ -40,6 +42,18 @@ GType network_get_type(void)
 
 void network_class_init(NetworkClass *klass)
 {
+  network_signals[CONNECTED] =
+    g_signal_new("connected", G_TYPE_FROM_CLASS(klass),
+                 G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                 G_STRUCT_OFFSET(NetworkClass, network),
+                 NULL, NULL,
+                 g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+  network_signals[DISCONNECTED] =
+    g_signal_new("disconnected", G_TYPE_FROM_CLASS(klass),
+                 G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                 G_STRUCT_OFFSET(NetworkClass, network),
+                 NULL, NULL,
+                 g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 }
 
 void network_init(Network *network)
@@ -69,7 +83,7 @@ Network *network_new(const gchar *server, int port, const gchar *nick)
 void network_set_host(Network *network, const gchar *server, int port)
 {
   assert(network != NULL);
-  enet_address_set_host(&(network->address), server);
+  enet_address_set_host(&(network->address), (const char *) server);
   network->address.port = port;
 }
 
@@ -135,18 +149,29 @@ void network_send(Network *network, gchar *string)
 void network_loop(Network *network)
 {
   ENetEvent event;
+  gchar *command, *args;
   assert(network != NULL);
 
   if (!network_is_connected(network))
     network_connect(network);
 
-  while (1) {
+  while (network_is_connected(network)) {
     enet_host_service(network->client, &event, 1000);
-    if (event.type == ENET_EVENT_TYPE_RECEIVE) {
-      g_printf("> %s\n", event.packet->data);
-    }
-    else if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
-      g_printf("Disconnected\n");
+    switch (event.type) {
+    case ENET_EVENT_TYPE_RECEIVE:
+      tetris_extract_command((const gchar *) event.packet->data,
+                             event.packet->dataLength,
+                             &command, &args);
+      /* TODO: emit signal */
+      break;
+    case ENET_EVENT_TYPE_CONNECT:
+      g_signal_emit(network, network_signals[CONNECTED], 0);
+      break;
+    case ENET_EVENT_TYPE_DISCONNECT:
+      network->connected = 0;
+      g_signal_emit(network, network_signals[DISCONNECTED], 0);
+      break;
+    default:
       break;
     }
   }
