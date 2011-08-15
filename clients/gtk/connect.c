@@ -34,7 +34,7 @@ void connect_class_init(ConnectClass *klass)
   connect_signals[CONNECTED_SIGNAL] =
     g_signal_new("connect", G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
-                 G_STRUCT_OFFSET (ConnectClass, connect),
+                 G_STRUCT_OFFSET(ConnectClass, connect),
                  NULL, NULL,
                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
 }

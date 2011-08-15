@@ -7,5 +7,8 @@ LIBS = ['glib-2.0', 'gtk+-2.0']
 for lib in LIBS:
     env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
+env['LIBS'] += ['-lpthread', '-ltetris']
+env['LIBPATH'] += ['/usr/lib', '/usr/local/lib', '../../libtetris']
+
 client = env.Program(target = 'client', source = sources,
-                     CFLAGS = CFLAGS);
+                     CFLAGS = CFLAGS)
