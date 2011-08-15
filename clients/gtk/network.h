@@ -8,6 +8,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <glib/gstdio.h>
+#include <gdk/gdk.h>
 #include <enet/enet.h>
 #include <libtetris.h>
 

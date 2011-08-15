@@ -118,11 +118,10 @@ void network_connect(Network *network)
   if (enet_host_service(network->client, &event, WAIT_TIME_FOR_CONNECTION) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {
     network->connected = 1;
+    str = g_strdup_printf("HELLO %s", network->nick);
+    network_send(network, str);
+    g_free(str);
   }
-
-  str = g_strdup_printf("HELLO %s", network->nick);
-  network_send(network, str);
-  g_free(str);
 }
     
 int network_is_connected(Network *network)
@@ -157,19 +156,23 @@ void network_loop(Network *network)
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
                              &command, &args);
-      /* TODO: emit signal */
-      break;
-    case ENET_EVENT_TYPE_CONNECT:
-      g_signal_emit(network, network_signals[CONNECTED], 0);
+      g_printf("> %s - %s\n", command, args);
+      if (g_strcmp0(command, "HELLO") == 0) {
+        gdk_threads_enter();
+        g_signal_emit(network, network_signals[CONNECTED], 0);
+        gdk_threads_leave();
+      }
+      /* TODO: emit recv signal */
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       network->connected = 0;
+      gdk_threads_enter();
       g_signal_emit(network, network_signals[DISCONNECTED], 0);
+      gdk_threads_leave();
       break;
     default:
       break;
     }
   }
-  /* we're disconnected, so we can free the structure */
-  network_free(network);
+  /* TODO: when to free the network ? */
 }
