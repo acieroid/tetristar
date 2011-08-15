@@ -72,7 +72,7 @@ Client *network_find_client(int id)
 void network_loop()
 {
   ENetEvent event;
-  char *command, *args;
+  gchar *command, *args;
   assert(NETWORK != NULL);
   while (1) {
     enet_host_service(NETWORK->server, &event, 1000);
@@ -83,7 +83,9 @@ void network_loop()
       network_add_client(event.peer);
       break;
     case ENET_EVENT_TYPE_RECEIVE:
-      extract_command(event.packet, &command, &args);
+      tetris_extract_command((const gchar *) event.packet->data,
+                             event.packet->dataLength,
+                             &command, &args);
       printf("Data received: '%s' - '%s'\n", command, args);
       plugins_on_action(PLUGIN_RECV, (int) event.peer->data, command, args);
       free(command);

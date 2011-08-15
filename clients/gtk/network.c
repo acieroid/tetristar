@@ -2,6 +2,7 @@
 
 enum {
   NEWPLAYER,
+  SAY,
   LAST_SIGNAL
 };
 
@@ -10,6 +11,7 @@ static struct {
   const gchar *command;
 } signals[] = {
   { NEWPLAYER, "NEWPLAYER" },
+  { SAY, "SAY" },
 };
 
 static void network_class_init(NetworkClass *klass);

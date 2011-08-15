@@ -5,6 +5,7 @@
 
 #include <enet/enet.h>
 #include <glib.h>
+#include <libtetris.h>
 
 #include "plugins.h"
 #include "configuration.h"

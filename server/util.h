@@ -17,6 +17,5 @@ void DBG(const char *fmt, ...);
 
 int new_id();
 void free_id(int id);
-void extract_command(ENetPacket *packet, char **command, char **args);
 
 #endif /* UTIL_H */

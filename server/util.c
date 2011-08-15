@@ -65,24 +65,3 @@ void free_id(int id)
   assert(ids != NULL);
   ids[id] = 0;
 }
-
-void extract_command(ENetPacket *packet, char **command, char **args)
-{
-  int i, len = packet->dataLength;
-  const char *string = (const char *) packet->data;
-
-  assert(string != NULL);
-
-  for (i = 0; string[i] != '\0' && string[i] != ' '; i++)
-    ;
-
-  *command = malloc(i+1*sizeof(**command));
-  assert(*command != NULL);
-  strncpy(*command, string, i);
-  (*command)[i] = '\0';
-
-  i++;
-  *args = malloc(len-i*sizeof(**args));
-  assert(*args != NULL);
-  strncpy(*args, string+i, len-i);
-}
