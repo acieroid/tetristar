@@ -20,6 +20,7 @@ typedef void *(*PthreadFunc) (void*);
 
 void launch_network(GtkWidget *widget, void *data)
 {
+  printf("Launching network\n");
   pthread_t thread;
   MainWindow *window = (MainWindow *) data;
 
@@ -35,6 +36,7 @@ void launch_network(GtkWidget *widget, void *data)
 
 void connected_layout(GtkWidget *widget, void *data)
 {
+  printf("Connected!\n");
   MainWindow *window = (MainWindow *) data;
   window->connected = 1;
   g_object_ref(window->connect); /* keep a reference */
@@ -46,6 +48,7 @@ void connected_layout(GtkWidget *widget, void *data)
 
 void disconnected_layout(GtkWidget *widget, void *data)
 {
+  printf("Disconnected!\n");
   MainWindow *window = (MainWindow *) data;
   if (window->connected) {
     window->connected = 0;

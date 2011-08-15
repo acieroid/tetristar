@@ -58,13 +58,7 @@ void network_class_init(NetworkClass *klass)
 
 void network_init(Network *network)
 {
-  network->client = enet_host_create(NULL, 1, 
-#ifdef HAS_RECENT_ENET
-                                     2, 
-#endif
-                                     0, 0);
-  assert(network->client != NULL);
-
+  network->client = NULL;
   network->nick = NULL;
   network->peer = NULL;
   network->connected = 0;
@@ -89,21 +83,34 @@ void network_set_nick(Network *network, const gchar *nick)
   network->nick = g_strdup(nick);
 }
 
-void network_free(Network *network)
+void network_shutdown(Network *network)
 {
   assert(network != NULL);
   enet_peer_disconnect(network->peer, 0);
   enet_host_destroy(network->client);
   if (network->nick != NULL)
     g_free(network->nick);
+}
+
+void network_free(Network *network)
+{
+  network_shutdown(network);
   g_free(network);
 }
 
 void network_connect(Network *network)
 {
+  printf("Connecting network\n");
   ENetEvent event;
   gchar *str;
   assert(network != NULL);
+
+  network->client = enet_host_create(NULL, 1,
+#ifdef HAS_RECENT_ENET
+                                     2,
+#endif
+                                     0, 0);
+  assert(network->client != NULL);
 
   if (network->peer == NULL)
     network->peer = 
@@ -117,10 +124,14 @@ void network_connect(Network *network)
 
   if (enet_host_service(network->client, &event, WAIT_TIME_FOR_CONNECTION) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {
+    printf("Network connected\n");
     network->connected = 1;
     str = g_strdup_printf("HELLO %s", network->nick);
     network_send(network, str);
     g_free(str);
+  }
+  else {
+    printf("Can't connect to network, event.type: %d\n", event.type);
   }
 }
     
@@ -175,4 +186,6 @@ void network_loop(Network *network)
     }
   }
   /* TODO: when to free the network ? */
+  network_shutdown(network);
+  printf("Network stopped.\n");
 }
