@@ -70,14 +70,9 @@ void network_init(Network *network)
   network->connected = 0;
 }
 
-Network *network_new(const gchar *server, int port, const gchar *nick)
+Network *network_new()
 {
-  Network *network = NETWORK(g_object_new(NETWORK_TYPE, NULL));
-  assert(network != NULL);
-
-  network_set_host(network, server, port);
-  network_set_nick(network, nick);
-  return network;
+  return NETWORK(g_object_new(NETWORK_TYPE, NULL));
 }
 
 void network_set_host(Network *network, const gchar *server, int port)

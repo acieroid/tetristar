@@ -43,7 +43,7 @@ typedef struct NetworkClass {
 } NetworkClass;
 
 GType network_get_type(void);
-Network *network_new(const gchar *server, int port, const gchar *nick);
+Network *network_new();
 void network_free(Network *network);
 
 void network_set_host(Network *network, const gchar *server, int port);

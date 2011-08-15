@@ -19,8 +19,16 @@ typedef void *(*PthreadFunc) (void*);
 void launch_network(GtkWidget *widget, void *data)
 {
   pthread_t thread;
-  Network *network = (Network *) data;
-  pthread_create(&thread, NULL, (PthreadFunc) network_loop, (void *) network);
+  MainWindow *window = (MainWindow *) data;
+
+  network_set_host(window->network,
+                   connect_get_server(CONNECT(window->connect)),
+                   connect_get_port(CONNECT(window->connect)));
+  network_set_nick(window->network,
+                   connect_get_nick(CONNECT(window->connect)));
+                   
+  pthread_create(&thread, NULL, (PthreadFunc) network_loop,
+                 (void *) window->network);
 }
 
 void connected_layout(GtkWidget *widget, void *data)
@@ -62,9 +70,7 @@ int main(int argc, char *argv[])
   g_signal_connect(G_OBJECT(window->connect), "connect",
                    G_CALLBACK(connected_layout), window);
 
-  window->network = network_new(connect_get_server(CONNECT(window->connect)),
-                                connect_get_port(CONNECT(window->connect)),
-                                connect_get_nick(CONNECT(window->connect)));
+  window->network = network_new();
   g_signal_connect(G_OBJECT(window->network), "connected",
                    G_CALLBACK(connected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "disconnected",
