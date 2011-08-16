@@ -37,6 +37,14 @@ void network_deinit()
   assert(NETWORK != NULL);
   DBG("Stopping server");
   plugins_on_action(PLUGIN_SHUTDOWN, -1, NULL, NULL);
+
+  /* Disconnect each clients */
+  g_slist_foreach(NETWORK->clients, (GFunc) enet_peer_disconnect, 0);
+  /* we wait 3 seconds for the clients to disconnect */
+  network_handle_packet(3000);
+  /* and we force the disconnection of the remaining clients */
+  g_slist_foreach(NETWORK->clients, (GFunc) enet_peer_disconnect_now, 0);
+
   /* ENet's documentation doesn't say anything about how to properly 
     delete an ENetPeer, and using free on them results in a segfault,
     so we just don't do anything */
@@ -70,38 +78,44 @@ Client *network_find_client(int id)
   return NULL;
 }
 
-void network_loop()
+void network_handle_packet(int wait_time)
 {
   ENetEvent event;
   gchar *command, *args;
+
+  enet_host_service(NETWORK->server, &event, wait_time);
+  switch (event.type) {
+  case ENET_EVENT_TYPE_CONNECT:
+    event.peer->data = (void *) new_id();
+    plugins_on_action(PLUGIN_CONNECT, (int) event.peer->data, NULL, NULL);
+    network_add_client(event.peer);
+    break;
+  case ENET_EVENT_TYPE_RECEIVE:
+    tetris_extract_command((const gchar *) event.packet->data,
+                           event.packet->dataLength,
+                           &command, &args);
+    printf("Data received: '%s' - '%s'\n", command, args);
+    plugins_on_action(PLUGIN_RECV, (int) event.peer->data, command, args);
+    free(command);
+    free(args);
+    enet_packet_destroy(event.packet);
+    break;
+  case ENET_EVENT_TYPE_DISCONNECT:
+    plugins_on_action(PLUGIN_DISCONNECT, (int) event.peer->data, NULL, NULL);
+    network_remove_client(event.peer);
+    free_id((int) event.peer->data);
+    event.peer->data = NULL;
+    break;
+  case ENET_EVENT_TYPE_NONE:
+    break;
+  }
+}
+
+void network_loop()
+{
   assert(NETWORK != NULL);
   while (1) {
-    enet_host_service(NETWORK->server, &event, 1000);
-    switch (event.type) {
-    case ENET_EVENT_TYPE_CONNECT:
-      event.peer->data = (void *) new_id();
-      plugins_on_action(PLUGIN_CONNECT, (int) event.peer->data, NULL, NULL);
-      network_add_client(event.peer);
-      break;
-    case ENET_EVENT_TYPE_RECEIVE:
-      tetris_extract_command((const gchar *) event.packet->data,
-                             event.packet->dataLength,
-                             &command, &args);
-      printf("Data received: '%s' - '%s'\n", command, args);
-      plugins_on_action(PLUGIN_RECV, (int) event.peer->data, command, args);
-      free(command);
-      free(args);
-      enet_packet_destroy(event.packet);
-      break;
-    case ENET_EVENT_TYPE_DISCONNECT:
-      plugins_on_action(PLUGIN_DISCONNECT, (int) event.peer->data, NULL, NULL);
-      network_remove_client(event.peer);
-      free_id((int) event.peer->data);
-      event.peer->data = NULL;
-      break;
-    case ENET_EVENT_TYPE_NONE:
-      break;
-    }
+    network_handle_packet(1000);
   }
 }
 

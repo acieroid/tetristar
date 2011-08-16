@@ -27,6 +27,7 @@ void network_deinit();
 void network_add_client(Client *client);
 void network_remove_client(Client *client);
 Client *network_find_client(int id);
+void network_handle_packet(int wait_time);
 void network_loop();
 void network_send(Client *client, const char *string);
 void network_send_to_all(const char *string);
