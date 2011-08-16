@@ -87,9 +87,13 @@ void network_shutdown(Network *network)
 {
   assert(network != NULL);
   enet_peer_disconnect(network->peer, 0);
+  network->peer = NULL;
   enet_host_destroy(network->client);
-  if (network->nick != NULL)
+  network->client = NULL;
+  if (network->nick != NULL) {
     g_free(network->nick);
+    network->nick = NULL;
+  }
 }
 
 void network_free(Network *network)
