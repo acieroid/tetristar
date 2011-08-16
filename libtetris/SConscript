@@ -9,4 +9,4 @@ for lib in LIBS:
     lib_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
 libtetris = lib_env.SharedLibrary(target = 'tetris', source = sources)
-
+Return('libtetris')

@@ -1,4 +1,4 @@
-Import('env', 'LINUX', 'LUA', 'GLIB')
+Import('env', 'LINUX', 'LUA', 'GLIB', 'libtetris')
 
 server_env = env.Clone()
 
@@ -15,6 +15,6 @@ LIBS = [LUA, GLIB]
 for lib in LIBS:
     server_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
-server_env['LIBS'] += ['tetris']
+server_env['LIBS'] += [libtetris]
 
 server = server_env.Program(target = 'server', source = sources)

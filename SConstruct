@@ -21,6 +21,7 @@ GTK = 'gtk+-2.0'
 
 Export('env', 'LINUX', 'LUA', 'GLIB', 'GTK')
 
-SConscript(['libtetris/SConscript', 
-            'server/SConscript',
+libtetris = SConscript('libtetris/SConscript')
+Export('libtetris')
+SConscript(['server/SConscript',
             'clients/SConscript'])

@@ -1,4 +1,4 @@
-Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA')
+Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA', 'libtetris')
 
 gtk_env = env.Clone()
 
@@ -14,7 +14,7 @@ LIBS = [LUA, GLIB, GTK]
 for lib in LIBS:
     gtk_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
-gtk_env['LIBS'] += ['pthread', 'tetris']
+gtk_env['LIBS'] += ['pthread', libtetris]
 
 client = gtk_env.Program(target = 'client', source = sources)
 
