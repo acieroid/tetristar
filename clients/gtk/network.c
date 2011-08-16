@@ -12,9 +12,10 @@ enum {
 static struct {
   int signal;
   const gchar *command;
-} signals[] = {
+} recv_signals[] = {
   { NEWPLAYER, "NEWPLAYER" },
   { SAY, "SAY" },
+  { 0, NULL },
 };
 
 static void network_class_init(NetworkClass *klass);
@@ -43,6 +44,7 @@ GType network_get_type(void)
 
 void network_class_init(NetworkClass *klass)
 {
+  int i;
   network_signals[CONNECTED] =
     g_signal_new("connected", G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
@@ -61,7 +63,15 @@ void network_class_init(NetworkClass *klass)
                  G_STRUCT_OFFSET(NetworkClass, network),
                  NULL, NULL,
                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
-
+  for (i = 0; recv_signals[i].command != NULL; i++) {
+    network_signals[recv_signals[i].signal] =
+      g_signal_new(recv_signals[i].command, G_TYPE_FROM_CLASS(klass),
+                   G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                   G_STRUCT_OFFSET(NetworkClass, network),
+                   NULL, NULL,
+                   g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                   G_TYPE_STRING);
+  }
 }
 
 void network_init(Network *network)
@@ -168,6 +178,7 @@ void network_send(Network *network, gchar *string)
 
 void network_loop(Network *network)
 {
+  int i;
   ENetEvent event;
   gchar *command, *args;
   assert(network != NULL);
@@ -183,12 +194,17 @@ void network_loop(Network *network)
                              event.packet->dataLength,
                              &command, &args);
       g_printf("> %s - %s\n", command, args);
+      gdk_threads_enter();
       if (g_strcmp0(command, "HELLO") == 0) {
-        gdk_threads_enter();
         g_signal_emit(network, network_signals[CONNECTED], 0);
-        gdk_threads_leave();
       }
-      /* TODO: emit recv signal */
+      for (i = 0; recv_signals[i].command != NULL; i++)
+        if (g_strcmp0(command, recv_signals[i].command) == 0)
+          g_signal_emit(network, network_signals[recv_signals[i].signal],
+                        0, args);
+      gdk_threads_leave();
+      g_free(command);
+      g_free(args);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       network->connected = 0;

@@ -68,6 +68,11 @@ void unlock_button(GtkWidget *widget, void *data)
   connect_unlock_button(CONNECT(window->connect));
 }
 
+void foo(GtkWidget *widget, gchar *args, void *data)
+{
+  printf("New player: %s\n", args);
+}
+
 int main(int argc, char *argv[])
 {
   MainWindow *window = malloc(sizeof(*window));
@@ -93,6 +98,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(disconnected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(unlock_button), window);
+  g_signal_connect(G_OBJECT(window->network), "NEWPLAYER",
+                   G_CALLBACK(foo), window);
 
   window->chat = chat_new();
 
