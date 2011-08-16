@@ -36,6 +36,7 @@ void network_deinit()
 {
   assert(NETWORK != NULL);
   DBG("Stopping server");
+  plugins_on_action(PLUGIN_SHUTDOWN, -1, NULL, NULL);
   /* ENet's documentation doesn't say anything about how to properly 
     delete an ENetPeer, and using free on them results in a segfault,
     so we just don't do anything */

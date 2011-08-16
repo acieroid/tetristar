@@ -17,7 +17,8 @@ typedef int LuaFunction;
 typedef enum PluginType {
   PLUGIN_CONNECT,
   PLUGIN_DISCONNECT,
-  PLUGIN_RECV
+  PLUGIN_SHUTDOWN,
+  PLUGIN_RECV,
 } PluginType;
 
 typedef struct LuaPlugin {

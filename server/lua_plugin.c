@@ -34,6 +34,8 @@ void lua_plugin_register(PluginType type, char *recv_command, LuaFunction functi
     DBG("Plugin of type CONNECT registered");
   else if (type == PLUGIN_DISCONNECT)
     DBG("Plugin of type DISCONNECT registered");
+  else if (type == PLUGIN_SHUTDOWN)
+    DBG("Plugin of type SHUTDOWN registered");
 }
 
 void lua_plugin_setup_functions()
@@ -66,6 +68,8 @@ int l_register(lua_State *l)
     type = PLUGIN_CONNECT;
   else if (strcmp(type_descr, "DISCONNECT") == 0)
     type = PLUGIN_DISCONNECT;
+  else if (strcmp(type_descr, "SHUTDOWN") == 0)
+    type = PLUGIN_SHUTDOWN;
   else if (strcmp(type_descr, "RECV") == 0)
     type = PLUGIN_RECV;
   else {
