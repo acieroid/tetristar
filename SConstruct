@@ -1,21 +1,26 @@
-env = Environment()
+env = Environment(CPPPATH=[], LIBPATH=[], LIBS=[])
 
 CFLAGS = ARGUMENTS.get('CFLAGS', '')
 DEBUG = ARGUMENTS.get('DEBUG', '1')
 LINUX = ARGUMENTS.get('LINUX', '0')
 
-CFLAGS += ' -I/usr/local/include -L/usr/local/lib -Ilibtetris'
-CFLAGS += ' -Wall '
+env['CFLAGS'] += ['-Wall']
 if DEBUG == '1':
-    CFLAGS += '-g -DDEBUG '
+    env['CFLAGS'] += ['-g', '-DDEBUG']
 
-Export('env', 'CFLAGS', 'LINUX')
+env['CPPPATH'] += ['/usr/local/include', '#/libtetris']
+env['LIBPATH'] += ['#/libtetris', '/usr/local/lib']
 
 if LINUX == '1':
-    SConscript('libtetris/SConscript.linux')
-    SConscript('server/SConscript.linux')
+    LUA = 'lua'
 else:
-    SConscript('libtetris/SConscript')
-    SConscript('server/SConscript')
+    LUA = 'lua-5.1'
 
-SConscript('clients/SConscript')
+GLIB = 'glib-2.0'
+GTK = 'gtk+-2.0'
+
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTK')
+
+SConscript(['libtetris/SConscript', 
+            'server/SConscript',
+            'clients/SConscript'])

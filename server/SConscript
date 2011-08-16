@@ -1,13 +1,20 @@
-Import('env', 'CFLAGS')
+Import('env', 'LINUX', 'LUA', 'GLIB')
+
+server_env = env.Clone()
 
 sources = ['main.c', 'global_state.c', 'configuration.c', 'util.c',
            'network.c', 'plugins.c', 'lua_plugin.c']
-sources += ['/usr/local/lib/libenet.a']
-LIBS = ['lua-5.1', 'glib-2.0']
+
+if LINUX == '1':
+    server_env['LIBS'] += ['enet']
+else:
+    sources += ['/usr/local/lib/libenet.a']
+
+LIBS = [LUA, GLIB]
 
 for lib in LIBS:
-    env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
+    server_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
-server = env.Program(target = 'server', source = sources,
-                     CFLAGS = CFLAGS, LIBS = LIBS + ['m', 'tetris'], 
-                     LIBPATH = ['/usr/lib', '/usr/local/lib', '../libtetris'])
+server_env['LIBS'] += ['tetris']
+
+server = server_env.Program(target = 'server', source = sources)

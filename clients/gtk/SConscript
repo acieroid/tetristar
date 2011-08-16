@@ -1,14 +1,20 @@
-Import('env', 'CFLAGS')
+Import('env', 'LINUX', 'GLIB', 'GTK')
 
-sources = ['main.c', 'connect.c', 'network.c', 'chat.c', 
-           '/usr/local/lib/libenet.a']
-LIBS = ['glib-2.0', 'gtk+-2.0']
+gtk_env = env.Clone()
+
+sources = ['main.c', 'connect.c', 'network.c', 'chat.c']
+
+if LINUX == '1':
+    gtk_env['LIBS'] += ['enet']
+else:
+    sources += ['/usr/local/lib/libenet.a']
+
+LIBS = [GLIB, GTK]
 
 for lib in LIBS:
-    env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
+    gtk_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
-env['LIBS'] += ['-lpthread', '-ltetris']
-env['LIBPATH'] += ['/usr/lib', '/usr/local/lib', '../../libtetris']
+gtk_env['LIBS'] += ['pthread', 'tetris']
 
-client = env.Program(target = 'client', source = sources,
-                     CFLAGS = CFLAGS)
+client = gtk_env.Program(target = 'client', source = sources)
+

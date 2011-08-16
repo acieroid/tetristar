@@ -1,6 +1,12 @@
-Import('env', 'CFLAGS')
+Import('env', 'LINUX')
 
-sources = ['simple.c', '/usr/local/lib/libenet.a']
+simple_env = env.Clone()
 
-client = env.Program(target = 'simple', source = sources,
-                     CFLAGS = CFLAGS);
+sources = ['simple.c']
+
+if LINUX == '1':
+    simple_env['LIBS'] += ['enet']
+else:
+    sources += ['/usr/local/lib/libenet.a']
+
+client = simple_env.Program(target = 'simple', source = sources)
