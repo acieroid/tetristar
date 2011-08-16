@@ -110,3 +110,13 @@ int connect_get_port(Connect *connect)
 {
   return gtk_spin_button_get_value(GTK_SPIN_BUTTON(connect->port_spin));
 }
+
+void connect_lock_button(Connect *connect)
+{
+  gtk_widget_set_sensitive(connect->button, FALSE);
+}
+
+void connect_unlock_button(Connect *connect)
+{
+  gtk_widget_set_sensitive(connect->button, TRUE);
+}

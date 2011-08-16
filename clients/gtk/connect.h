@@ -33,9 +33,13 @@ typedef struct ConnectClass {
 
 GType connect_get_type(void);
 GtkWidget *connect_new(void);
+
 const gchar *connect_get_nick(Connect *connect);
 const gchar *connect_get_server(Connect *connect);
 int connect_get_port(Connect *connect);
+
+void connect_lock_button(Connect *connect);
+void connect_unlock_button(Connect *connect);
 
 G_END_DECLS
 

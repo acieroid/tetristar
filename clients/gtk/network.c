@@ -3,6 +3,7 @@
 enum {
   CONNECTED,
   DISCONNECTED,
+  CANT_CONNECT,
   NEWPLAYER,
   SAY,
   LAST_SIGNAL
@@ -54,6 +55,13 @@ void network_class_init(NetworkClass *klass)
                  G_STRUCT_OFFSET(NetworkClass, network),
                  NULL, NULL,
                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+  network_signals[CANT_CONNECT] =
+    g_signal_new("cant-connect", G_TYPE_FROM_CLASS(klass),
+                 G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                 G_STRUCT_OFFSET(NetworkClass, network),
+                 NULL, NULL,
+                 g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+
 }
 
 void network_init(Network *network)
@@ -135,7 +143,10 @@ void network_connect(Network *network)
     g_free(str);
   }
   else {
-    printf("Can't connect to network, event.type: %d\n", event.type);
+    printf("Can't connect to network\n");
+    gdk_threads_enter();
+    g_signal_emit(network, network_signals[CANT_CONNECT], 0);
+    gdk_threads_leave();
   }
 }
     

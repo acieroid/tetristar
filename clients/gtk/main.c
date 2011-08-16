@@ -30,6 +30,8 @@ void launch_network(GtkWidget *widget, void *data)
   network_set_nick(window->network,
                    connect_get_nick(CONNECT(window->connect)));
 
+  /* we lock the button to avoid launching multiple network threads */
+  connect_lock_button(CONNECT(window->connect));
   pthread_create(&thread, NULL, (PthreadFunc) network_loop,
                  (void *) window->network);
 }
@@ -55,8 +57,15 @@ void disconnected_layout(GtkWidget *widget, void *data)
     g_object_ref(window->chat);
     gtk_container_remove(GTK_CONTAINER(window->window), window->chat);
   }
+  connect_unlock_button(CONNECT(window->connect));
   gtk_container_add(GTK_CONTAINER(window->window), window->connect);
   gtk_widget_show_all(window->connect);
+}
+
+void unlock_button(GtkWidget *widget, void *data)
+{
+  MainWindow *window = (MainWindow *) data;
+  connect_unlock_button(CONNECT(window->connect));
 }
 
 int main(int argc, char *argv[])
@@ -82,6 +91,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(connected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "disconnected",
                    G_CALLBACK(disconnected_layout), window);
+  g_signal_connect(G_OBJECT(window->network), "cant-connect",
+                   G_CALLBACK(unlock_button), window);
 
   window->chat = chat_new();
 
