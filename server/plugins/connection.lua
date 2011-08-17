@@ -11,7 +11,7 @@ function connection.hello(id, command, args)
         -- Send all the players connected to the player
         for i,player_id in pairs(tetris.players.all()) do
            player_nick = tetris.players.get_nick(player_id) 
-           server.send(id, "NEWPLAYER " .. id .. " " .. player_nick)
+           server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
         end
         -- Add the player
         tetris.players.add(id)
