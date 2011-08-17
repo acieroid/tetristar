@@ -74,6 +74,7 @@ void newplayer(GtkWidget *widget, Command *command, void *data)
 {
   MainWindow *window = (MainWindow *) data;
   TetrisPlayer *player;
+  printf("%s id: '%s', nick: '%s', n_args: %d\n", command->command, command->args[0], command->args[1], command->n_args);
 
   /* NEWPLAYER ID NICK */
   if (command->n_args != 2)
@@ -96,6 +97,7 @@ int main(int argc, char *argv[])
   g_thread_init(NULL);
   gdk_threads_init();
   gtk_init(&argc, &argv);
+  tetris_init();
 
   window->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window->window), "Tetristar GTK Client");
@@ -124,6 +126,8 @@ int main(int argc, char *argv[])
 
   gtk_widget_show_all(window->window);
   gtk_main();
+
+  /* TODO: tetris_deinit at the end ? */
 
   return 0;
 }

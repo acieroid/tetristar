@@ -196,6 +196,7 @@ void network_loop(Network *network)
                              event.packet->dataLength,
                              &cmd, &args);
       command = command_new(cmd, args);
+      printf("%s - %s\n", cmd, args);
       gdk_threads_enter();
       if (g_strcmp0(cmd, "HELLO") == 0) {
         g_signal_emit(network, network_signals[CONNECTED], 0);

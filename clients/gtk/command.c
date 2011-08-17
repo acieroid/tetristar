@@ -12,17 +12,26 @@ Command *command_new(const gchar *command_str, const gchar *args_str)
   for (i = 0; args_str[i] != '\0'; i++)
     if (args_str[i] == ' ')
       command->n_args++;
+  command->n_args++;
+
 
   command->args = malloc(command->n_args*sizeof(*(command->args)));
-  last_space = 0;
+  last_space = -1;
   arg = 0;
-  for (i = 0; args_str[i] != '\0'; i++) {
-    if (args_str[i] == ' ') {
+  for (i = 0; ; i++) {
+    if (args_str[i] == ' ' || args_str[i] == '\0') {
       command->args[arg] = g_strndup(args_str+last_space+1, i-last_space);
+      
+      if (args_str[i] == '\0')
+        break;
+      else
+        command->args[arg][i-last_space-1] = '\0';
+
       arg++;
       last_space = i;
     }
   }
+  /* TODO: check that there are enough arguments here */
   return command;
 }
 
