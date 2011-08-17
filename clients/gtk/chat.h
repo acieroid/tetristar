@@ -28,7 +28,7 @@ typedef struct ChatClass {
 GType chat_get_type(void);
 GtkWidget *chat_new(void);
 
-void chat_add_line(Chat *chat, const gchar *nick, const gchar *line);
+void chat_add_line(Chat *chat, const gchar *format, ...);
 
 G_END_DECLS
 

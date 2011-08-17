@@ -47,7 +47,6 @@ void connected_layout(GtkWidget *widget, void *data)
   gtk_container_remove(GTK_CONTAINER(window->window), window->connect);
   gtk_container_add(GTK_CONTAINER(window->window), window->chat);
   gtk_widget_show_all(window->chat);
-  chat_add_line(CHAT(window->chat), "system", "Connected.");
 }
 
 void disconnected_layout(GtkWidget *widget, void *data)
@@ -86,7 +85,7 @@ void newplayer(GtkWidget *widget, Command *command, void *data)
   tetris_player_add(player);
 
   /* notifies about it */
-  chat_add_line(CHAT(window->chat), "%s is connected", command->args[1]);
+  chat_add_line(CHAT(window->chat), " * %s is connected\n", command->args[1]);
 }
 
 int main(int argc, char *argv[])

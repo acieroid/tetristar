@@ -59,13 +59,16 @@ GtkWidget *chat_new(void)
   return GTK_WIDGET(g_object_new(CHAT_TYPE, NULL));
 }
 
-void chat_add_line(Chat *chat, const gchar *nick, const gchar *line)
+void chat_add_line(Chat *chat, const gchar *format, ...)
 {
+  va_list ap;
   gchar *text;
   GtkTextIter end;
   GtkTextBuffer *buffer;
 
-  text = g_strdup_printf("<%s> %s\n", nick, line);
+  va_start(ap, format);
+  text = g_strdup_vprintf(format, ap);
+  va_end(ap);
 
   buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat->text_view));
   gtk_text_buffer_get_end_iter(buffer, &end);
