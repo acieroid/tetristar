@@ -4,6 +4,7 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 
 G_BEGIN_DECLS
 

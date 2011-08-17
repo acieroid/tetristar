@@ -7,6 +7,7 @@ enum {
 
 static void chat_class_init(ChatClass *klass);
 static void chat_init(Chat *chat);
+static gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data);
 
 static guint chat_signals[LAST_SIGNAL] = { 0 };
 
@@ -36,7 +37,8 @@ void chat_class_init(ChatClass *klass)
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
                  G_STRUCT_OFFSET (ChatClass, chat),
                  NULL, NULL,
-                 g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
+                 g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                 G_TYPE_STRING);
 }
 
 void chat_init(Chat *chat)
@@ -50,6 +52,9 @@ void chat_init(Chat *chat)
                    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
 
   chat->entry = gtk_entry_new();
+  gtk_signal_connect(G_OBJECT(chat->entry), "key-press-event",
+                     G_CALLBACK(chat_on_keypress), chat);
+  gtk_widget_add_events (chat->entry, GDK_KEY_PRESS_MASK);
   gtk_table_attach(GTK_TABLE(chat), chat->entry, 0, 1, 1, 2,
                    GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 }
@@ -75,4 +80,17 @@ void chat_add_line(Chat *chat, const gchar *format, ...)
   gtk_text_buffer_insert(buffer, &end, text, -1);
 
   g_free(text);
+}
+
+gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data)
+{
+  Chat *chat = (Chat *) data;
+  if (event->type == GDK_KEY_PRESS &&
+      event->keyval == GDK_KEY_Return) {
+    g_signal_emit(chat, chat_signals[NEW_LINE], 0,
+                  gtk_entry_get_text(GTK_ENTRY(entry)));
+    gtk_entry_set_text(GTK_ENTRY(entry), "");
+    return TRUE;
+  }
+  return FALSE;
 }

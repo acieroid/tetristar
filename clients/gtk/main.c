@@ -38,6 +38,13 @@ void launch_network(GtkWidget *widget, void *data)
                  (void *) window->network);
 }
 
+void send_line(Chat *chat, const gchar *line, void *data)
+{
+  MainWindow *window = (MainWindow *) data;
+  gchar *str = g_strdup_printf("SAY %s", line);
+  network_send(window->network, str);
+}
+
 void connected_layout(GtkWidget *widget, void *data)
 {
   printf("Connected!\n");
@@ -152,6 +159,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(bye), window);
 
   window->chat = chat_new();
+  g_signal_connect(G_OBJECT(window->chat), "new-line",
+                   G_CALLBACK(send_line), window);
 
   /* we start disconnected */
   window->connected = 0;
