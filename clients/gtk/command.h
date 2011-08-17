@@ -10,6 +10,7 @@ typedef struct Command {
   gchar *command;
   int n_args;
   gchar **args;
+  gchar *args_str;
 } Command;
 
 Command *command_new(const gchar *command_str, const gchar *args_str);

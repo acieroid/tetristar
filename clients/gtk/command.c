@@ -14,7 +14,7 @@ Command *command_new(const gchar *command_str, const gchar *args_str)
       command->n_args++;
   command->n_args++;
 
-
+  command->args_str = g_strdup(args_str);
   command->args = malloc(command->n_args*sizeof(*(command->args)));
   last_space = -1;
   arg = 0;

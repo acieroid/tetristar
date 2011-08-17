@@ -73,7 +73,6 @@ void newplayer(GtkWidget *widget, Command *command, void *data)
 {
   MainWindow *window = (MainWindow *) data;
   TetrisPlayer *player;
-  printf("%s id: '%s', nick: '%s', n_args: %d\n", command->command, command->args[0], command->args[1], command->n_args);
 
   /* NEWPLAYER ID NICK */
   if (command->n_args != 2)
@@ -86,6 +85,21 @@ void newplayer(GtkWidget *widget, Command *command, void *data)
 
   /* notifies about it */
   chat_add_line(CHAT(window->chat), " * %s is connected\n", command->args[1]);
+}
+
+void say(GtkWidget *widget, Command *command, void *data)
+{
+  MainWindow *window = (MainWindow *) data;
+  TetrisPlayer *player;
+
+  /* SAY ID TEXT */
+  if (command->n_args != 2)
+    return;
+
+  player = tetris_player_find(g_ascii_strtoll(command->args[0], NULL, 10));
+  chat_add_line(CHAT(window->chat), "<%s> %s",
+                tetris_player_get_nick(player),
+                command->args_str + strlen(command->args[0]) + 1);
 }
 
 int main(int argc, char *argv[])
@@ -116,6 +130,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(unlock_button), window);
   g_signal_connect(G_OBJECT(window->network), "NEWPLAYER",
                    G_CALLBACK(newplayer), window);
+  g_signal_connect(G_OBJECT(window->network), "SAY",
+                   G_CALLBACK(say), window);
 
   window->chat = chat_new();
 
