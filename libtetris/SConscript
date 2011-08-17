@@ -8,5 +8,5 @@ LIBS = [LUA, GLIB]
 for lib in LIBS:
     lib_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
 
-libtetris = lib_env.SharedLibrary(target = 'tetris', source = sources)
+libtetris = lib_env.StaticLibrary(target = 'tetris', source = sources)
 Return('libtetris')
