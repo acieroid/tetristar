@@ -3,10 +3,12 @@
 #include <pthread.h>
 #include <glib.h>
 #include <gtk/gtk.h>
+#include <libtetris.h>
 
 #include "network.h"
 #include "connect.h"
 #include "chat.h"
+#include "command.h"
 
 typedef struct MainWindow {
   GtkWidget *window;
@@ -68,9 +70,22 @@ void unlock_button(GtkWidget *widget, void *data)
   connect_unlock_button(CONNECT(window->connect));
 }
 
-void foo(GtkWidget *widget, gchar *args, void *data)
+void newplayer(GtkWidget *widget, Command *command, void *data)
 {
-  printf("New player: %s\n", args);
+  MainWindow *window = (MainWindow *) data;
+  TetrisPlayer *player;
+
+  /* NEWPLAYER ID NICK */
+  if (command->n_args != 2)
+    return;
+
+  /* add the player */
+  player = tetris_player_new(g_ascii_strtoll(command->args[0], NULL, 10));
+  tetris_player_set_nick(player, command->args[1]);
+  tetris_player_add(player);
+
+  /* notifies about it */
+  chat_add_line(CHAT(window->chat), "%s is connected", command->args[1]);
 }
 
 int main(int argc, char *argv[])
@@ -99,7 +114,7 @@ int main(int argc, char *argv[])
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(unlock_button), window);
   g_signal_connect(G_OBJECT(window->network), "NEWPLAYER",
-                   G_CALLBACK(foo), window);
+                   G_CALLBACK(newplayer), window);
 
   window->chat = chat_new();
 

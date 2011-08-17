@@ -69,8 +69,8 @@ void network_class_init(NetworkClass *klass)
                    G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
                    G_STRUCT_OFFSET(NetworkClass, network),
                    NULL, NULL,
-                   g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
-                   G_TYPE_STRING);
+                   g_cclosure_marshal_VOID__POINTER, G_TYPE_NONE, 1,
+                   G_TYPE_POINTER);
   }
 }
 
@@ -180,7 +180,8 @@ void network_loop(Network *network)
 {
   int i;
   ENetEvent event;
-  gchar *command, *args;
+  gchar *cmd, *args;
+  Command *command;
   assert(network != NULL);
 
   if (!network_is_connected(network))
@@ -190,21 +191,25 @@ void network_loop(Network *network)
     enet_host_service(network->client, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE:
+      /* TODO: should'nt we destroy the packet ? */
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
-                             &command, &args);
-      g_printf("> %s - %s\n", command, args);
+                             &cmd, &args);
+      command = command_new(cmd, args);
       gdk_threads_enter();
-      if (g_strcmp0(command, "HELLO") == 0) {
+      if (g_strcmp0(cmd, "HELLO") == 0) {
         g_signal_emit(network, network_signals[CONNECTED], 0);
       }
-      for (i = 0; recv_signals[i].command != NULL; i++)
-        if (g_strcmp0(command, recv_signals[i].command) == 0)
+      for (i = 0; recv_signals[i].command != NULL; i++) {
+        if (g_strcmp0(cmd, recv_signals[i].command) == 0) {
           g_signal_emit(network, network_signals[recv_signals[i].signal],
-                        0, args);
+                        0, command);
+        }
+      }
       gdk_threads_leave();
-      g_free(command);
+      g_free(cmd);
       g_free(args);
+      command_free(command);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       network->connected = 0;

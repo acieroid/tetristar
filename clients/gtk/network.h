@@ -12,6 +12,8 @@
 #include <enet/enet.h>
 #include <libtetris.h>
 
+#include "command.h"
+
 G_BEGIN_DECLS
 
 #define NETWORK_TYPE            (network_get_type())
