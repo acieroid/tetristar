@@ -6,6 +6,7 @@ enum {
   CANT_CONNECT,
   NEWPLAYER,
   SAY,
+  BYE,
   LAST_SIGNAL
 };
 
@@ -15,6 +16,7 @@ static struct {
 } recv_signals[] = {
   { NEWPLAYER, "NEWPLAYER" },
   { SAY, "SAY" },
+  { BYE, "BYE" },
   { 0, NULL },
 };
 

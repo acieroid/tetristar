@@ -97,9 +97,25 @@ void say(GtkWidget *widget, Command *command, void *data)
     return;
 
   player = tetris_player_find(g_ascii_strtoll(command->args[0], NULL, 10));
-  chat_add_line(CHAT(window->chat), "<%s> %s",
+  chat_add_line(CHAT(window->chat), "<%s> %s\n",
                 tetris_player_get_nick(player),
                 command->args_str + strlen(command->args[0]) + 1);
+}
+
+void bye(GtkWidget *widget, Command *command, void *data)
+{
+  MainWindow *window = (MainWindow *) data;
+  TetrisPlayer *player;
+
+  /* BYE ID */
+  if (command->n_args != 1)
+    return;
+
+  player = tetris_player_find(g_ascii_strtoll(command->args[0], NULL, 10));
+  chat_add_line(CHAT(window->chat), " * %s has left\n",
+                tetris_player_get_nick(player));
+  tetris_player_remove(player);
+  tetris_player_free(player);
 }
 
 int main(int argc, char *argv[])
@@ -132,6 +148,8 @@ int main(int argc, char *argv[])
                    G_CALLBACK(newplayer), window);
   g_signal_connect(G_OBJECT(window->network), "SAY",
                    G_CALLBACK(say), window);
+  g_signal_connect(G_OBJECT(window->network), "BYE",
+                   G_CALLBACK(bye), window);
 
   window->chat = chat_new();
 

@@ -30,7 +30,7 @@ void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 
   if (player->nick != NULL)
     free(player->nick);
-  player->nick = nick;
+  player->nick = strdup(nick);
 }
 
 int tetris_player_get_id(TetrisPlayer *player)
