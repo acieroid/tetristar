@@ -125,6 +125,13 @@ void bye(GtkWidget *widget, Command *command, void *data)
   tetris_player_free(player);
 }
 
+void quit_everything(GtkWidget *widget, GdkEvent *event, void *data)
+{
+  tetris_deinit();
+  /* TODO: stop & free the network */
+  gtk_main_quit();
+}
+
 int main(int argc, char *argv[])
 {
   MainWindow *window = malloc(sizeof(*window));
@@ -138,7 +145,7 @@ int main(int argc, char *argv[])
   window->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window->window), "Tetristar GTK Client");
   g_signal_connect(G_OBJECT(window->window), "delete-event",
-                   G_CALLBACK(gtk_main_quit), NULL);
+                   G_CALLBACK(quit_everything), window);
 
   window->connect = connect_new();
   g_signal_connect(G_OBJECT(window->connect), "connect",
