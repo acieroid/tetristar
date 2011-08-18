@@ -1,6 +1,6 @@
 #include "lua_functions.h"
 
-static const char *tables_to_create[] = { "players" };
+static const char *tables_to_create[] = { "players", NULL };
 
 static const struct {
   char *table;
