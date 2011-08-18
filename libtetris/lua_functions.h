@@ -1,3 +1,8 @@
+/**
+ * @file lua_functions.h
+ * @brief Implements all the lua functions used to manipulate the game
+ * state
+ */
 #ifndef LIBTETRIS_LUA_FUNCTIONS_H
 #define LIBTETRIS_LUA_FUNCTIONS_H
 
@@ -6,15 +11,11 @@
 #include <lauxlib.h>
 
 #include "player.h"
+#include "plugins.h"
 
-void tetris_setup_lua(lua_State *l);
-
-int l_players_all(lua_State *l);
-int l_players_add(lua_State *l);
-int l_players_get_nick(lua_State *l);
-int l_players_set_nick(lua_State *l);
-int l_players_remove(lua_State *l);
-int l_players_nick_available(lua_State *l);
-int l_players_exists(lua_State *l);
+/**
+ * Create the lua functions
+ */
+void tetris_lua_functions_setup(void);
 
 #endif /* LIBTETRIS_LUA_FUNCTIONS_H */

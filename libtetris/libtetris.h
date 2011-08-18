@@ -4,6 +4,7 @@
 #include "state.h"
 #include "player.h"
 #include "lua_functions.h"
+#include "plugins.h"
 #include "util.h"
 
 void tetris_init();

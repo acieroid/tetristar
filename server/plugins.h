@@ -1,15 +1,29 @@
+/**
+ * @file plugins.h
+ * Implements the network's plugins
+ */
 #ifndef PLUGINS_H
 #define PLUGINS_H
 
 #include <glib.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+#include <libtetris.h>
 
-#include "global_state.h"
 #include "configuration.h"
-#include "lua_plugin.h"
+#include "network.h"
+#include "util.h"
 
+/**
+ * Initializes the network's plugins
+ */
 void plugins_init();
+
+/**
+ * Deinitializes the network's plugins
+ */
 void plugins_deinit();
-void plugins_on_action(int type, int id, char *command, char *args);
 
 #endif /* PLUGINS_H */
 

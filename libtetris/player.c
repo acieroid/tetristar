@@ -1,11 +1,13 @@
 #include "player.h"
 
+static GSList *players = NULL;
+
 TetrisPlayer *tetris_player_new(int id)
 {
-  TetrisPlayer *player = malloc(sizeof(*player));
+  TetrisPlayer *player = g_malloc(sizeof(*player));
   player->id = id;
   player->nick = NULL;
-  player->admin = 0;
+  player->admin = FALSE;
   return player;
 }
 
@@ -13,8 +15,8 @@ void tetris_player_free(TetrisPlayer *player)
 {
   assert(player != NULL);
   if (player->nick != NULL)
-    free(player->nick);
-  free(player);
+    g_free(player->nick);
+  g_free(player);
 }
 
 char *tetris_player_get_nick(TetrisPlayer *player)
@@ -29,8 +31,8 @@ void tetris_player_set_nick(TetrisPlayer *player, char *nick)
   assert(nick != NULL);
 
   if (player->nick != NULL)
-    free(player->nick);
-  player->nick = strdup(nick);
+    g_free(player->nick);
+  player->nick = g_strdup(nick);
 }
 
 int tetris_player_get_id(TetrisPlayer *player)
@@ -39,7 +41,7 @@ int tetris_player_get_id(TetrisPlayer *player)
   return player->id;
 }
 
-int tetris_is_admin(TetrisPlayer *player)
+gboolean tetris_is_admin(TetrisPlayer *player)
 {
   assert(player != NULL);
   return player->admin;
@@ -48,30 +50,17 @@ int tetris_is_admin(TetrisPlayer *player)
 void tetris_set_admin(TetrisPlayer *player)
 {
   assert(player != NULL);
-  player->admin = 1;
-}
-
-int tetris_nick_is_available(char *nick)
-{
-  GSList *elem;
-  TetrisPlayer *player;
-
-  for (elem = tetris_state_get_players(); elem != NULL; elem = elem->next) {
-    player = elem->data;
-    if (strcmp(player->nick, nick) == 0)
-      return 0; /* nick not available */
-  }
-  return 1;
+  player->admin = TRUE;
 }
 
 void tetris_player_add(TetrisPlayer *player)
 {
-  tetris_state_set_players(g_slist_prepend(tetris_state_get_players(), player));
+  players = g_slist_prepend(players, player);
 }
 
 void tetris_player_remove(TetrisPlayer *player)
 {
-  tetris_state_set_players(g_slist_remove(tetris_state_get_players(), player));
+  players = g_slist_remove(players, player);
 }
 
 TetrisPlayer *tetris_player_find(int id)
@@ -79,7 +68,7 @@ TetrisPlayer *tetris_player_find(int id)
   GSList *elem;
   TetrisPlayer *player;
 
-  for (elem = tetris_state_get_players(); elem != NULL; elem = elem->next) {
+  for (elem = players; elem != NULL; elem = elem->next) {
     player = elem->data;
     if (player->id == id)
       return player;
@@ -89,5 +78,19 @@ TetrisPlayer *tetris_player_find(int id)
 
 GSList *tetris_player_all()
 {
-  return tetris_state_get_players();
+  return players;
 }
+
+gboolean tetris_nick_is_available(char *nick)
+{
+  GSList *elem;
+  TetrisPlayer *player;
+
+  for (elem = players; elem != NULL; elem = elem->next) {
+    player = elem->data;
+    if (g_strcmp0(player->nick, nick) == 0)
+      return FALSE;
+  }
+  return TRUE;
+}
+

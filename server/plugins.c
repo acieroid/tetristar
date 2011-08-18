@@ -1,57 +1,64 @@
 #include "plugins.h"
 
+static int l_send(lua_State *l);
+static int l_send_to_all(lua_State *l);
+static int l_get_password(lua_State *l);
+
+static PluginFunction l_functions[] = {
+  { "send", l_send },
+  { "send_to_all", l_send_to_all },
+  { "get_password", l_get_password },
+  { NULL, NULL },
+};
+  
 void plugins_init()
 {
   GSList *plugins_to_load;
-  global_state->plugins = NULL;
 
   /* setup functions */
-  lua_plugin_setup_functions();
+  tetris_plugin_add_functions("server", l_functions);
 
   /* load plugins */
   plugins_to_load = config_get_list("plugins", NULL);;
-  g_slist_foreach(plugins_to_load, (GFunc) lua_plugin_load, NULL);
-  g_slist_free_full(plugins_to_load, (GDestroyNotify) free);
+  g_slist_foreach(plugins_to_load,
+                  (GFunc) tetris_plugin_file_load, NULL);
+  g_slist_free_full(plugins_to_load, (GDestroyNotify) g_free);
 }
 
 void plugins_deinit()
 {
-  g_slist_free_full(PLUGINS, (GDestroyNotify) lua_plugin_free);
 }
 
-void plugins_on_action(int type, int id, char *command, char *args)
+int l_send(lua_State *l)
 {
-  GSList *elem;
-  LuaPlugin *plugin;
-  int nargs;
+  int id;
+  gchar *str = NULL;
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  luaL_checktype(l, 2, LUA_TSTRING);
 
-  for (elem = PLUGINS; elem != NULL; elem = elem->next) {
-    plugin = elem->data;
+  id = lua_tonumber(l, 1);
+  str = g_strdup(lua_tostring(l, 2));
+  assert(str != NULL);
 
-    if (plugin->type == type) {
-      /* the function */
-      lua_rawgeti(LUA_STATE, LUA_REGISTRYINDEX, plugin->function);
+  network_send(network_find_client(id), str);
+  g_free(str);
+  return 0;
+}
 
-      /* the arguments */
-      nargs = 1;
-      lua_pushnumber(LUA_STATE, id);
+int l_send_to_all(lua_State *l)
+{
+  char *str = NULL;
+  luaL_checktype(l, 1, LUA_TSTRING);
+  str = g_strdup(lua_tostring(l, 1));
+  network_send_to_all(str);
+  g_free(str);
+  return 0;
+}
 
-      if (type == PLUGIN_RECV) {
-        if (strcmp(plugin->recv_command, command) == 0) {
-          lua_pushstring(LUA_STATE, command);
-          lua_pushstring(LUA_STATE, args);
-          nargs = 3;
-        }
-        else {
-          /* leave the stack as it was before this iteration */
-          lua_pop(LUA_STATE, 2);
-          continue;
-        }
-      }
-      printf("Executing a %d plugin for %s\n", type, command);
-      if (lua_pcall(LUA_STATE, nargs, 0, 0) != 0)
-        WARN("Error when calling a plugin action: %s",
-             lua_tostring(LUA_STATE, -1));
-    }
-  }
+int l_get_password(lua_State *l)
+{
+  char *password = (char *) config_get_string("password", "foo");
+  lua_pushstring(l, password);
+  free(password);
+  return 1;
 }

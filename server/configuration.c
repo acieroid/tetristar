@@ -8,8 +8,8 @@ void config_init(const char *file)
   luaL_openlibs(LUA_STATE);
 
   DBG("Reading configuration file: %s", file);
-  if (luaL_loadfile(LUA_STATE, file) ||
-      lua_pcall(LUA_STATE, 0, 0, 0))
+  if (luaL_loadfile(LUA_STATE, file) != 0 ||
+      lua_pcall(LUA_STATE, 0, 0, 0) != 0)
     WARN("Unable to load or run the configuration file: %s",
          lua_tostring(LUA_STATE, -1));
 }
