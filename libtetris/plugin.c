@@ -60,7 +60,10 @@ void tetris_plugin_add_function(const gchar *category,
   /* tetris.category.name = fun */
   lua_getglobal(lua_state, "tetris");
   lua_getfield(lua_state, -1, category);
-  g_return_if_fail(lua_type(lua_state, -1) != LUA_TTABLE);
+  if (lua_type(lua_state, -1) != LUA_TTABLE) {
+    g_warning("Category doesn't exists: %s", category);
+    return;
+  }
 
   lua_pushcfunction(lua_state, fun.fun);
   lua_setfield(lua_state, -2, fun.name);

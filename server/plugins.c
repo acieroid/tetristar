@@ -16,6 +16,7 @@ void plugins_init()
   GSList *plugins_to_load;
 
   /* setup functions */
+  tetris_plugin_add_category("server");
   tetris_plugin_add_functions("server", l_functions);
 
   /* load plugins */
