@@ -1,3 +1,7 @@
+/**
+ * @file chat.h
+ * @brief Implement the irc-like chat widget
+ */
 #ifndef CHAT_H
 #define CHAT_H
 
@@ -29,7 +33,10 @@ typedef struct ChatClass {
 GType chat_get_type(void);
 GtkWidget *chat_new(void);
 
-void chat_add_line(Chat *chat, const gchar *format, ...);
+/**
+ * Add some text to the chat
+ */
+void chat_add_text(Chat *chat, const gchar *format, ...);
 
 G_END_DECLS
 

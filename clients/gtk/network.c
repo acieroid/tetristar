@@ -4,20 +4,7 @@ enum {
   CONNECTED,
   DISCONNECTED,
   CANT_CONNECT,
-  NEWPLAYER,
-  SAY,
-  BYE,
   LAST_SIGNAL
-};
-
-static struct {
-  int signal;
-  const gchar *command;
-} recv_signals[] = {
-  { NEWPLAYER, "NEWPLAYER" },
-  { SAY, "SAY" },
-  { BYE, "BYE" },
-  { 0, NULL },
 };
 
 static void network_class_init(NetworkClass *klass);
@@ -65,15 +52,6 @@ void network_class_init(NetworkClass *klass)
                  G_STRUCT_OFFSET(NetworkClass, network),
                  NULL, NULL,
                  g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0);
-  for (i = 0; recv_signals[i].command != NULL; i++) {
-    network_signals[recv_signals[i].signal] =
-      g_signal_new(recv_signals[i].command, G_TYPE_FROM_CLASS(klass),
-                   G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
-                   G_STRUCT_OFFSET(NetworkClass, network),
-                   NULL, NULL,
-                   g_cclosure_marshal_VOID__POINTER, G_TYPE_NONE, 1,
-                   G_TYPE_POINTER);
-  }
 }
 
 void network_init(Network *network)
@@ -89,9 +67,14 @@ Network *network_new()
   return NETWORK(g_object_new(NETWORK_TYPE, NULL));
 }
 
+void network_free(Network *network)
+{
+  network_shutdown(network);
+  g_free(network);
+}
+
 void network_set_host(Network *network, const gchar *server, int port)
 {
-  assert(network != NULL);
   enet_address_set_host(&(network->address), (const char *) server);
   network->address.port = port;
 }
@@ -105,7 +88,6 @@ void network_set_nick(Network *network, const gchar *nick)
 
 void network_shutdown(Network *network)
 {
-  assert(network != NULL);
   enet_peer_disconnect(network->peer, 0);
   network->peer = NULL;
   enet_host_destroy(network->client);
@@ -116,15 +98,8 @@ void network_shutdown(Network *network)
   }
 }
 
-void network_free(Network *network)
-{
-  network_shutdown(network);
-  g_free(network);
-}
-
 void network_connect(Network *network)
 {
-  printf("Connecting network\n");
   ENetEvent event;
   gchar *str;
   assert(network != NULL);
@@ -148,14 +123,12 @@ void network_connect(Network *network)
 
   if (enet_host_service(network->client, &event, WAIT_TIME_FOR_CONNECTION) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {
-    printf("Network connected\n");
     network->connected = 1;
     str = g_strdup_printf("HELLO %s", network->nick);
     network_send(network, str);
     g_free(str);
   }
   else {
-    printf("Can't connect to network\n");
     gdk_threads_enter();
     g_signal_emit(network, network_signals[CANT_CONNECT], 0);
     gdk_threads_leave();
@@ -164,14 +137,12 @@ void network_connect(Network *network)
     
 int network_is_connected(Network *network)
 {
-  assert(network != NULL);
   return network->connected;
 }
 
 void network_send(Network *network, gchar *string)
 {
   ENetPacket *packet;
-  assert(network != NULL);
   packet = enet_packet_create(string, strlen(string)+1,
                               ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(network->peer, 0, packet);
@@ -184,7 +155,6 @@ void network_loop(Network *network)
   ENetEvent event;
   gchar *cmd, *args;
   Command *command;
-  assert(network != NULL);
 
   if (!network_is_connected(network))
     network_connect(network);
@@ -193,26 +163,21 @@ void network_loop(Network *network)
     enet_host_service(network->client, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE:
-      /* TODO: should'nt we destroy the packet ? */
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
                              &cmd, &args);
       command = command_new(cmd, args);
-      printf("%s - %s\n", cmd, args);
+
       gdk_threads_enter();
-      if (g_strcmp0(cmd, "HELLO") == 0) {
+      if (g_strcmp0(cmd, "HELLO") == 0)
         g_signal_emit(network, network_signals[CONNECTED], 0);
-      }
-      for (i = 0; recv_signals[i].command != NULL; i++) {
-        if (g_strcmp0(cmd, recv_signals[i].command) == 0) {
-          g_signal_emit(network, network_signals[recv_signals[i].signal],
-                        0, command);
-        }
-      }
+      tetris_plugin_action(PLUGIN_RECV, -1, command, args);
       gdk_threads_leave();
+
       g_free(cmd);
       g_free(args);
       command_free(command);
+      enet_packet_destroy(event.packet);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:
       network->connected = 0;
@@ -224,7 +189,5 @@ void network_loop(Network *network)
       break;
     }
   }
-  /* TODO: when to free the network ? */
   network_shutdown(network);
-  printf("Network stopped.\n");
 }

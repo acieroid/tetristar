@@ -2,7 +2,7 @@ Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA', 'libtetris')
 
 gtk_env = env.Clone()
 
-sources = ['main.c', 'connect.c', 'network.c', 'chat.c', 'command.c']
+sources = ['main.c', 'connect.c', 'network.c', 'chat.c']
 
 if LINUX == '1':
     gtk_env['LIBS'] += ['enet']

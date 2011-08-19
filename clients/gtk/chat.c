@@ -59,12 +59,25 @@ void chat_init(Chat *chat)
                    GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 }
 
+gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data)
+{
+  Chat *chat = (Chat *) data;
+  if (event->type == GDK_KEY_PRESS &&
+      event->keyval == GDK_KEY_Return) {
+    g_signal_emit(chat, chat_signals[NEW_LINE], 0,
+                  gtk_entry_get_text(GTK_ENTRY(entry)));
+    gtk_entry_set_text(GTK_ENTRY(entry), "");
+    return TRUE;
+  }
+  return FALSE;
+}
+
 GtkWidget *chat_new(void)
 {
   return GTK_WIDGET(g_object_new(CHAT_TYPE, NULL));
 }
 
-void chat_add_line(Chat *chat, const gchar *format, ...)
+void chat_add_tex(Chat *chat, const gchar *format, ...)
 {
   va_list ap;
   gchar *text;
@@ -82,15 +95,3 @@ void chat_add_line(Chat *chat, const gchar *format, ...)
   g_free(text);
 }
 
-gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data)
-{
-  Chat *chat = (Chat *) data;
-  if (event->type == GDK_KEY_PRESS &&
-      event->keyval == GDK_KEY_Return) {
-    g_signal_emit(chat, chat_signals[NEW_LINE], 0,
-                  gtk_entry_get_text(GTK_ENTRY(entry)));
-    gtk_entry_set_text(GTK_ENTRY(entry), "");
-    return TRUE;
-  }
-  return FALSE;
-}
