@@ -1,7 +1,7 @@
 /**
  * @file configuration.h
- * Implements the configuration module, which read a config file and
- * extract its parameters
+ * @brief Implements the configuration module, which read a config
+ * file and extract its parameters
  */
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H

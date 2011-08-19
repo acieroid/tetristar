@@ -1,3 +1,7 @@
+/**
+ * @file network.h
+ * @brief Implements everything related to the network
+ */
 #ifndef NETWORK_H
 #define NETWORK_H
 

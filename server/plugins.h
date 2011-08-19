@@ -1,6 +1,6 @@
 /**
  * @file plugins.h
- * Implements the network's plugins
+ * @brief Implements the network's plugins
  */
 #ifndef PLUGINS_H
 #define PLUGINS_H
