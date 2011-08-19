@@ -2,7 +2,7 @@ Import('env', 'LUA', 'GLIB')
 
 lib_env = env.Clone()
 
-sources = ['libtetris.c', 'state.c', 'player.c', 'lua_functions.c', 'util.c']
+sources = ['libtetris.c', 'plugin.c', 'player.c', 'lua_functions.c', 'util.c']
 LIBS = [LUA, GLIB]
 
 for lib in LIBS:

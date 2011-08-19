@@ -95,8 +95,12 @@ void tetris_plugin_register(PluginType type,
 
 /**
  * Call all the plugins that should be called on a certain action
+ * @param id is the id of the client who sent that command (not
+ * important if the program calling tetris_plugin_action is not a
+ * server or when the action is PLUGIN_SHUTDOWN)
  */
 void tetris_plugin_action(PluginType type,
+                          int id,
                           const gchar *command,
                           const gchar *args);
 

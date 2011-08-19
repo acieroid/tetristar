@@ -11,7 +11,7 @@
 #include <lauxlib.h>
 
 #include "player.h"
-#include "plugins.h"
+#include "plugin.h"
 
 /**
  * Create the lua functions

@@ -1,34 +1,39 @@
-#include <stdio.h>
-#include <string.h>
 #include <signal.h>
 
+#include <glib.h>
 #include <libtetris.h>
 
-#include "global_state.h"
 #include "configuration.h"
 #include "config.h"
 #include "network.h"
 #include "plugins.h"
 
-void tetristar_init(char *configfile)
+static lua_State *lua_state;
+
+void tetristar_init(gchar *configfile)
 {
-  DBG("Initializing tetristar server");
-  global_state_init();
-  config_init(configfile);
+  g_debug("Initializing tetristar server");
+  lua_state = lua_open();
+  luaL_openlibs(lua_state);
+  config_init(lua_state, configfile);
   tetris_init();
-  tetris_setup_lua(LUA_STATE);
+  tetris_plugin_init(lua_state);
+  tetris_id_init(config_get_int("max_clients",
+                                default_max_clients));
   plugins_init();
   network_init();
 }
 
 void tetristar_deinit()
 {
-  DBG("Quitting tetristar server");
+  g_debug("Shutting down tetristar server");
   network_deinit();
   plugins_deinit();
   tetris_deinit();
+  tetris_plugin_deinit();
+  tetris_id_deinit();
   config_deinit();
-  global_state_deinit();
+  lua_close(lua_state);
 }
 
 void catch_sigint(int signum)
@@ -39,17 +44,16 @@ void catch_sigint(int signum)
 
 int main(int argc, char *argv[])
 {
-  char *configfile;
+  gchar *configfile;
   signal(SIGINT, catch_sigint);
 
   if (argc > 1)
-    configfile = argv[1];
+    configfile = g_strdup(argv[1]);
   else
-    configfile = strdup("conf.lua");
+    configfile = g_strdup("config.lua");
 
   tetristar_init(configfile);
-  if (argc <= 1)
-    free(configfile);
+  g_free(configfile);
 
   network_loop();
   tetristar_deinit();

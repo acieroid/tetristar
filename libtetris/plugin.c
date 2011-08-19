@@ -1,4 +1,4 @@
-#include "plugins.h"
+#include "plugin.h"
 
 static lua_State *lua_state = NULL;
 static GSList *plugins = NULL;
@@ -34,7 +34,7 @@ Plugin *tetris_plugin_new(PluginType type,
   Plugin *plugin = g_malloc(sizeof(*plugin));
   plugin->type = type;
   plugin->command = g_strdup(command);
-  plugin->function = function;
+  plugin->function = fun;
   return plugin;
 }
 
@@ -60,10 +60,7 @@ void tetris_plugin_add_function(const gchar *category,
   /* tetris.category.name = fun */
   lua_getglobal(lua_state, "tetris");
   lua_getfield(lua_state, -1, category);
-  if (lua_type(lua_state, -1) != LUA_TTABLE) {
-    WARN("%s is not defined or is not a table", category);
-    return;
-  }
+  g_return_if_fail(lua_type(lua_state, -1) != LUA_TTABLE);
 
   lua_pushcfunction(lua_state, fun.fun);
   lua_setfield(lua_state, -2, fun.name);
@@ -74,7 +71,7 @@ void tetris_plugin_add_functions(const gchar *category,
                                  PluginFunction funs[])
 {
   int i;
-  for (i = 0; funs[i] != NULL; i++)
+  for (i = 0; funs[i].name != NULL; i++)
     tetris_plugin_add_function(category, funs[i]);
 }
 
@@ -82,8 +79,8 @@ void tetris_plugin_file_load(const gchar *file)
 {
   if (luaL_loadfile(lua_state, file) != 0 ||
       lua_pcall(lua_state, 0, 0, 0) != 0)
-    WARN("Error loading a plugin file: %s",
-         lua_tostring(lua_state, -1));
+    g_warning("Error loading a plugin file: %s",
+              lua_tostring(lua_state, -1));
 }
 
 void tetris_plugin_register(PluginType type,
@@ -95,6 +92,7 @@ void tetris_plugin_register(PluginType type,
 }
 
 void tetris_plugin_action(PluginType type,
+                          int id,
                           const gchar *command,
                           const gchar *args)
 {
@@ -108,7 +106,7 @@ void tetris_plugin_action(PluginType type,
       /* the function */
       lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
 
-      nargs = 1;
+      n_args = 1;
       /* first arg: the id of the client */
       lua_pushnumber(lua_state, id);
 
@@ -129,8 +127,48 @@ void tetris_plugin_action(PluginType type,
       }
       /* Execute the plugin */
       if (lua_pcall(lua_state, n_args, 0, 0) != 0)
-        WARN("Error when calling a plugin: %s",
-             lua_tostring(lua_state, -1));
+        g_warning("Error when calling a plugin: %s",
+                  lua_tostring(lua_state, -1));
     }
   }
+}
+
+int l_register(lua_State *l)
+{
+  int type;
+  gchar *type_descr, *recv_command;
+  LuaFunction function;
+
+  luaL_checktype(l, 1, LUA_TSTRING);
+    
+  type_descr = g_strdup(lua_tostring(l, 1));
+  recv_command = NULL;
+
+  if (g_strcmp0(type_descr, "CONNECT") == 0)
+    type = PLUGIN_CONNECT;
+  else if (g_strcmp0(type_descr, "DISCONNECT") == 0)
+    type = PLUGIN_DISCONNECT;
+  else if (g_strcmp0(type_descr, "SHUTDOWN") == 0)
+    type = PLUGIN_SHUTDOWN;
+  else if (g_strcmp0(type_descr, "RECV") == 0)
+    type = PLUGIN_RECV;
+  else {
+    g_warning("Unknown plugin type: %s", type_descr);
+    return 0;
+  }
+  g_free(type_descr);
+
+  luaL_checktype(l, 2, LUA_TFUNCTION);
+  lua_pushvalue(l, 2);
+  function = luaL_ref(l, LUA_REGISTRYINDEX);
+
+  if (type == PLUGIN_RECV) {
+    luaL_checktype(l, 3, LUA_TSTRING);
+    recv_command = g_strdup(lua_tostring(l, 3));
+  }
+
+  tetris_plugin_register(type, recv_command, function);
+  if (recv_command != NULL)
+    g_free(recv_command);
+  return 0;
 }

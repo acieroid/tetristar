@@ -1,9 +1,56 @@
 #include "util.h"
 
-void tetris_extract_command(const gchar *str, int len, gchar **command, gchar **args)
+static int *ids = NULL;
+static int max_id = 0;
+
+void tetris_id_init(int n)
 {
   int i;
-  assert(str != NULL);
+  max_id = n;
+
+  if (ids != NULL)
+    g_free(ids);
+
+  /* keep a track of assigned and free ids */
+  ids = g_malloc(max_id*sizeof(*ids));
+  for (i = 0; i < max_id; i++)
+    ids[i] = 0;
+}
+
+void tetris_id_deinit()
+{
+  g_free(ids);
+}
+
+int tetris_id_new()
+{
+  int i;
+
+  /* find the first free id */
+  for (i = 0; i < max_id; i++) {
+    if (ids[i] == 0) {
+      ids[i] = 1;
+      return i;
+    }
+  }
+
+  /* no more ids available */
+  g_return_val_if_reached(-1);
+}
+
+void tetris_id_free(int id)
+{
+  g_return_if_fail(ids != NULL);
+  ids[id] = 0;
+}
+
+void tetris_extract_command(const gchar *str,
+                            int len,
+                            gchar **command,
+                            gchar **args)
+{
+  int i;
+  g_return_if_fail(str != NULL);
 
   if (len == -1)
     len = strlen(str);

@@ -9,11 +9,6 @@
 #include <glib.h>
 #include <enet/enet.h>
 
-typedef struct Network {
-  ENetHost *server;
-  GSList *clients;
-} Network;
-
 typedef struct GlobalState {
   lua_State *lua_state;
   GSList *plugins;
