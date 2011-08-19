@@ -4,18 +4,18 @@ connection = {}
 function connection.hello(id, command, args)
    nick = args
    -- a client can only send *one* HELLO
-   if not tetris.players.exists(id) then
-     if tetris.players.nick_available(nick) then
+   if not tetris.player.exists(id) then
+     if tetris.player.nick_available(nick) then
         -- Send his nick to the player
         tetris.server.send(id, "HELLO " .. id .. " " .. nick)
         -- Send all the players connected to the player
-        for i,player_id in pairs(tetris.players.all()) do
-           player_nick = tetris.players.get_nick(player_id) 
+        for i,player_id in pairs(tetris.player.all()) do
+           player_nick = tetris.player.get_nick(player_id) 
            tetris.server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
         end
         -- Add the player
-        tetris.players.add(id)
-        tetris.players.set_nick(id, nick)
+        tetris.player.add(id)
+        tetris.player.set_nick(id, nick)
         -- Tell the other players about this one
         tetris.server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
      else
@@ -26,8 +26,8 @@ function connection.hello(id, command, args)
 end
 
 function connection.disconnect(id)
-   tetris.players.remove(id)
-   server.send_to_all("BYE " .. id)
+   tetris.player.remove(id)
+   tetris.server.send_to_all("BYE " .. id)
 end
 
 tetris.plugin.register("DISCONNECT", connection.disconnect)

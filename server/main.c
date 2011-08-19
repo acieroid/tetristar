@@ -24,6 +24,7 @@ void tetristar_init(gchar *configfile)
   g_debug("Initializing libtetris");
   tetris_init();
   tetris_plugin_init(lua_state);
+  tetris_lua_functions_setup();
   tetris_id_init(config_get_int("max_clients",
                                 default_max_clients));
 
