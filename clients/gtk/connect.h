@@ -1,3 +1,8 @@
+/**
+ * @file connect.h
+ * @brief Implement the "connect" widget, displayed when the client is
+ * not connected
+ */
 #ifndef CONNECT_H
 #define CONNECT_H
 
@@ -34,11 +39,30 @@ typedef struct ConnectClass {
 GType connect_get_type(void);
 GtkWidget *connect_new(void);
 
+/**
+ * Return the nick entered by the user
+ */
 const gchar *connect_get_nick(Connect *connect);
+
+/**
+ * Return the server address entered by the user
+ */
 const gchar *connect_get_server(Connect *connect);
+
+/**
+ * Return the port entered by the user
+ */
 int connect_get_port(Connect *connect);
 
+/**
+ * Lock the "connect" button on the widget (to avoid multiple network
+ * threads being launched
+ */
 void connect_lock_button(Connect *connect);
+
+/**
+ * Unlock the "connect" button
+ */
 void connect_unlock_button(Connect *connect);
 
 G_END_DECLS

@@ -15,8 +15,6 @@
 #include <enet/enet.h>
 #include <libtetris.h>
 
-#include "command.h"
-
 G_BEGIN_DECLS
 
 #define NETWORK_TYPE            (network_get_type())
@@ -61,6 +59,12 @@ void network_set_host(Network *network, const gchar *server, int port);
  * Set the nick of this client
  */
 void network_set_nick(Network *network, const gchar *nick);
+
+/**
+ * Shutdown the network (in a way that in can be reconnected with
+ * network_connect)
+ */
+void network_shutdown(Network *network);
 
 /**
  * Connect to the server (set with network_set_host) with the client's

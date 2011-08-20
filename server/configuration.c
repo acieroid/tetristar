@@ -6,8 +6,6 @@ void config_init(lua_State *l, const char *file)
 {
   lua_state = l;
 
-  luaL_openlibs(lua_state);
-
   g_debug("Reading configuration file: %s", file);
   if (luaL_loadfile(lua_state, file) != 0 ||
       lua_pcall(lua_state, 0, 0, 0) != 0)

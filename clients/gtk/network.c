@@ -33,7 +33,6 @@ GType network_get_type(void)
 
 void network_class_init(NetworkClass *klass)
 {
-  int i;
   network_signals[CONNECTED] =
     g_signal_new("connected", G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
@@ -151,10 +150,8 @@ void network_send(Network *network, gchar *string)
 
 void network_loop(Network *network)
 {
-  int i;
   ENetEvent event;
-  gchar *cmd, *args;
-  Command *command;
+  gchar *command, *args;
 
   if (!network_is_connected(network))
     network_connect(network);
@@ -165,18 +162,16 @@ void network_loop(Network *network)
     case ENET_EVENT_TYPE_RECEIVE:
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
-                             &cmd, &args);
-      command = command_new(cmd, args);
+                             &command, &args);
 
       gdk_threads_enter();
-      if (g_strcmp0(cmd, "HELLO") == 0)
+      if (g_strcmp0(command, "HELLO") == 0)
         g_signal_emit(network, network_signals[CONNECTED], 0);
       tetris_plugin_action(PLUGIN_RECV, -1, command, args);
       gdk_threads_leave();
 
-      g_free(cmd);
+      g_free(command);
       g_free(args);
-      command_free(command);
       enet_packet_destroy(event.packet);
       break;
     case ENET_EVENT_TYPE_DISCONNECT:

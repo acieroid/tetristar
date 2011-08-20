@@ -48,7 +48,7 @@ int l_send(lua_State *l)
 
 int l_send_to_all(lua_State *l)
 {
-  char *str = NULL;
+  gchar *str = NULL;
   luaL_checktype(l, 1, LUA_TSTRING);
   str = g_strdup(lua_tostring(l, 1));
   network_send_to_all(str);

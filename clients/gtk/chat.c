@@ -77,7 +77,7 @@ GtkWidget *chat_new(void)
   return GTK_WIDGET(g_object_new(CHAT_TYPE, NULL));
 }
 
-void chat_add_tex(Chat *chat, const gchar *format, ...)
+void chat_add_text(Chat *chat, const gchar *format, ...)
 {
   va_list ap;
   gchar *text;
