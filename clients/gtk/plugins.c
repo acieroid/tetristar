@@ -15,7 +15,6 @@ void plugins_init(lua_State *l, MainWindow *mw)
 {
   lua_state = l;
   main_window = mw;
-  tetris_plugin_init(lua_state);
   tetris_plugin_add_category("client");
   tetris_plugin_add_functions("client", l_functions);
 }
