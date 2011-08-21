@@ -5,9 +5,9 @@
 #ifndef LIBTETRIS_PLAYER_H
 #define LIBTETRIS_PLAYER_H
 
-#include <assert.h>
-
 #include <glib.h>
+
+#include "matrix.h"
 
 /**
  * Represents a player
@@ -16,6 +16,7 @@ typedef struct TetrisPlayer {
   int id;
   gboolean admin;
   gchar *nick;
+  TetrisMatrix *matrix;
 } TetrisPlayer;
 
 /**
@@ -42,6 +43,11 @@ void tetris_player_set_nick(TetrisPlayer *player, gchar *nick);
  * Get the id of a player. The player's id cannot be changed.
  */
 int tetris_player_get_id(TetrisPlayer *player);
+
+/**
+ * Get the TetrisMatrix of the player
+ */
+TetrisMatrix *tetris_player_get_matrix(TetrisPlayer *player);
 
 /**
  * Return TRUE if the player is an admin

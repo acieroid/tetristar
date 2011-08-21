@@ -39,7 +39,6 @@ int l_send(lua_State *l)
 
   id = lua_tonumber(l, 1);
   str = g_strdup(lua_tostring(l, 2));
-  assert(str != NULL);
 
   network_send(network_find_client(id), str);
   g_free(str);

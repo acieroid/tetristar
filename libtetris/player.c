@@ -8,28 +8,26 @@ TetrisPlayer *tetris_player_new(int id)
   player->id = id;
   player->nick = NULL;
   player->admin = FALSE;
+  /** @TODO: take dimensions as parameters somewhere */
+  player->matrix = tetris_matrix_new(10, 22);
   return player;
 }
 
 void tetris_player_free(TetrisPlayer *player)
 {
-  assert(player != NULL);
   if (player->nick != NULL)
     g_free(player->nick);
+  tetris_matrix_free(player->matrix);
   g_free(player);
 }
 
 char *tetris_player_get_nick(TetrisPlayer *player)
 {
-  assert(player != NULL);
   return player->nick;
 }
 
 void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 {
-  assert(player != NULL);
-  assert(nick != NULL);
-
   if (player->nick != NULL)
     g_free(player->nick);
   player->nick = g_strdup(nick);
@@ -37,19 +35,21 @@ void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 
 int tetris_player_get_id(TetrisPlayer *player)
 {
-  assert(player != NULL);
   return player->id;
+}
+
+TetrisMatrix *tetris_player_get_matrix(TetrisPlayer *player)
+{
+  return player->matrix;
 }
 
 gboolean tetris_is_admin(TetrisPlayer *player)
 {
-  assert(player != NULL);
   return player->admin;
 }
 
 void tetris_set_admin(TetrisPlayer *player)
 {
-  assert(player != NULL);
   player->admin = TRUE;
 }
 
@@ -93,4 +93,3 @@ gboolean tetris_nick_is_available(char *nick)
   }
   return TRUE;
 }
-
