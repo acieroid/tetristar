@@ -43,6 +43,18 @@ TetrisMatrix *tetris_player_get_matrix(TetrisPlayer *player)
   return player->matrix;
 }
 
+GSList *tetris_player_get_piece(TetrisPlayer *player)
+{
+  return player->piece;
+}
+
+void tetris_player_set_piece(TetrisPlayer *player, GSList *piece)
+{
+  g_slist_free_full(player->piece,
+                    (GDestroyNotify) tetris_cell_info_free);
+  player->piece = piece;
+}
+
 gboolean tetris_is_admin(TetrisPlayer *player)
 {
   return player->admin;

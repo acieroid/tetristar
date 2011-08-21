@@ -17,6 +17,7 @@ typedef struct TetrisPlayer {
   gboolean admin;
   gchar *nick;
   TetrisMatrix *matrix;
+  GSList *piece;
 } TetrisPlayer;
 
 /**
@@ -48,6 +49,16 @@ int tetris_player_get_id(TetrisPlayer *player);
  * Get the TetrisMatrix of the player
  */
 TetrisMatrix *tetris_player_get_matrix(TetrisPlayer *player);
+
+/**
+ * Get the player's current piece
+ */
+GSList *tetris_player_get_piece(TetrisPlayer *player);
+
+/**
+ * Set the player's current piece
+ */
+void tetris_player_set_piece(TetrisPlayer *player, GSList *piece);
 
 /**
  * Return TRUE if the player is an admin
