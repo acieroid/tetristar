@@ -1,0 +1,85 @@
+game = {}
+
+-- Send the field modifications of a player's field
+function game.send_field(id)
+   -- Get the modifications
+   fieldspec = ""
+   for i, cell in pairs(tetris.field.diff(id)) do
+      x = cell[0]
+      y = cell[1]
+      type = cell[2]
+      fieldspec = fieldspec .. ":" .. x .. "," .. y .. "," .. type
+   end
+   fieldspec = string.sub(fieldspec, 2) -- drop the first colon
+   -- Send the modifications
+   tetris.server.send_to_all("FIELD " .. id .. " " fieldspec)
+   -- Apply the modifications
+   tetris.field.commit(id)
+end
+   
+function game.start(id, command, args)
+   if tetris.player.is_admin(id) then
+      tetris.game.start()
+      tetris.server.send_to_all("START")
+   end
+end
+
+function game.move(id, command, args)
+   direction = args
+   if not (direction == "LEFT" or direction == "RIGHT" 
+           or direction == "DOWN") then
+      -- Unknown direction, we don't do anything
+      return
+   end
+
+   can_move = tetris.field.can_move(id, direction)
+
+   if can_move then
+      -- If the player can move the piece... well it moves it
+      tetris.field.move(id, direction)
+   else if direction == "DOWN"
+      -- If the players move it down and he can't, the piece is
+      -- dropped and the player get a new piece
+      tetris.field.drop(id)
+      piece.new_piece(id)
+   end
+
+   -- Finally send the field modifications
+   game.send_field(id)
+end
+
+function game.rotate(id, command, args)
+   direction = args
+   if not (direction == "LEFT" or direction == "RIGHT") then
+      -- Unknown direction
+      return
+   end
+
+   if tetris.field.can_rotate(id, direction) then
+      tetris.field.rotate(id)
+   end
+
+   game.send_field(id)
+end
+
+function game.drop(id, command, args)
+   -- Drop the piece until it touches another piece, but *is still
+   -- controllable*
+   while tetris.field.can_move(id, "DOWN") do
+      tetris.field.move(id, "DOWN")
+   end
+
+   game.send_field(id)
+end
+
+function game.update()
+   for i, id in pairs(tetris.player.all()) do
+      game.move(id, "MOVE", "DOWN")
+   end
+end
+
+tetris.plugin.register("RECV", game.start, "START")
+tetris.plugin.register("RECV", game.move, "MOVE")
+tetris.plugin.register("RECV", game.move, "ROTATE")
+tetris.plugin.register("RECV", game.drop, "DROP")
+tetris.plugin.register("TIMEOUT", game.update, 1)
