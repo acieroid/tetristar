@@ -71,6 +71,8 @@ void tetris_lua_push_fieldspec(lua_State *l, GSList *spec)
   GSList *elem;
   TetrisCellInfo *info;
 
+  CHECK_STACK(l);
+
   /* create a new table that contains the field spec */
   lua_newtable(l);
 
@@ -90,6 +92,7 @@ void tetris_lua_push_fieldspec(lua_State *l, GSList *spec)
     lua_rawseti(l, -2, i);
   }
   /* and we let the table on the stack */
+  CHECK_STACK(l);
 }
 
 GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
@@ -97,6 +100,7 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
   GSList *res = NULL;
   int x, y;
   TetrisCell cell;
+  CHECK_STACK(l);
 
   /* iterate over the table at index */
   lua_pushnil(l);
@@ -115,6 +119,7 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
     res = g_slist_prepend(res,
                           (gpointer) tetris_cell_info_new(x, y, cell));
   }
+  CHECK_STACK(l);
   return res;
 }
 
@@ -123,6 +128,7 @@ int l_players_all(lua_State *l)
   GSList *elem;
   TetrisPlayer *player;
   int i = 1;
+  CHECK_STACK(l);
 
   lua_newtable(l);
   for (elem = tetris_player_all(); elem != NULL; elem = elem->next) {
@@ -131,6 +137,7 @@ int l_players_all(lua_State *l)
     lua_rawseti(l, -2, i);
     i++;
   }
+  CHECK_STACK(l);
   return 1;
 }
 
@@ -138,12 +145,14 @@ int l_players_add(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
   player = tetris_player_new(id);
   tetris_player_add(player);
+  CHECK_STACK(l);
   return 0;
 }
 
@@ -151,12 +160,14 @@ int l_players_get_nick(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
   lua_pushstring(l, tetris_player_get_nick(player));
+  CHECK_STACK(l);
   return 1;
 }
 
@@ -165,6 +176,7 @@ int l_players_set_nick(lua_State *l)
   int id;
   char *nick;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -174,6 +186,7 @@ int l_players_set_nick(lua_State *l)
   player = tetris_player_find(id);
   tetris_player_set_nick(player, nick);
   g_free(nick);
+  CHECK_STACK(l);
   return 0;
 }
 
@@ -182,6 +195,7 @@ int l_players_get_piece(lua_State *l)
   int id;
   TetrisPlayer *player;
   GSList *piece;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -191,6 +205,7 @@ int l_players_get_piece(lua_State *l)
 
   /* return the piece in a table */
   tetris_lua_push_fieldspec(l, piece);
+  CHECK_STACK(l);
   return 1;
 }
 
@@ -199,6 +214,7 @@ int l_players_set_piece(lua_State *l)
   int id;
   TetrisPlayer *player;
   GSList *piece;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -208,7 +224,7 @@ int l_players_set_piece(lua_State *l)
 
   player = tetris_player_find(id);
   tetris_player_set_piece(player, piece);
- 
+  CHECK_STACK(l);
   return 0;
 }
 
@@ -216,35 +232,41 @@ int l_players_remove(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
   tetris_player_remove(player);
+  CHECK_STACK(l);
   return 0;
 }
 
 int l_players_nick_available(lua_State *l)
 {
   char *nick;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TSTRING);
   nick = g_strdup(lua_tostring(l, 1));
 
   lua_pushboolean(l, tetris_nick_is_available(nick));
   g_free(nick);
+  CHECK_STACK(l);
   return 1; /* return a boolean */
 }
 
 int l_players_exists(lua_State *l)
 {
   int id;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
   lua_pushboolean(l, tetris_player_find(id) != NULL);
+  CHECK_STACK(l);
   return 1; /* return a boolean */
 }
 
@@ -253,6 +275,7 @@ int l_matrix_set_cell(lua_State *l)
   int id, x, y;
   TetrisCell cell;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -273,6 +296,7 @@ int l_matrix_set_cell(lua_State *l)
   player = tetris_player_find(id);
   tetris_matrix_set_cell(tetris_player_get_matrix(player),
                          x, y, cell);
+  CHECK_STACK(l);
   return 0;
 }
 
@@ -281,6 +305,7 @@ int l_matrix_get_cell(lua_State *l)
   int id, x, y;
   TetrisCell cell;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -295,6 +320,7 @@ int l_matrix_get_cell(lua_State *l)
   cell = tetris_matrix_get_cell(tetris_player_get_matrix(player),
                                 x, y);
   lua_pushnumber(l, (int) cell);
+  CHECK_STACK(l);
   return 1;
 }
 
@@ -303,6 +329,7 @@ int l_matrix_diff(lua_State *l)
   int id;
   TetrisPlayer *player;
   GSList *diff;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
@@ -312,7 +339,7 @@ int l_matrix_diff(lua_State *l)
 
   /* return a new table which contains the infos */
   tetris_lua_push_fieldspec(l, diff);
-
+  CHECK_STACK(l);
   return 1;
 }
 
@@ -320,30 +347,38 @@ int l_matrix_commit(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+  CHECK_STACK(l);
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
   tetris_matrix_commit(tetris_player_get_matrix(player));
+  CHECK_STACK(l);
   return 0;
 }
 
 int l_game_start(lua_State *l)
 {
+  CHECK_STACK(l);
   tetris_game_start();
+  CHECK_STACK(l);
   return 0;
 }
 
 int l_game_stop(lua_State *l)
 {
+  CHECK_STACK(l);
   tetris_game_stop();
+  CHECK_STACK(l);
   return 0;
 }
 
 int l_game_is_started(lua_State *l)
 {
+  CHECK_STACK(l);
   gboolean started = tetris_game_is_started();
   lua_pushnumber(l, (int) started);
+  CHECK_STACK(l);
   return 1;
 }
