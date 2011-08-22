@@ -37,7 +37,7 @@ piece.pieces = {
 }
 
 function piece.random_piece()
-   return piece.pieces[math.random(table.getn(piece.pieces))]
+   return piece.pieces[math.random(#piece.pieces)]
 end
 
 function piece.position_from_direction()
