@@ -90,9 +90,11 @@ void tetris_plugin_file_load(const gchar *file)
 {
   CHECK_STACK_START(lua_state);
   if (luaL_loadfile(lua_state, file) != 0 ||
-      lua_pcall(lua_state, 0, 0, 0) != 0)
+      lua_pcall(lua_state, 0, 0, 0) != 0) {
     g_warning("Error loading a plugin file: %s",
               lua_tostring(lua_state, -1));
+    lua_pop(lua_state, 1);
+  }
   CHECK_STACK_END(lua_state, 0);
 }
 
@@ -142,9 +144,11 @@ void tetris_plugin_action(PluginType type,
         }
       }
       /* Execute the plugin */
-      if (lua_pcall(lua_state, n_args, 0, 0) != 0)
+      if (lua_pcall(lua_state, n_args, 0, 0) != 0) {
         g_warning("Error when calling a plugin: %s",
                   lua_tostring(lua_state, -1));
+        lua_pop(lua_state, 1);
+      }
     }
   }
   CHECK_STACK_END(lua_state, 0);

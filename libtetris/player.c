@@ -70,14 +70,14 @@ void tetris_player_set_piece_position(TetrisPlayer *player,
   player->piece_position[1] = position[1];
 }
 
-gboolean tetris_is_admin(TetrisPlayer *player)
+gboolean tetris_player_is_admin(TetrisPlayer *player)
 {
   return player->admin;
 }
 
-void tetris_set_admin(TetrisPlayer *player)
+void tetris_player_set_admin(TetrisPlayer *player, gboolean status)
 {
-  player->admin = TRUE;
+  player->admin = status;
 }
 
 void tetris_player_add(TetrisPlayer *player)

@@ -5,6 +5,8 @@ static int l_players_add(lua_State *l);
 static int l_players_remove(lua_State *l);
 static int l_players_get_nick(lua_State *l);
 static int l_players_set_nick(lua_State *l);
+static int l_players_is_admin(lua_State *l);
+static int l_players_set_admin(lua_State *l);
 static int l_players_get_piece(lua_State *l);
 static int l_players_set_piece(lua_State *l);
 static int l_players_get_piece_position(lua_State *l);
@@ -32,6 +34,8 @@ static struct {
       { "add", l_players_add },
       { "get_nick", l_players_get_nick },
       { "set_nick", l_players_set_nick },
+      { "is_admin", l_players_is_admin },
+      { "set_admin", l_players_set_admin },
       { "get_piece", l_players_get_piece },
       { "set_piece", l_players_set_piece },
       { "get_piece_position", l_players_get_piece_position },
@@ -192,6 +196,38 @@ int l_players_set_nick(lua_State *l)
   player = tetris_player_find(id);
   tetris_player_set_nick(player, nick);
   g_free(nick);
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_players_is_admin(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  lua_pushboolean(l, tetris_player_is_admin(player));
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_players_set_admin(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  luaL_checktype(l, 2, LUA_TBOOLEAN);
+  tetris_player_set_admin(player, lua_toboolean(l, 2));
+
   CHECK_STACK_END(l, 0);
   return 0;
 }

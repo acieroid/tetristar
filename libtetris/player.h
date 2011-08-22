@@ -78,9 +78,9 @@ void tetris_player_set_piece_position(TetrisPlayer *player,
 gboolean tetris_player_is_admin(TetrisPlayer *player);
 
 /**
- * Set the player as an admin
+ * Set the player's admin status
  */
-void tetris_player_set_admin(TetrisPlayer *player);
+void tetris_player_set_admin(TetrisPlayer *player, gboolean status);
 
 /**
  * Add a new player
