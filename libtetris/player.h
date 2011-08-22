@@ -18,6 +18,7 @@ typedef struct TetrisPlayer {
   gchar *nick;
   TetrisMatrix *matrix;
   GSList *piece;
+  int piece_position[2];
 } TetrisPlayer;
 
 /**
@@ -59,6 +60,17 @@ GSList *tetris_player_get_piece(TetrisPlayer *player);
  * Set the player's current piece
  */
 void tetris_player_set_piece(TetrisPlayer *player, GSList *piece);
+
+/**
+ * Get the player's current piece position
+ */
+int *tetris_player_get_piece_position(TetrisPlayer *player);
+
+/**
+ * Set the player's current piece position
+ */
+void tetris_player_set_piece_position(TetrisPlayer *player,
+                                      int position[2]);
 
 /**
  * Return TRUE if the player is an admin

@@ -7,6 +7,8 @@ static int l_players_get_nick(lua_State *l);
 static int l_players_set_nick(lua_State *l);
 static int l_players_get_piece(lua_State *l);
 static int l_players_set_piece(lua_State *l);
+static int l_players_get_piece_position(lua_State *l);
+static int l_players_set_piece_position(lua_State *l);
 static int l_players_nick_available(lua_State *l);
 static int l_players_exists(lua_State *l);
 
@@ -17,6 +19,7 @@ static int l_matrix_commit(lua_State *l);
 
 static int l_game_start(lua_State *l);
 static int l_game_stop(lua_State *l);
+static int l_game_reset(lua_State *l);
 static int l_game_is_started(lua_State *l);
 
 static struct {
@@ -31,6 +34,8 @@ static struct {
       { "set_nick", l_players_set_nick },
       { "get_piece", l_players_get_piece },
       { "set_piece", l_players_set_piece },
+      { "get_piece_position", l_players_get_piece_position },
+      { "set_piece_position", l_players_set_piece_position },
       { "remove", l_players_remove },
       { "nick_available", l_players_nick_available },
       { "exists", l_players_exists },
@@ -48,6 +53,7 @@ static struct {
   { "game", {
       { "start", l_game_start },
       { "stop", l_game_stop },
+      { "reset", l_game_reset },
       { "is_started", l_game_is_started },
       { NULL, NULL }
     }
@@ -228,6 +234,52 @@ int l_players_set_piece(lua_State *l)
   return 0;
 }
 
+int l_players_get_piece_position(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  int *position;
+  CHECK_STACK(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+  position = tetris_player_get_piece_position(player);
+
+  /* return the position as { x, y } */
+  lua_newtable(l);
+  lua_pushnumber(l, position[0]);
+  lua_rawseti(l, -2, 1);
+  lua_pushnumber(l, position[1]);
+  lua_rawseti(l, -2, 2);
+
+  CHECK_STACK(l);
+  return 1;
+}
+
+int l_players_set_piece_position(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  int position[2];
+  CHECK_STACK(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  /* read the position parameter */
+  lua_rawgeti(l, 1, 1);
+  position[0] = lua_tonumber(l, -1);
+  lua_rawgeti(l, 1, 2);
+  position[1] = lua_tonumber(l, -1);
+
+  /* and set the player's piece position */
+  tetris_player_set_piece_position(player, position);
+  CHECK_STACK(l);
+  return 0;
+}
+
 int l_players_remove(lua_State *l)
 {
   int id;
@@ -370,6 +422,14 @@ int l_game_stop(lua_State *l)
 {
   CHECK_STACK(l);
   tetris_game_stop();
+  CHECK_STACK(l);
+  return 0;
+}
+
+int l_game_reset(lua_State *l)
+{
+  CHECK_STACK(l);
+  tetris_game_reset();
   CHECK_STACK(l);
   return 0;
 }
