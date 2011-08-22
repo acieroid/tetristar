@@ -20,7 +20,7 @@ void tetris_plugin_init(lua_State *l)
 
   tetris_plugin_add_category("plugin");
   tetris_plugin_add_functions("plugin", plugin_functions);
-  CHECK_STACK_END(l);
+  CHECK_STACK_END(l, 0);
 }
 
 void tetris_plugin_deinit()
@@ -55,7 +55,7 @@ void tetris_plugin_add_category(const gchar *category)
   lua_newtable(lua_state);
   lua_setfield(lua_state, -2, category);
   lua_pop(lua_state, 1);
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 void tetris_plugin_add_function(const gchar *category,
@@ -73,7 +73,7 @@ void tetris_plugin_add_function(const gchar *category,
   lua_pushcfunction(lua_state, fun.fun);
   lua_setfield(lua_state, -2, fun.name);
   lua_pop(lua_state, 2);
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 void tetris_plugin_add_functions(const gchar *category,
@@ -83,7 +83,7 @@ void tetris_plugin_add_functions(const gchar *category,
   int i;
   for (i = 0; funs[i].name != NULL; i++)
     tetris_plugin_add_function(category, funs[i]);
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 void tetris_plugin_file_load(const gchar *file)
@@ -93,7 +93,7 @@ void tetris_plugin_file_load(const gchar *file)
       lua_pcall(lua_state, 0, 0, 0) != 0)
     g_warning("Error loading a plugin file: %s",
               lua_tostring(lua_state, -1));
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 void tetris_plugin_register(PluginType type,
@@ -103,7 +103,7 @@ void tetris_plugin_register(PluginType type,
   CHECK_STACK_START(lua_state);
   Plugin *plugin = tetris_plugin_new(type, command, function);
   plugins = g_slist_prepend(plugins, (gpointer) plugin);
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 void tetris_plugin_action(PluginType type,
@@ -147,7 +147,7 @@ void tetris_plugin_action(PluginType type,
                   lua_tostring(lua_state, -1));
     }
   }
-  CHECK_STACK_END(lua_state);
+  CHECK_STACK_END(lua_state, 0);
 }
 
 int l_register(lua_State *l)
@@ -188,6 +188,6 @@ int l_register(lua_State *l)
   tetris_plugin_register(type, recv_command, function);
   if (recv_command != NULL)
     g_free(recv_command);
-  CHECK_STACK_END(l);
+  CHECK_STACK_END(l, 0);
   return 0;
 }

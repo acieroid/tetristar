@@ -10,17 +10,17 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-#ifdef DEBUG_LUA_STACK
-#define CHECK_STACK_START(l)                                    \
-  g_debug("Lua stack size: in %s (start) at %s:%d: %d",         \
-          __FUNCTION__, __FILE__, __LINE__, lua_gettop((l)));
-#define CHECK_STACK_END(l)                                     \
-  g_debug("Lua stack size: in %s (end) at %s:%d: %d",          \
-          __FUNCTION__, __FILE__, __LINE__, lua_gettop((l)));
+#ifdef DEBUG
+#define CHECK_STACK_START(l)                    \
+  int lua_stack_size = lua_gettop((l));
+#define CHECK_STACK_END(l, n)                                           \
+  if (lua_gettop((l)) != lua_stack_size + n)                            \
+    g_debug("Lua stack size changed: in %s at %s:%d: %d -> %d",         \
+            __FUNCTION__, __FILE__, __LINE__, lua_stack_size, lua_gettop((l)));
 
 #else
 #define CHECK_STACK_START(l) ;
-#define CHECK_STACK_END(l) ;
+#define CHECK_STACK_END(l, n) ;
 #endif
 
 typedef int LuaFunction;
