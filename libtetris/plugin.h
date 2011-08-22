@@ -11,11 +11,16 @@
 #include <lauxlib.h>
 
 #ifdef DEBUG_LUA_STACK
-#define CHECK_STACK(l)                                          \
-  g_debug("Lua stack size: in %s at %s:%d: %d",                 \
+#define CHECK_STACK_START(l)                                    \
+  g_debug("Lua stack size: in %s (start) at %s:%d: %d",         \
           __FUNCTION__, __FILE__, __LINE__, lua_gettop((l)));
+#define CHECK_STACK_END(l)                                     \
+  g_debug("Lua stack size: in %s (end) at %s:%d: %d",          \
+          __FUNCTION__, __FILE__, __LINE__, lua_gettop((l)));
+
 #else
-#define CHECK_STACK(l) ;
+#define CHECK_STACK_START(l) ;
+#define CHECK_STACK_END(l) ;
 #endif
 
 typedef int LuaFunction;
