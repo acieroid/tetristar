@@ -2,13 +2,15 @@
 
 static int l_send(lua_State *l);
 static int l_send_to_all(lua_State *l);
+static int l_disconnect(lua_State *l);
 static int l_get_password(lua_State *l);
 
 static PluginFunction l_functions[] = {
   { "send", l_send },
   { "send_to_all", l_send_to_all },
+  { "disconnect", l_disconnect },
   { "get_password", l_get_password },
-  { NULL, NULL },
+  { NULL, NULL }
 };
   
 void plugins_init()
@@ -52,6 +54,16 @@ int l_send_to_all(lua_State *l)
   str = g_strdup(lua_tostring(l, 1));
   network_send_to_all(str);
   g_free(str);
+  return 0;
+}
+
+int l_disconnect(lua_State *l)
+{
+  int id;
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  enet_peer_disconnect(network_find_client(id), 0);
   return 0;
 }
 
