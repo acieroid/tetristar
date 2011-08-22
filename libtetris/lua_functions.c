@@ -122,16 +122,20 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
     }
     lua_rawgeti(l, -1, 1);
     x = lua_tonumber(l, -1);
+    lua_pop(l, 1);
     lua_rawgeti(l, -1, 2);
     y = lua_tonumber(l, -1);
+    lua_pop(l, 1);
     lua_rawgeti(l, -1, 3);
     if (lua_tonumber(l, -1) < 0) {
       g_warning("Invalid negative cell type");
       return res;
     }
     cell = lua_tonumber(l, -1);
+    lua_pop(l, 1);
     res = g_slist_prepend(res,
                           (gpointer) tetris_cell_info_new(x, y, cell));
+    lua_pop(l, 1); /* pop the cell */
   }
   CHECK_STACK_END(l, 0);
   return res;
