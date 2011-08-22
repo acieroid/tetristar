@@ -12,7 +12,7 @@ function game.send_field(id)
    end
    fieldspec = string.sub(fieldspec, 2) -- drop the first colon
    -- Send the modifications
-   tetris.server.send_to_all("FIELD " .. id .. " " fieldspec)
+   tetris.server.send_to_all("FIELD " .. id .. " " .. fieldspec)
    -- Apply the modifications
    tetris.field.commit(id)
 end
@@ -21,6 +21,7 @@ function game.start(id, command, args)
    if tetris.player.is_admin(id) then
       tetris.game.start()
       tetris.server.send_to_all("START")
+      tetris.player.set_piece(id, piece.random_piece())
    end
 end
 
@@ -32,12 +33,10 @@ function game.move(id, command, args)
       return
    end
 
-   can_move = tetris.field.can_move(id, direction)
-
-   if can_move then
+   if field.can_move(id, direction) then
       -- If the player can move the piece... well it moves it
-      tetris.field.move(id, direction)
-   else if direction == "DOWN"
+      field.move(id, direction)
+   elseif direction == "DOWN" then
       -- If the players move it down and he can't, the piece is
       -- dropped and the player get a new piece
       tetris.field.drop(id)
@@ -65,8 +64,8 @@ end
 function game.drop(id, command, args)
    -- Drop the piece until it touches another piece, but *is still
    -- controllable*
-   while tetris.field.can_move(id, "DOWN") do
-      tetris.field.move(id, "DOWN")
+   while field.can_move(id, "DOWN") do
+      field.move(id, "DOWN")
    end
 
    game.send_field(id)

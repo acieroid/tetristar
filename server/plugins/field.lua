@@ -2,7 +2,7 @@ field = {}
 
 function field.is_valid_piece(id, p)
    for i, cell in pairs(p) do
-      if tetris.matrix.get_cell(id, cell[x], cell[y]) != 0 then
+      if tetris.matrix.get_cell(id, cell[x], cell[y]) ~= 0 then
          -- already set cell, piece not valid
          return false
       end

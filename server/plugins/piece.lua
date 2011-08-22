@@ -23,7 +23,7 @@ piece.pieces = {
    {
                   {  0, -1 }, {  1, -1 },
       { -1,  0 }, {  0,  0 }
-   }
+   },
 -- The Z
    {
       { -1,  0 }, {  0,  0 },
@@ -82,7 +82,7 @@ function piece.move(p, direction)
 end
 
 function piece.shift(p, position)
-   locan new_p = piece.copy(p)
+   local new_p = piece.copy(p)
    for i, cell in pairs(p) do
       new_p[i][0] = cell[0] + position[0]
       new_p[i][1] = cell[1] + position[1]
