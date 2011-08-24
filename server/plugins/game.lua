@@ -2,9 +2,15 @@ game = {}
 
 -- Send the field modifications of a player's field
 function game.send_field(id)
+   diff = tetris.matrix.diff(id)
+   if #diff = 0 then
+      -- no modification on the field, so we don't send anything
+      return
+   end
+ 
    -- Get the modifications
    fieldspec = ""
-   for i, cell in pairs(tetris.matrix.diff(id)) do
+   for i, cell in pairs(diff) do
       x = cell[1]
       y = cell[2]
       type = cell[3]
