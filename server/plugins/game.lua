@@ -27,6 +27,7 @@ end
 
 function game.move(id, command, args)
    direction = args
+   print("game.move: " .. direction)
    if not (direction == "LEFT" or direction == "RIGHT" 
            or direction == "DOWN") then
       -- Unknown direction, we don't do anything
