@@ -9,6 +9,8 @@
 | admin      | PASSWORD PASS    | ADMIN ID           |                                                                                           |
 |------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
 | game       | START            | START              |                                                                                           |
+|            |                  | PIECE ID FIELDSPEC |                                                                                           |
+|            |                  | PIECEPOS ID X,Y    |                                                                                           |
 |            | MOVE DIRECTION   | FIELD ID FIELDSPEC | DIRECTION is LEFT, RIGHT or DOWN                                                          |
 |            | ROTATE DIRECTION | FIELD ID FIELDSPEC | DIRECTION is LEFT or RIGHT                                                                |
 |            | DROP             | FIELD ID FIELDSPEC |                                                                                           |

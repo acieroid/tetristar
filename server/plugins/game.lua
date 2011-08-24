@@ -1,26 +1,44 @@
 game = {}
 
+-- Convert a field to a fieldspec
+function game.to_fieldspec(field)
+   local fieldspec = ""
+   for i, cell in pairs(field) do
+      local x = cell[1]
+      local y = cell[2]
+      local type = cell[3]
+      fieldspec = fieldspec .. ":" .. x .. "," .. y .. "," .. type
+   end
+   fieldspec = string.sub(fieldspec, 2) -- drop the first colon
+   return fieldspec
+end
+
 -- Send the field modifications of a player's field
 function game.send_field(id)
-   diff = tetris.matrix.diff(id)
+   local diff = tetris.matrix.diff(id)
    if #diff == 0 then
       -- no modification on the field, so we don't send anything
       return
    end
  
    -- Get the modifications
-   fieldspec = ""
-   for i, cell in pairs(diff) do
-      x = cell[1]
-      y = cell[2]
-      type = cell[3]
-      fieldspec = fieldspec .. ":" .. x .. "," .. y .. "," .. type
-   end
-   fieldspec = string.sub(fieldspec, 2) -- drop the first colon
+   local fieldspec = game.to_fieldspec(diff)
    -- Send the modifications
    tetris.server.send_to_all("FIELD " .. id .. " " .. fieldspec)
    -- Apply the modifications
    tetris.matrix.commit(id)
+end
+
+-- Send the actual piece of a player
+function game.send_piece(id)
+   local p = tetris.player.get_piece(id)
+   local fieldspec = game.to_fieldspec(p)
+   -- TODO do not send the PIECE command if the piece hasn't changed
+   tetris.server.send_to_all("PIECE " .. id .. " " .. fieldspec)
+
+   local pos = tetris.player.get_piece_position(id)
+   tetris.server.send_to_all("PIECEPOS " .. id .. " " .. 
+                             pos[1] .. "," .. pos[2])
 end
    
 function game.start(id, command, args)
@@ -46,10 +64,11 @@ function game.move(id, command, args)
       -- If the players move it down and he can't, the piece is
       -- dropped and the player get a new piece
       field.drop(id)
-      piece.new_piece(id)
+      tetris.player.set_piece(id, piece.random_piece())
    end
 
    -- Finally send the field modifications
+   game.send_piece(id)
    game.send_field(id)
 end
 
@@ -64,6 +83,7 @@ function game.rotate(id, command, args)
       field.rotate(id)
    end
 
+   game.send_piece(id)
    game.send_field(id)
 end
 
@@ -74,6 +94,8 @@ function game.drop(id, command, args)
       field.move(id, "DOWN")
    end
    field.drop(id)
+
+   game.send_piece(id)
    game.send_field(id)
 end
 
