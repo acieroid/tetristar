@@ -101,14 +101,13 @@ void network_connect(Network *network)
 {
   ENetEvent event;
   gchar *str;
-  assert(network != NULL);
 
   network->client = enet_host_create(NULL, 1,
 #ifdef HAS_RECENT_ENET
                                      2,
 #endif
                                      0, 0);
-  assert(network->client != NULL);
+  g_return_if_fail(network->client != NULL);
 
   if (network->peer == NULL)
     network->peer = 
@@ -118,7 +117,7 @@ void network_connect(Network *network)
 #endif
                           );
 
-  assert(network->peer != NULL);
+  g_return_if_fail(network->peer != NULL);
 
   if (enet_host_service(network->client, &event, WAIT_TIME_FOR_CONNECTION) > 0 &&
       event.type == ENET_EVENT_TYPE_CONNECT) {

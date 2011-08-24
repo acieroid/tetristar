@@ -2,32 +2,37 @@
 
 static int l_send(lua_State *l);
 static int l_send_to_all(lua_State *l);
+static int l_disconnect(lua_State *l);
 static int l_get_password(lua_State *l);
 
 static PluginFunction l_functions[] = {
   { "send", l_send },
   { "send_to_all", l_send_to_all },
+  { "disconnect", l_disconnect },
   { "get_password", l_get_password },
-  { NULL, NULL },
+  { NULL, NULL }
 };
-  
+
 void plugins_init()
 {
-  GSList *plugins_to_load;
-
   /* setup functions */
   tetris_plugin_add_category("server");
   tetris_plugin_add_functions("server", l_functions);
-
   /* load plugins */
-  plugins_to_load = config_get_list("plugins", NULL);;
-  g_slist_foreach(plugins_to_load,
-                  (GFunc) tetris_plugin_file_load, NULL);
-  g_slist_free_full(plugins_to_load, (GDestroyNotify) g_free);
+  plugins_load_all();
 }
 
 void plugins_deinit()
 {
+}
+
+void plugins_load_all()
+{
+  GSList *plugins_to_load;
+  plugins_to_load = config_get_list("plugins", NULL);;
+  g_slist_foreach(plugins_to_load,
+                  (GFunc) tetris_plugin_file_load, NULL);
+  g_slist_free_full(plugins_to_load, (GDestroyNotify) g_free);
 }
 
 int l_send(lua_State *l)
@@ -39,7 +44,6 @@ int l_send(lua_State *l)
 
   id = lua_tonumber(l, 1);
   str = g_strdup(lua_tostring(l, 2));
-  assert(str != NULL);
 
   network_send(network_find_client(id), str);
   g_free(str);
@@ -53,6 +57,16 @@ int l_send_to_all(lua_State *l)
   str = g_strdup(lua_tostring(l, 1));
   network_send_to_all(str);
   g_free(str);
+  return 0;
+}
+
+int l_disconnect(lua_State *l)
+{
+  int id;
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  enet_peer_disconnect(network_find_client(id), 0);
   return 0;
 }
 

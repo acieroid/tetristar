@@ -34,6 +34,12 @@ GType chat_get_type(void);
 GtkWidget *chat_new(void);
 
 /**
+ * Set the focus to the chat's entry. To be called when the chat is
+ * added to a container
+ */
+void chat_set_focus(Chat *chat);
+
+/**
  * Add some text to the chat
  */
 void chat_add_text(Chat *chat, const gchar *format, ...);

@@ -68,18 +68,17 @@ void send_line(Chat *chat, const gchar *line, gpointer data)
 
 void connected_layout(GtkWidget *widget, gpointer data)
 {
-  printf("Connected!\n");
   MainWindow *window = (MainWindow *) data;
   window->connected = 1;
   g_object_ref(window->connect); /* keep a reference */
   gtk_container_remove(GTK_CONTAINER(window->window), window->connect);
   gtk_container_add(GTK_CONTAINER(window->window), window->chat);
+  chat_set_focus(CHAT(window->chat));
   gtk_widget_show_all(window->chat);
 }
 
 void disconnected_layout(GtkWidget *widget, gpointer data)
 {
-  printf("Disconnected!\n");
   MainWindow *window = (MainWindow *) data;
   if (window->connected) {
     window->connected = 0;

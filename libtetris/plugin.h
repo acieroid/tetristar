@@ -10,6 +10,19 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#ifdef DEBUG
+#define CHECK_STACK_START(l)                    \
+  int lua_stack_size = lua_gettop((l));
+#define CHECK_STACK_END(l, n)                                           \
+  if (lua_gettop((l)) != lua_stack_size + n)                            \
+    g_debug("Lua stack size changed: in %s at %s:%d: %d -> %d",         \
+            __FUNCTION__, __FILE__, __LINE__, lua_stack_size, lua_gettop((l)));
+
+#else
+#define CHECK_STACK_START(l) ;
+#define CHECK_STACK_END(l, n) ;
+#endif
+
 typedef int LuaFunction;
 
 /**
@@ -50,6 +63,11 @@ void tetris_plugin_init(lua_State *l);
  * Deinitialize the plugins (ie. free everything)
  */
 void tetris_plugin_deinit();
+
+/**
+ * Unload all the plugins
+ */
+void tetris_plugin_unload_all();
 
 /**
  * Allocate and return a new plugin

@@ -8,28 +8,29 @@ TetrisPlayer *tetris_player_new(int id)
   player->id = id;
   player->nick = NULL;
   player->admin = FALSE;
+  /** @TODO: take dimensions as parameters somewhere */
+  player->matrix = tetris_matrix_new(10, 22);
+  player->piece = NULL;
+  player->piece_position[0] = 5;
+  player->piece_position[1] = 0;
   return player;
 }
 
 void tetris_player_free(TetrisPlayer *player)
 {
-  assert(player != NULL);
   if (player->nick != NULL)
     g_free(player->nick);
+  tetris_matrix_free(player->matrix);
   g_free(player);
 }
 
 char *tetris_player_get_nick(TetrisPlayer *player)
 {
-  assert(player != NULL);
   return player->nick;
 }
 
 void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 {
-  assert(player != NULL);
-  assert(nick != NULL);
-
   if (player->nick != NULL)
     g_free(player->nick);
   player->nick = g_strdup(nick);
@@ -37,20 +38,47 @@ void tetris_player_set_nick(TetrisPlayer *player, char *nick)
 
 int tetris_player_get_id(TetrisPlayer *player)
 {
-  assert(player != NULL);
   return player->id;
 }
 
-gboolean tetris_is_admin(TetrisPlayer *player)
+TetrisMatrix *tetris_player_get_matrix(TetrisPlayer *player)
 {
-  assert(player != NULL);
+  return player->matrix;
+}
+
+GSList *tetris_player_get_piece(TetrisPlayer *player)
+{
+  return player->piece;
+}
+
+void tetris_player_set_piece(TetrisPlayer *player, GSList *piece)
+{
+  g_slist_free_full(player->piece,
+                    (GDestroyNotify) tetris_cell_info_free);
+  player->piece = piece;
+}
+
+int *tetris_player_get_piece_position(TetrisPlayer *player)
+{
+  return player->piece_position;
+}
+
+void tetris_player_set_piece_position(TetrisPlayer *player,
+                                      int position[2])
+{
+  g_debug("Setting piece position to %d,%d", position[0], position[1]);
+  player->piece_position[0] = position[0];
+  player->piece_position[1] = position[1];
+}
+
+gboolean tetris_player_is_admin(TetrisPlayer *player)
+{
   return player->admin;
 }
 
-void tetris_set_admin(TetrisPlayer *player)
+void tetris_player_set_admin(TetrisPlayer *player, gboolean status)
 {
-  assert(player != NULL);
-  player->admin = TRUE;
+  player->admin = status;
 }
 
 void tetris_player_add(TetrisPlayer *player)
@@ -93,4 +121,3 @@ gboolean tetris_nick_is_available(char *nick)
   }
   return TRUE;
 }
-

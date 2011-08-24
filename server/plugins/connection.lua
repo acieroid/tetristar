@@ -30,5 +30,10 @@ function connection.disconnect(id)
    tetris.server.send_to_all("BYE " .. id)
 end
 
-tetris.plugin.register("DISCONNECT", connection.disconnect)
+function connection.bye(id, command, args)
+   tetris.server.disconnect(id)
+end
+
 tetris.plugin.register("RECV", connection.hello, "HELLO")
+tetris.plugin.register("DISCONNECT", connection.disconnect)
+tetris.plugin.register("RECV", connection.bye, "BYE")

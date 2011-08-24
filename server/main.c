@@ -57,16 +57,27 @@ void tetristar_deinit()
   lua_close(lua_state);
 }
 
-void catch_sigint(int signum)
+void catch_signal(int signum)
 {
-  tetristar_deinit();
-  exit(0);
+  switch (signum) {
+  case SIGINT:
+    tetristar_deinit();
+    exit(0);
+  case SIGUSR1:
+    g_debug("Reloading plugins");
+    tetris_plugin_unload_all();
+    plugins_load_all();
+    break;
+  default:
+    break;
+  }
 }
 
 int main(int argc, char *argv[])
 {
   gchar *configfile;
-  signal(SIGINT, catch_sigint);
+  signal(SIGINT, catch_signal);
+  signal(SIGUSR1, catch_signal);
 
   if (argc > 1)
     configfile = g_strdup(argv[1]);

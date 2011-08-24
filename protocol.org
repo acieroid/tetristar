@@ -1,0 +1,29 @@
+* Table of commands
+| Type       | Client           | Server             | Notes                                                                                     |
+|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
+| connection | HELLO NICK       | NEWPLAYER ID NICK  | The server might change the nick, the client *should* accept the nick given by the server |
+|            | BYE              | BYE ID             |                                                                                           |
+|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
+| im         | SAY TEXT         | SAY ID TEXT        |                                                                                           |
+|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
+| admin      | PASSWORD PASS    | ADMIN ID           |                                                                                           |
+|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
+| game       | START            | START              |                                                                                           |
+|            |                  | PIECE ID FIELDSPEC |                                                                                           |
+|            |                  | PIECEPOS ID X,Y    |                                                                                           |
+|            | MOVE DIRECTION   | FIELD ID FIELDSPEC | DIRECTION is LEFT, RIGHT or DOWN                                                          |
+|            | ROTATE DIRECTION | FIELD ID FIELDSPEC | DIRECTION is LEFT or RIGHT                                                                |
+|            | DROP             | FIELD ID FIELDSPEC |                                                                                           |
+* Description of the field (FIELDSPEC)
+The FIELDSPEC part of the FIELD command describe /changes/ to the
+field. An example of a FIELD command might be:
+
+#+BEGIN_SRC text
+FIELD 0 0,0,1:1,0,1:2,0,1:1,1,1
+#+END_SRC
+
+That means that there are three cell that changed in the field of the
+player 0, each change is separated by a colon. The first cell is
+located at =(0, 0)= (top left corner) and is now of type =1=, the
+second cell is at =(0, 1)= and is also of type 1, etc. This field
+command in fact represent a =T= tetromino.

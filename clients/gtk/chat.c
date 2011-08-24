@@ -46,13 +46,15 @@ void chat_init(Chat *chat)
   gtk_table_resize(GTK_TABLE(chat), 3, 3);
 
   chat->text_view = gtk_text_view_new();
+  gtk_widget_set_can_focus(chat->text_view, FALSE);
+
   gtk_text_view_set_editable(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_table_attach(GTK_TABLE(chat), chat->text_view, 0, 1, 0, 1,
                    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
 
   chat->entry = gtk_entry_new();
-  gtk_signal_connect(G_OBJECT(chat->entry), "key-press-event",
+  gtk_signal_connect(GTK_OBJECT(chat->entry), "key-press-event",
                      G_CALLBACK(chat_on_keypress), chat);
   gtk_widget_add_events (chat->entry, GDK_KEY_PRESS_MASK);
   gtk_table_attach(GTK_TABLE(chat), chat->entry, 0, 1, 1, 2,
@@ -77,6 +79,11 @@ GtkWidget *chat_new(void)
   return GTK_WIDGET(g_object_new(CHAT_TYPE, NULL));
 }
 
+void chat_set_focus(Chat *chat)
+{
+  gtk_widget_grab_focus(chat->entry);
+}
+
 void chat_add_text(Chat *chat, const gchar *format, ...)
 {
   va_list ap;
@@ -94,4 +101,3 @@ void chat_add_text(Chat *chat, const gchar *format, ...)
 
   g_free(text);
 }
-
