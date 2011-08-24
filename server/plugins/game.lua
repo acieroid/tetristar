@@ -5,9 +5,9 @@ function game.send_field(id)
    -- Get the modifications
    fieldspec = ""
    for i, cell in pairs(tetris.field.diff(id)) do
-      x = cell[0]
-      y = cell[1]
-      type = cell[2]
+      x = cell[1]
+      y = cell[2]
+      type = cell[3]
       fieldspec = fieldspec .. ":" .. x .. "," .. y .. "," .. type
    end
    fieldspec = string.sub(fieldspec, 2) -- drop the first colon

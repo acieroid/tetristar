@@ -2,7 +2,7 @@ field = {}
 
 function field.is_valid_piece(id, p)
    for i, cell in pairs(p) do
-      if tetris.matrix.get_cell(id, cell[x], cell[y]) ~= 0 then
+      if tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 then
          -- already set cell, piece not valid
          return false
       end
@@ -45,7 +45,7 @@ function field.drop(id, direction)
    local p = tetris.player.get_piece(id)
    -- add the current piece to the matrix
    for i, cell in pairs(p) do
-      tetris.matrix.set_cell(id, cell[0], cell[1], cell[2])
+      tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
    end
    -- change the piece
    tetris.player.set_piece(id, piece.random_piece())
