@@ -32,6 +32,7 @@ void tetris_plugin_deinit()
 void tetris_plugin_unload_all()
 {
   g_slist_free_full(plugins, (GDestroyNotify) tetris_plugin_free);
+  plugins = NULL;
 }
 
 Plugin *tetris_plugin_new(PluginType type,
