@@ -32,6 +32,8 @@ MainWindow *mainwindow_new(void)
   g_signal_connect(G_OBJECT(window->chat), "new-line",
                    G_CALLBACK(send_line), window);
 
+  window->context = context_new();
+
   /* we start disconnected */
   window->connected = 0;
   disconnected_layout(NULL, window);

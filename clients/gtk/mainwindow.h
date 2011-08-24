@@ -8,12 +8,14 @@
 
 #include "chat.h"
 #include "connect.h"
+#include "context.h"
 #include "network.h"
 
 typedef struct MainWindow {
   GtkWidget *window;
   GtkWidget *connect;
   GtkWidget *chat;
+  GtkWidget *context;
   Network *network;
   int connected;
 } MainWindow;
