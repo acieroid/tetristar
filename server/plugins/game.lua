@@ -4,7 +4,7 @@ game = {}
 function game.send_field(id)
    -- Get the modifications
    fieldspec = ""
-   for i, cell in pairs(tetris.field.diff(id)) do
+   for i, cell in pairs(tetris.matrix.diff(id)) do
       x = cell[1]
       y = cell[2]
       type = cell[3]
@@ -14,7 +14,7 @@ function game.send_field(id)
    -- Send the modifications
    tetris.server.send_to_all("FIELD " .. id .. " " .. fieldspec)
    -- Apply the modifications
-   tetris.field.commit(id)
+   tetris.matrix.commit(id)
 end
    
 function game.start(id, command, args)
@@ -27,7 +27,6 @@ end
 
 function game.move(id, command, args)
    direction = args
-   print("game.move: " .. direction)
    if not (direction == "LEFT" or direction == "RIGHT" 
            or direction == "DOWN") then
       -- Unknown direction, we don't do anything
@@ -40,7 +39,7 @@ function game.move(id, command, args)
    elseif direction == "DOWN" then
       -- If the players move it down and he can't, the piece is
       -- dropped and the player get a new piece
-      tetris.field.drop(id)
+      field.drop(id)
       piece.new_piece(id)
    end
 
@@ -55,8 +54,8 @@ function game.rotate(id, command, args)
       return
    end
 
-   if tetris.field.can_rotate(id, direction) then
-      tetris.field.rotate(id)
+   if field.can_rotate(id, direction) then
+      field.rotate(id)
    end
 
    game.send_field(id)

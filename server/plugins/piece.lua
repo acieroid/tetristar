@@ -61,8 +61,6 @@ end
 
 function piece.copy(p)
    local copy = {}
-   print(p)
-   print("Copying " .. #p)
    for i, cell in pairs(p) do
       copy[i] = {}
       copy[i][1] = cell[1]
@@ -73,9 +71,6 @@ function piece.copy(p)
 end
 
 function piece.move(p, direction)
-   print("piece.move")
-   print(p)
-   print(direction)
    local inc_pos = piece.position_from_direction(direction)
 
    local new_p = piece.copy(p)
@@ -87,9 +82,6 @@ function piece.move(p, direction)
 end
 
 function piece.shift(p, position)
-   print("piece.shift")
-   print(p)
-   print(position)
    local new_p = piece.copy(p)
    for i, cell in pairs(p) do
       new_p[i][1] = cell[1] + position[1]
@@ -99,9 +91,6 @@ function piece.shift(p, position)
 end
 
 function piece.rotate(p, direction)
-   print("piece.rotate")
-   print(p)
-   print(direction)
    -- rotation matrix when theta = 90 degrees
    local rot_right = { { 0 -1 }, { 1, 0 } }
    -- rotation matrix when theta = - 90 degrees

@@ -313,10 +313,13 @@ int l_players_set_piece_position(lua_State *l)
   player = tetris_player_find(id);
 
   /* read the position parameter */
-  lua_rawgeti(l, 1, 1);
+  luaL_checktype(l, 2, LUA_TTABLE);
+  lua_rawgeti(l, 2, 1);
   position[0] = lua_tonumber(l, -1);
-  lua_rawgeti(l, 1, 2);
+  lua_pop(l, 1);
+  lua_rawgeti(l, 2, 2);
   position[1] = lua_tonumber(l, -1);
+  lua_pop(l, 1);
 
   /* and set the player's piece position */
   tetris_player_set_piece_position(player, position);

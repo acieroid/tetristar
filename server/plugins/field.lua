@@ -11,7 +11,6 @@ function field.is_valid_piece(id, p)
 end
 
 function field.can_move(id, direction)
-   print("field.can_move: " .. id .. " " .. direction)
    local p = tetris.player.get_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
    p = piece.move(p, direction)
@@ -19,7 +18,6 @@ function field.can_move(id, direction)
 end
 
 function field.move(id, direction)
-   print("field.move: " .. id .. " " .. direction)
    -- move without checking
    local current_pos = tetris.player.get_piece_position(id)
    local new_pos = piece.add_positions(current_pos,
