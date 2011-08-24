@@ -65,6 +65,11 @@ void tetris_plugin_init(lua_State *l);
 void tetris_plugin_deinit();
 
 /**
+ * Unload all the plugins
+ */
+void tetris_plugin_unload_all();
+
+/**
  * Allocate and return a new plugin
  */
 Plugin *tetris_plugin_new(PluginType type,

@@ -26,6 +26,11 @@ void tetris_plugin_init(lua_State *l)
 void tetris_plugin_deinit()
 {
   lua_state = NULL;
+  tetris_plugin_unload_all();
+}
+
+void tetris_plugin_unload_all()
+{
   g_slist_free_full(plugins, (GDestroyNotify) tetris_plugin_free);
 }
 

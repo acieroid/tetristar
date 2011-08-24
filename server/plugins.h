@@ -25,5 +25,10 @@ void plugins_init();
  */
 void plugins_deinit();
 
+/**
+ * Load all the plugins
+ */
+void plugins_load_all();
+
 #endif /* PLUGINS_H */
 

@@ -12,24 +12,27 @@ static PluginFunction l_functions[] = {
   { "get_password", l_get_password },
   { NULL, NULL }
 };
-  
+
 void plugins_init()
 {
-  GSList *plugins_to_load;
-
   /* setup functions */
   tetris_plugin_add_category("server");
   tetris_plugin_add_functions("server", l_functions);
-
   /* load plugins */
-  plugins_to_load = config_get_list("plugins", NULL);;
-  g_slist_foreach(plugins_to_load,
-                  (GFunc) tetris_plugin_file_load, NULL);
-  g_slist_free_full(plugins_to_load, (GDestroyNotify) g_free);
+  plugins_load_all();
 }
 
 void plugins_deinit()
 {
+}
+
+void plugins_load_all()
+{
+  GSList *plugins_to_load;
+  plugins_to_load = config_get_list("plugins", NULL);;
+  g_slist_foreach(plugins_to_load,
+                  (GFunc) tetris_plugin_file_load, NULL);
+  g_slist_free_full(plugins_to_load, (GDestroyNotify) g_free);
 }
 
 int l_send(lua_State *l)
