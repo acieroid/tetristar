@@ -16,6 +16,8 @@ static int l_players_exists(lua_State *l);
 
 static int l_matrix_set_cell(lua_State *l);
 static int l_matrix_get_cell(lua_State *l);
+static int l_matrix_get_width(lua_State *l);
+static int l_matrix_get_height(lua_State *l);
 static int l_matrix_diff(lua_State *l);
 static int l_matrix_commit(lua_State *l);
 
@@ -49,6 +51,8 @@ static struct {
   { "matrix", {
       { "set_cell", l_matrix_set_cell },
       { "get_cell", l_matrix_get_cell },
+      { "get_width", l_matrix_get_width },
+      { "get_height", l_matrix_get_height },
       { "diff", l_matrix_diff },
       { "commit", l_matrix_commit },
       { NULL, NULL }
@@ -419,6 +423,42 @@ int l_matrix_get_cell(lua_State *l)
   cell = tetris_matrix_get_cell(tetris_player_get_matrix(player),
                                 x, y);
   lua_pushnumber(l, (int) cell);
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_matrix_get_width(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  TetrisMatrix *matrix;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  player = tetris_player_find(id);
+  matrix = tetris_player_get_matrix(player);
+  lua_pushnumber(l, tetris_matrix_get_width(matrix));
+
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_matrix_get_height(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  TetrisMatrix *matrix;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  player = tetris_player_find(id);
+  matrix = tetris_player_get_matrix(player);
+  lua_pushnumber(l, tetris_matrix_get_height(matrix));
+
   CHECK_STACK_END(l, 1);
   return 1;
 }

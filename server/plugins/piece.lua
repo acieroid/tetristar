@@ -40,7 +40,7 @@ function piece.random_piece()
    return piece.pieces[math.random(#piece.pieces)]
 end
 
-function piece.position_from_direction()
+function piece.position_from_direction(direction)
    local inc_x = 0
    local inc_y = 0
    if direction == "LEFT" then
@@ -59,33 +59,23 @@ function piece.add_positions(a, b)
    return { a[1] + b[1], a[2] + b[2] }
 end
 
-function piece.copy(p)
-   local copy = {}
-   for i, cell in pairs(p) do
-      copy[i] = {}
-      copy[i][1] = cell[1]
-      copy[i][2] = cell[2]
-      copy[i][3] = cell[3]
-   end
-   return copy
-end
-
 function piece.move(p, direction)
    local inc_pos = piece.position_from_direction(direction)
-
-   local new_p = piece.copy(p)
+   local new_p = {}
    for i, cell in pairs(p) do
-      new_p[i][1] = cell[1] + inc_pos[1]
-      new_p[i][2] = cell[2] + inc_pos[2]
+      new_p[i] = {cell[1] + inc_pos[1],
+                  cell[2] + inc_pos[2],
+                  cell[3]}
    end
    return new_p
 end
 
 function piece.shift(p, position)
-   local new_p = piece.copy(p)
+   local new_p = {}
    for i, cell in pairs(p) do
-      new_p[i][1] = cell[1] + position[1]
-      new_p[i][2] = cell[2] + position[2]
+      new_p[i] = {cell[1] + position[1],
+                  cell[2] + position[2],
+                  cell[3]}
    end
    return new_p
 end
@@ -104,10 +94,11 @@ function piece.rotate(p, direction)
       return p
    end
 
-   local new_p = piece.copy(p)
+   local new_p = {}
    for i, cell in pairs(p) do
-      new_p[i][1] = cell[1]*rot[1][1] + cell[2]*rot[2][1]
-      new_p[i][2] = cell[1]*rot[2][1] + cell[2]*rot[2][2]
+      new_p[i] = {cell[1]*rot[1][1] + cell[2]*rot[2][1],
+                  cell[1]*rot[2][1] + cell[2]*rot[2][2],
+                  cell[3]}
    end
    return new_p
 end

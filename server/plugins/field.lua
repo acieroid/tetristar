@@ -3,7 +3,6 @@ field = {}
 function field.is_valid_piece(id, p)
    for i, cell in pairs(p) do
       if tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 then
-         -- already set cell, piece not valid
          return false
       end
    end
@@ -12,8 +11,10 @@ end
 
 function field.can_move(id, direction)
    local p = tetris.player.get_piece(id)
+   print("Pos: " .. tetris.player.get_piece_position(id)[2])
    p = piece.shift(p, tetris.player.get_piece_position(id))
    p = piece.move(p, direction)
+   print("Piece y: " .. p[1][2])
    return field.is_valid_piece(id, p)
 end
 
@@ -39,8 +40,9 @@ function field.rotate(id, direction)
    tetris.player.set_piece(id, piece.rotate(p, direction))
 end
 
-function field.drop(id, direction)
+function field.drop(id)
    local p = tetris.player.get_piece(id)
+   p = piece.shift(p, tetris.player.get_piece_position(id))
    -- add the current piece to the matrix
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
@@ -48,3 +50,4 @@ function field.drop(id, direction)
    -- change the piece
    tetris.player.set_piece(id, piece.random_piece())
 end
+

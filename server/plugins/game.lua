@@ -68,12 +68,12 @@ function game.rotate(id, command, args)
 end
 
 function game.drop(id, command, args)
-   -- Drop the piece until it touches another piece, but *is still
-   -- controllable*
+   -- Drop the piece until it touches another piece
    while field.can_move(id, "DOWN") do
+      print("Moving down...")
       field.move(id, "DOWN")
    end
-
+   field.drop(id)
    game.send_field(id)
 end
 

@@ -52,6 +52,16 @@ TetrisMatrix *tetris_matrix_new(int width, int height);
 void tetris_matrix_free(TetrisMatrix *matrix);
 
 /**
+ * Return the width of the matrix
+ */
+int tetris_matrix_get_width(TetrisMatrix *matrix);
+
+/**
+ * Return the height of the matrix
+ */
+int tetris_matrix_get_height(TetrisMatrix *matrix);
+
+/**
  * Change a cell on the matrix. Note that the change aren't directly
  * applied, they should be commited first.
  * @sa tetris_matrix_commit

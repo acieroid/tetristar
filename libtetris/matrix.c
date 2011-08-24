@@ -42,20 +42,34 @@ void tetris_matrix_free(TetrisMatrix *matrix)
   g_free(matrix);
 }
 
+int tetris_matrix_get_width(TetrisMatrix *matrix)
+{
+  return matrix->width;
+}
+
+int tetris_matrix_get_height(TetrisMatrix *matrix)
+{
+  return matrix->height;
+}
+
 void tetris_matrix_set_cell(TetrisMatrix *matrix,
                             int x, int y, TetrisCell cell)
 {
-  matrix->changes =
-    g_slist_prepend(matrix->changes,
-                    (gpointer) tetris_cell_info_new(x, y, cell));
+  if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height)
+    matrix->changes =
+      g_slist_prepend(matrix->changes,
+                      (gpointer) tetris_cell_info_new(x, y, cell));
+  else
+    g_return_if_reached();
 }
 
 TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
                                   int x, int y)
 {
-  if (x < matrix->width && y < matrix->height)
+  if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height)
     return matrix->content[x][y];
-  g_return_val_if_reached(0);
+  /* Outside of the matrix: cell is already occupied */
+  return 1;
 }
 
 GSList *tetris_matrix_diff(TetrisMatrix *matrix)
