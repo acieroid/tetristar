@@ -3,7 +3,7 @@ game = {}
 -- Send the field modifications of a player's field
 function game.send_field(id)
    diff = tetris.matrix.diff(id)
-   if #diff = 0 then
+   if #diff == 0 then
       -- no modification on the field, so we don't send anything
       return
    end
