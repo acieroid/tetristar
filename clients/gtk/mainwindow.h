@@ -4,7 +4,6 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <libtetris.h>
-#include <pthread.h>
 
 #include "chat.h"
 #include "connect.h"

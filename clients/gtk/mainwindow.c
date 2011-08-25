@@ -6,8 +6,6 @@ static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
 
-typedef void *(*PthreadFunc) (void*);
-
 MainWindow *mainwindow_new(void)
 {
   MainWindow *window = g_malloc(sizeof(*window));
@@ -42,7 +40,6 @@ MainWindow *mainwindow_new(void)
 
 void launch_network(GtkWidget *widget, gpointer data)
 {
-  pthread_t thread;
   MainWindow *window = (MainWindow *) data;
 
   network_set_host(window->network,
@@ -53,8 +50,9 @@ void launch_network(GtkWidget *widget, gpointer data)
 
   /* we lock the button to avoid launching multiple network threads */
   connect_lock_button(CONNECT(window->connect));
-  pthread_create(&thread, NULL, (PthreadFunc) network_loop,
-                 (void *) window->network);
+  g_thread_create((GThreadFunc) network_loop,
+                  (gpointer) window->network,
+                  FALSE, NULL);
 }
 
 void send_line(Chat *chat, const gchar *line, gpointer data)
