@@ -119,6 +119,7 @@ gboolean context_draw(GtkWidget *drawing_area)
         gdk_cairo_set_source_color(cairo, &colors[cell]);
       cairo_translate(cairo, x*CELL_SIZE, y*CELL_SIZE);
       cairo_rectangle(cairo, 0, 0, CELL_SIZE, CELL_SIZE);
+      cairo_fill(cairo);
       cairo_restore(cairo);
     }
   }
