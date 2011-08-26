@@ -22,7 +22,7 @@ G_BEGIN_DECLS
 typedef struct Context {
   GtkHBox widget;
 
-  GSList *players;
+  GSList *drawing_areas;
 } Context;
 
 typedef struct ContextClass {

@@ -7,12 +7,13 @@ enum {
 
 static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
+static gint context_compare(gconstpointer a, gconstpointer b);
 static void context_realize (Context *context, gpointer data);
 static gboolean context_expose (Context *context,
                                 GdkEventExpose *event,
                                 gpointer data);
 static gboolean context_idle(gpointer data);
-static gboolean context_draw(TetrisPlayer *player);
+static gboolean context_draw(GtkWidget *drawing_area);
 
 static guint context_signals[LAST_SIGNAL] = { 0 };
 
@@ -53,7 +54,21 @@ void context_class_init(ContextClass *klass)
 
 void context_init(Context *context)
 {
-  context->players = NULL;
+  context->drawing_areas = NULL;
+}
+
+gint context_compare(gconstpointer a, gconstpointer b)
+{
+  GtkWidget *da_a, *da_b;
+  TetrisPlayer *player_a, *player_b;
+  da_a = (GtkWidget *) a;
+  da_b = (GtkWidget *) b;
+
+  player_a = g_object_get_data(G_OBJECT(da_a), "player");
+  player_b = g_object_get_data(G_OBJECT(da_b), "player");
+  if (player_a == player_b)
+    return 0;
+  return 1;
 }
 
 void context_realize(Context *context, gpointer data)
@@ -64,26 +79,30 @@ gboolean context_expose(Context *context,
                         GdkEventExpose *event,
                         gpointer data)
 {
-  TetrisPlayer *player = (TetrisPlayer *) data;
-  return context_draw(player);
+  GtkWidget *drawing_area = (GtkWidget *) data;
+  if (gtk_widget_get_realized(drawing_area))
+    return context_draw(drawing_area);
+  return FALSE;
 }
 
 gboolean context_idle(gpointer data)
 {
-  TetrisPlayer *player = (TetrisPlayer *) data;
-  return context_draw(player);
+  GtkWidget *drawing_area = (GtkWidget *) data;
+  if (gtk_widget_get_realized(drawing_area))
+    return context_draw(drawing_area);
+  return FALSE;
 }
 
-gboolean context_draw(TetrisPlayer *player)
+gboolean context_draw(GtkWidget *drawing_area)
 {
   TetrisMatrix *matrix;
   TetrisCell cell;
-  GtkWidget *drawing_area;
+  TetrisPlayer *player;
   cairo_t *cairo;
   int x, y;
 
-  drawing_area = g_object_get_data(G_OBJECT(player), "drawing-area");
-  cairo = g_object_get_data(G_OBJECT(player), "cairo");
+  player = g_object_get_data(G_OBJECT(drawing_area), "player");
+  cairo = g_object_get_data(G_OBJECT(drawing_area), "cairo");
   if (cairo == NULL)
     cairo = gdk_cairo_create(drawing_area->window);
   matrix = tetris_player_get_matrix(player);
@@ -93,6 +112,7 @@ gboolean context_draw(TetrisPlayer *player)
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
+      g_debug("%d, %d", x, y);
       cell = tetris_matrix_get_cell(matrix, x, y);
       cairo_save(cairo);
       if (cell < N_COLORS)
@@ -113,20 +133,21 @@ GtkWidget *context_new(void)
 void context_add_player(Context *context, TetrisPlayer *player)
 {
   GtkWidget *drawing_area;
-  context->players = g_slist_prepend(context->players, (gpointer) player);
 
   drawing_area = gtk_drawing_area_new();
-#if 0
+  context->drawing_areas = g_slist_prepend(context->drawing_areas,
+                                           (gpointer) drawing_area);
+
   g_signal_connect_after(G_OBJECT(drawing_area), "realize",
-                         G_CALLBACK(context_realize), player);
+                         G_CALLBACK(context_realize), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area), "expose_event",
-                   G_CALLBACK(context_expose), player);
-  gtk_idle_add(context_idle, player);
-#endif
+                   G_CALLBACK(context_expose), drawing_area);
+  gtk_idle_add(context_idle, drawing_area);
 
+  g_object_set_data(G_OBJECT(drawing_area), "player", player);
+  g_object_set_data(G_OBJECT(drawing_area), "cairo", NULL);
 
-  g_object_set_data(G_OBJECT(player), "drawing-area", drawing_area);
-  g_object_set_data(G_OBJECT(player), "cairo", NULL);
+  gtk_container_add(GTK_CONTAINER(context), drawing_area);
 
   gtk_widget_show(drawing_area);
 }
@@ -134,9 +155,12 @@ void context_add_player(Context *context, TetrisPlayer *player)
 void context_remove_player(Context *context, TetrisPlayer *player)
 {
   GtkWidget *drawing_area;
-
-  context->players = g_slist_remove(context->players, (gpointer) player);
-  drawing_area = g_object_get_data(G_OBJECT(player), "drawing-area");
+  GSList *elem = g_slist_find_custom(context->drawing_areas,
+                                     (gpointer) player,
+                                     (GCompareFunc) context_compare);
+  drawing_area = (GtkWidget *) elem->data;
+  context->drawing_areas = g_slist_remove_link(context->drawing_areas,
+                                               elem);
+  gtk_idle_remove_by_data(drawing_area);
   g_free(drawing_area);
-  gtk_idle_remove_by_data(player);
 }
