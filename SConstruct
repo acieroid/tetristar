@@ -18,8 +18,9 @@ else:
 
 GLIB = 'glib-2.0'
 GTK = 'gtk+-2.0'
+CAIRO = 'cairo'
 
-Export('env', 'LINUX', 'LUA', 'GLIB', 'GTK')
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTK', 'CAIRO')
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')

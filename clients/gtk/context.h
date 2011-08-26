@@ -8,6 +8,8 @@
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
+#include <cairo.h>
+#include <libtetris.h>
 
 G_BEGIN_DECLS
 
@@ -20,7 +22,8 @@ G_BEGIN_DECLS
 typedef struct Context {
   GtkWidget widget;
 
-  GSList *drawing_areas;
+  GSList *players;
+  cairo_t *cairo;
 } Context;
 
 typedef struct ContextClass {
@@ -31,6 +34,9 @@ typedef struct ContextClass {
 
 GType context_get_type(void);
 GtkWidget *context_new(void);
+
+void context_add_player(Context *context, TetrisPlayer *player);
+void context_remove_player(Context *context, TetrisPlayer *player);
 
 G_END_DECLS
 
