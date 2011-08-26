@@ -34,6 +34,10 @@ MainWindow *mainwindow_new(void)
 
   window->context = context_new();
 
+  window->vbox = gtk_vbox_new(TRUE, 1);
+  gtk_container_add(GTK_CONTAINER(window->vbox), window->context);
+  gtk_container_add(GTK_CONTAINER(window->vbox), window->chat);
+
   /* we start disconnected */
   window->connected = 0;
   disconnected_layout(NULL, window);
@@ -72,9 +76,9 @@ void connected_layout(GtkWidget *widget, gpointer data)
   window->connected = 1;
   g_object_ref(window->connect); /* keep a reference */
   gtk_container_remove(GTK_CONTAINER(window->window), window->connect);
-  gtk_container_add(GTK_CONTAINER(window->window), window->chat);
+  gtk_container_add(GTK_CONTAINER(window->window), window->vbox);
   chat_set_focus(CHAT(window->chat));
-  gtk_widget_show_all(window->chat);
+  gtk_widget_show_all(window->vbox);
 }
 
 void disconnected_layout(GtkWidget *widget, gpointer data)
@@ -82,8 +86,8 @@ void disconnected_layout(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   if (window->connected) {
     window->connected = 0;
-    g_object_ref(window->chat);
-    gtk_container_remove(GTK_CONTAINER(window->window), window->chat);
+    g_object_ref(window->vbox);
+    gtk_container_remove(GTK_CONTAINER(window->window), window->vbox);
   }
   connect_unlock_button(CONNECT(window->connect));
   gtk_container_add(GTK_CONTAINER(window->window), window->connect);

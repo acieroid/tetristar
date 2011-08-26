@@ -36,7 +36,7 @@ GType context_get_type(void)
       (GInstanceInitFunc) context_init,
     };
 
-    context_type = g_type_register_static(GTK_TYPE_WIDGET, "Context",
+    context_type = g_type_register_static(GTK_TYPE_HBOX, "Context",
                                           &context_info, 0);
   }
 
@@ -53,7 +53,6 @@ void context_class_init(ContextClass *klass)
 
 void context_init(Context *context)
 {
-  context->cairo = NULL;
   context->players = NULL;
 }
 
@@ -117,11 +116,14 @@ void context_add_player(Context *context, TetrisPlayer *player)
   context->players = g_slist_prepend(context->players, (gpointer) player);
 
   drawing_area = gtk_drawing_area_new();
+#if 0
   g_signal_connect_after(G_OBJECT(drawing_area), "realize",
                          G_CALLBACK(context_realize), player);
   g_signal_connect(G_OBJECT(drawing_area), "expose_event",
                    G_CALLBACK(context_expose), player);
   gtk_idle_add(context_idle, player);
+#endif
+
 
   g_object_set_data(G_OBJECT(player), "drawing-area", drawing_area);
   g_object_set_data(G_OBJECT(player), "cairo", NULL);

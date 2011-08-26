@@ -20,14 +20,13 @@ G_BEGIN_DECLS
 #define IS_CONTEXT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE(klass), CONTEXT_TYPE)
 
 typedef struct Context {
-  GtkWidget widget;
+  GtkHBox widget;
 
   GSList *players;
-  cairo_t *cairo;
 } Context;
 
 typedef struct ContextClass {
-  GtkWidgetClass parent_class;
+  GtkHBoxClass parent_class;
 
   void (* context) (Context *chat);
 } ContextClass;
