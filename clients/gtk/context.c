@@ -112,7 +112,6 @@ gboolean context_draw(GtkWidget *drawing_area)
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
-      g_debug("%d, %d", x, y);
       cell = tetris_matrix_get_cell(matrix, x, y);
       cairo_save(cairo);
       if (cell < N_COLORS)
