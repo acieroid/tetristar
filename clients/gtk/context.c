@@ -19,7 +19,7 @@ static guint context_signals[LAST_SIGNAL] = { 0 };
 
 #define N_COLORS 8
 #define DEFAULT_CELL 1
-#define CELL_SIZE 20
+#define CELL_SIZE 10
 static const char *colors_names[N_COLORS] = {
   "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
 };
