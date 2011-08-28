@@ -7,13 +7,15 @@ enum {
 
 static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
-static gint context_compare(gconstpointer a, gconstpointer b);
+static gint context_compare(gpointer a, gpointer b);
 static void context_realize (Context *context, gpointer data);
 static gboolean context_expose (Context *context,
                                 GdkEventExpose *event,
                                 gpointer data);
 static gboolean context_idle(gpointer data);
 static gboolean context_draw(GtkWidget *drawing_area);
+static void context_cairo_draw_cell(cairo_t *cairo, int x, int y,
+                                    TetrisCell cell);
 
 static guint context_signals[LAST_SIGNAL] = { 0 };
 
@@ -57,15 +59,12 @@ void context_init(Context *context)
   context->drawing_areas = NULL;
 }
 
-gint context_compare(gconstpointer a, gconstpointer b)
+gint context_compare(gpointer a, gpointer b)
 {
-  GtkWidget *da_a, *da_b;
   TetrisPlayer *player_a, *player_b;
-  da_a = (GtkWidget *) a;
-  da_b = (GtkWidget *) b;
 
-  player_a = g_object_get_data(G_OBJECT(da_a), "player");
-  player_b = g_object_get_data(G_OBJECT(da_b), "player");
+  player_a = g_object_get_data(G_OBJECT(a), "player");
+  player_b = g_object_get_data(G_OBJECT(b), "player");
   if (player_a == player_b)
     return 0;
   return 1;
@@ -96,8 +95,9 @@ gboolean context_idle(gpointer data)
 gboolean context_draw(GtkWidget *drawing_area)
 {
   TetrisMatrix *matrix;
-  TetrisCell cell;
+  TetrisCellInfo *info;
   TetrisPlayer *player;
+  GSList *elem;
   cairo_t *cairo;
   int x, y;
 
@@ -110,19 +110,30 @@ gboolean context_draw(GtkWidget *drawing_area)
   /* default color */
   gdk_cairo_set_source_color(cairo, &colors[DEFAULT_CELL]);
 
-  for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
-    for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
-      cell = tetris_matrix_get_cell(matrix, x, y);
-      cairo_save(cairo);
-      if (cell < N_COLORS)
-        gdk_cairo_set_source_color(cairo, &colors[cell]);
-      cairo_translate(cairo, x*CELL_SIZE, y*CELL_SIZE);
-      cairo_rectangle(cairo, 0, 0, CELL_SIZE, CELL_SIZE);
-      cairo_fill(cairo);
-      cairo_restore(cairo);
-    }
+  for (x = 0; x < tetris_matrix_get_width(matrix); x++)
+    for (y = 0; y < tetris_matrix_get_height(matrix); y++)
+      context_cairo_draw_cell(cairo, x, y,
+                              tetris_matrix_get_cell(matrix, x, y));
+
+  x = tetris_player_get_piece_position(player)[0];
+  y = tetris_player_get_piece_position(player)[1];
+  for (elem = tetris_player_get_piece(player); elem != NULL;
+       elem = elem->next) {
+    info = elem->data;
+    context_cairo_draw_cell(cairo, x + info->x, y + info->y, info->cell);
   }
   return TRUE;
+}
+
+void context_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
+{
+  cairo_save(cairo);
+  if (cell < N_COLORS)
+    gdk_cairo_set_source_color(cairo, &colors[cell]);
+  cairo_translate(cairo, x*CELL_SIZE, y*CELL_SIZE);
+  cairo_rectangle(cairo, 0, 0, CELL_SIZE, CELL_SIZE);
+  cairo_fill(cairo);
+  cairo_restore(cairo);
 }
 
 GtkWidget *context_new(void)
