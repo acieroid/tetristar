@@ -56,6 +56,7 @@ void context_class_init(ContextClass *klass)
 
 void context_init(Context *context)
 {
+  gtk_widget_set_can_focus(GTK_WIDGET(context), TRUE);
   context->drawing_areas = NULL;
 }
 

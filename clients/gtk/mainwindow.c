@@ -5,6 +5,21 @@ static void send_line(Chat *chat, const gchar *line, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
+static gboolean on_keypress(GtkWidget *widget,
+                            GdkEventKey *event,
+                            gpointer data);
+
+static struct {
+  int keyval;
+  const char command[128];
+} keybinds[] = {
+  { GDK_KEY_Left, "MOVE LEFT" },
+  { GDK_KEY_Right, "MOVE RIGHT" },
+  { GDK_KEY_Down, "MOVE DOWN" },
+  { GDK_KEY_Up, "ROTATE RIGHT" },
+  { GDK_KEY_space, "DROP" },
+  { 0, {} }
+};
 
 typedef void *(*PthreadFunc) (void*);
 
@@ -33,6 +48,8 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(send_line), window);
 
   window->context = context_new();
+  g_signal_connect(G_OBJECT(window->context), "key-press-event",
+                   G_CALLBACK(on_keypress), window);
 
   window->vbox = gtk_vbox_new(TRUE, 1);
   gtk_container_add(GTK_CONTAINER(window->vbox), window->context);
@@ -99,3 +116,22 @@ void unlock_button(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   connect_unlock_button(CONNECT(window->connect));
 }
+
+gboolean on_keypress(GtkWidget *widget,
+                     GdkEventKey *event,
+                     gpointer data)
+{
+  int i;
+  MainWindow *window = (MainWindow *) data;
+
+  if (event->type == GDK_KEY_PRESS) {
+    for (i = 0; keybinds[i].command != NULL; i++) {
+      if (event->keyval == keybinds[i].keyval) {
+        network_send(window->network, (gchar *) keybinds[i].command);
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+}
+    
