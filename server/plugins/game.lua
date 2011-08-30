@@ -84,7 +84,7 @@ function game.rotate(id, command, args)
    end
 
    if field.can_rotate(id, direction) then
-      field.rotate(id)
+      field.rotate(id, direction)
    end
 
    game.send_piece(id)
@@ -110,6 +110,6 @@ end
 
 tetris.plugin.register("RECV", game.start, "START")
 tetris.plugin.register("RECV", game.move, "MOVE")
-tetris.plugin.register("RECV", game.move, "ROTATE")
+tetris.plugin.register("RECV", game.rotate, "ROTATE")
 tetris.plugin.register("RECV", game.drop, "DROP")
 tetris.plugin.register("TIMEOUT", game.update, 1)

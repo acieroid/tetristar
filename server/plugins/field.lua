@@ -8,10 +8,7 @@ function field.new_piece(id)
 end
    
 function field.is_valid_piece(id, p)
-   --print("field.is_valid_piece")
    for i, cell in pairs(p) do
-      -- print(i .. ": " .. cell[1] .. ", " .. cell[2] .. " -> " ..
-      --tetris.matrix.get_cell(id, cell[1], cell[2]))
       if tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 then
          return false
       end
@@ -21,10 +18,8 @@ end
 
 function field.can_move(id, direction)
    local p = tetris.player.get_piece(id)
-   --print("Pos: " .. tetris.player.get_piece_position(id)[2])
    p = piece.shift(p, tetris.player.get_piece_position(id))
    p = piece.move(p, direction)
-   --print("Piece y: " .. p[1][2])
    return field.is_valid_piece(id, p)
 end
 
@@ -40,7 +35,7 @@ function field.can_rotate(id, direction)
    local p = tetris.player.get_piece(id)
    -- take care of doing the rotation before the translation
    p = piece.rotate(p, direction)
-   p = piece.shift_piece(p, tetris_player_get_piece_position(id))
+   p = piece.shift(p, tetris.player.get_piece_position(id))
    return field.is_valid_piece(id, p)
 end
 

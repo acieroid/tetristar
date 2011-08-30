@@ -3,7 +3,7 @@ piece = {}
 piece.pieces = {
 -- The T
    {                { 0, -1, 1 },
-      { -1, 0, 1 }, { 0,  0, 1 }, { 1, 1, 1 }
+      { -1, 0, 1 }, { 0,  0, 1 }, { 1, 0, 1 }
    },
 -- The L
    {
@@ -44,9 +44,9 @@ function piece.position_from_direction(direction)
    local inc_x = 0
    local inc_y = 0
    if direction == "LEFT" then
-      inc_x = 1
-   elseif direction == "RIGHT" then
       inc_x = -1
+   elseif direction == "RIGHT" then
+      inc_x = 1
    elseif direction == "UP" then
       inc_y = -1
    elseif direction == "DOWN" then
@@ -82,7 +82,7 @@ end
 
 function piece.rotate(p, direction)
    -- rotation matrix when theta = 90 degrees
-   local rot_right = { { 0 -1 }, { 1, 0 } }
+   local rot_right = { { 0, -1 }, { 1, 0 } }
    -- rotation matrix when theta = - 90 degrees
    local rot_left = { { 0, 1 }, { -1, 0 } }
    local rot = {}
@@ -93,12 +93,16 @@ function piece.rotate(p, direction)
    else
       return p
    end
+   print("Rotating " .. direction)
+   print(rot[1][1] .. " " .. rot[1][2])
+   print(rot[2][1] .. " " .. rot[2][2])
 
    local new_p = {}
    for i, cell in pairs(p) do
-      new_p[i] = {cell[1]*rot[1][1] + cell[2]*rot[2][1],
+      new_p[i] = {cell[1]*rot[1][1] + cell[2]*rot[1][2],
                   cell[1]*rot[2][1] + cell[2]*rot[2][2],
                   cell[3]}
+      print(cell[1] .. "," .. cell[2] .. " -> " .. new_p[i][1] .. "," .. new_p[i][2])
    end
    return new_p
 end
