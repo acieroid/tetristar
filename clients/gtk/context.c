@@ -9,6 +9,9 @@ static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
 static gint context_compare(gpointer drawing_area, gpointer player);
 static void context_realize (Context *context, gpointer data);
+static gboolean context_configure(Context *context,
+                                  GdkEvent *event,
+                                  gpointer data);
 static gboolean context_expose (Context *context,
                                 GdkEventExpose *event,
                                 gpointer data);
@@ -21,8 +24,8 @@ static guint context_signals[LAST_SIGNAL] = { 0 };
 static GStaticMutex draw_mutex = G_STATIC_MUTEX_INIT;
 
 #define N_COLORS 8
-#define DEFAULT_CELL 1
-#define CELL_SIZE 10
+static int default_cell = 1;
+static int cell_size = 10;
 static const char *colors_names[N_COLORS] = {
   "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
 };
@@ -76,22 +79,30 @@ void context_realize(Context *context, gpointer data)
 {
 }
 
+gboolean context_configure(Context *context,
+                           GdkEvent *event,
+                           gpointer data)
+{
+  GtkAllocation alloc;
+  GtkWidget *drawing_area = (GtkWidget *) data;
+
+  gtk_widget_get_allocation(drawing_area, &alloc);
+  cell_size = alloc.height/22;
+  return context_draw(drawing_area);
+}
+
 gboolean context_expose(Context *context,
                         GdkEventExpose *event,
                         gpointer data)
 {
   GtkWidget *drawing_area = (GtkWidget *) data;
-  if (gtk_widget_get_realized(drawing_area))
-    return context_draw(drawing_area);
-  return FALSE;
+  return context_draw(drawing_area);
 }
 
 gboolean context_idle(gpointer data)
 {
   GtkWidget *drawing_area = (GtkWidget *) data;
-  if (gtk_widget_get_realized(drawing_area))
-    return context_draw(drawing_area);
-  return FALSE;
+  return context_draw(drawing_area);
 }
 
 gboolean context_draw(GtkWidget *drawing_area)
@@ -103,6 +114,9 @@ gboolean context_draw(GtkWidget *drawing_area)
   cairo_t *cairo;
   int x, y;
 
+  if (!gtk_widget_get_realized(drawing_area))
+    return FALSE;
+
   g_static_mutex_lock(&draw_mutex);
 
   player = g_object_get_data(G_OBJECT(drawing_area), "player");
@@ -112,7 +126,7 @@ gboolean context_draw(GtkWidget *drawing_area)
   matrix = tetris_player_get_matrix(player);
 
   /* default color */
-  gdk_cairo_set_source_color(cairo, &colors[DEFAULT_CELL]);
+  gdk_cairo_set_source_color(cairo, &colors[default_cell]);
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++)
     for (y = 0; y < tetris_matrix_get_height(matrix); y++)
@@ -136,8 +150,8 @@ void context_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
   cairo_save(cairo);
   if (cell < N_COLORS)
     gdk_cairo_set_source_color(cairo, &colors[cell]);
-  cairo_translate(cairo, x*CELL_SIZE, y*CELL_SIZE);
-  cairo_rectangle(cairo, 0, 0, CELL_SIZE, CELL_SIZE);
+  cairo_translate(cairo, x*cell_size, y*cell_size);
+  cairo_rectangle(cairo, 0, 0, cell_size, cell_size);
   cairo_fill(cairo);
   cairo_restore(cairo);
 }
@@ -157,7 +171,9 @@ void context_add_player(Context *context, TetrisPlayer *player)
 
   g_signal_connect_after(G_OBJECT(drawing_area), "realize",
                          G_CALLBACK(context_realize), drawing_area);
-  g_signal_connect(G_OBJECT(drawing_area), "expose_event",
+  g_signal_connect(G_OBJECT(drawing_area), "configure-event",
+                   G_CALLBACK(context_configure), drawing_area);
+  g_signal_connect(G_OBJECT(drawing_area), "expose-event",
                    G_CALLBACK(context_expose), drawing_area);
   gtk_idle_add(context_idle, drawing_area);
 
