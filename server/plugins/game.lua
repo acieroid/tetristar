@@ -15,7 +15,6 @@ end
 
 -- Send the field modifications of a player's field
 function game.send_field(id)
-   print("Applying changes")
    local diff = tetris.matrix.diff(id)
    if #diff == 0 then
       -- no modification on the field, so we don't send anything
@@ -49,6 +48,7 @@ function game.start(id, command, args)
       -- each player get a new piece
       for i, player_id in pairs(tetris.player.all()) do
          field.new_piece(player_id)
+         game.send_piece(player_id)
       end
    end
 end

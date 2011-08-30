@@ -134,4 +134,3 @@ gboolean on_keypress(GtkWidget *widget,
   }
   return FALSE;
 }
-    
