@@ -7,7 +7,7 @@ enum {
 
 static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
-static gint context_compare(gpointer a, gpointer b);
+static gint context_compare(gpointer drawing_area, gpointer player);
 static void context_realize (Context *context, gpointer data);
 static gboolean context_expose (Context *context,
                                 GdkEventExpose *event,
@@ -18,6 +18,7 @@ static void context_cairo_draw_cell(cairo_t *cairo, int x, int y,
                                     TetrisCell cell);
 
 static guint context_signals[LAST_SIGNAL] = { 0 };
+static GStaticMutex draw_mutex = G_STATIC_MUTEX_INIT;
 
 #define N_COLORS 8
 #define DEFAULT_CELL 1
@@ -60,12 +61,12 @@ void context_init(Context *context)
   context->drawing_areas = NULL;
 }
 
-gint context_compare(gpointer a, gpointer b)
+gint context_compare(gpointer drawing_area, gpointer player)
 {
   TetrisPlayer *player_a, *player_b;
 
-  player_a = g_object_get_data(G_OBJECT(a), "player");
-  player_b = g_object_get_data(G_OBJECT(b), "player");
+  player_a = g_object_get_data(G_OBJECT(drawing_area), "player");
+  player_b = (TetrisPlayer *) player;
   if (player_a == player_b)
     return 0;
   return 1;
@@ -102,6 +103,8 @@ gboolean context_draw(GtkWidget *drawing_area)
   cairo_t *cairo;
   int x, y;
 
+  g_static_mutex_lock(&draw_mutex);
+
   player = g_object_get_data(G_OBJECT(drawing_area), "player");
   cairo = g_object_get_data(G_OBJECT(drawing_area), "cairo");
   if (cairo == NULL)
@@ -123,6 +126,8 @@ gboolean context_draw(GtkWidget *drawing_area)
     info = elem->data;
     context_cairo_draw_cell(cairo, x + info->x, y + info->y, info->cell);
   }
+
+  g_static_mutex_unlock(&draw_mutex);
   return TRUE;
 }
 
@@ -167,12 +172,21 @@ void context_add_player(Context *context, TetrisPlayer *player)
 void context_remove_player(Context *context, TetrisPlayer *player)
 {
   GtkWidget *drawing_area;
+  /* take care of not removing a player while we're drawing */
+  g_static_mutex_lock(&draw_mutex);
+
   GSList *elem = g_slist_find_custom(context->drawing_areas,
                                      (gpointer) player,
                                      (GCompareFunc) context_compare);
+  if (elem == NULL)
+    g_return_if_reached();
   drawing_area = (GtkWidget *) elem->data;
   context->drawing_areas = g_slist_remove_link(context->drawing_areas,
                                                elem);
+  gtk_container_remove(GTK_CONTAINER(context), drawing_area);
   gtk_idle_remove_by_data(drawing_area);
+  /*gtk_widget_set_realized(drawin_area, FALSE)*/
   g_free(drawing_area);
+
+  g_static_mutex_unlock(&draw_mutex);
 }
