@@ -93,16 +93,12 @@ function piece.rotate(p, direction)
    else
       return p
    end
-   print("Rotating " .. direction)
-   print(rot[1][1] .. " " .. rot[1][2])
-   print(rot[2][1] .. " " .. rot[2][2])
 
    local new_p = {}
    for i, cell in pairs(p) do
       new_p[i] = {cell[1]*rot[1][1] + cell[2]*rot[1][2],
                   cell[1]*rot[2][1] + cell[2]*rot[2][2],
                   cell[3]}
-      print(cell[1] .. "," .. cell[2] .. " -> " .. new_p[i][1] .. "," .. new_p[i][2])
    end
    return new_p
 end

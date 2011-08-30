@@ -66,7 +66,6 @@ int *tetris_player_get_piece_position(TetrisPlayer *player)
 void tetris_player_set_piece_position(TetrisPlayer *player,
                                       int position[2])
 {
-  g_debug("Setting piece position to %d,%d", position[0], position[1]);
   player->piece_position[0] = position[0];
   player->piece_position[1] = position[1];
 }
