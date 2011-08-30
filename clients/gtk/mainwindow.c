@@ -11,14 +11,14 @@ static gboolean on_keypress(GtkWidget *widget,
 
 static struct {
   int keyval;
-  const char command[128];
+  const char *command;
 } keybinds[] = {
   { GDK_KEY_Left, "MOVE LEFT" },
   { GDK_KEY_Right, "MOVE RIGHT" },
   { GDK_KEY_Down, "MOVE DOWN" },
   { GDK_KEY_Up, "ROTATE RIGHT" },
   { GDK_KEY_space, "DROP" },
-  { 0, {} }
+  { GDK_KEY_VoidSymbol, NULL }
 };
 
 typedef void *(*PthreadFunc) (void*);
