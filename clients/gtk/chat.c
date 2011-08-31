@@ -7,7 +7,9 @@ enum {
 
 static void chat_class_init(ChatClass *klass);
 static void chat_init(Chat *chat);
-static gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data);
+static gboolean chat_on_keypress(GtkWidget *entry,
+                                 GdkEventKey *event,
+                                 gpointer data);
 
 static guint chat_signals[LAST_SIGNAL] = { 0 };
 
@@ -61,7 +63,9 @@ void chat_init(Chat *chat)
                    GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 }
 
-gboolean chat_on_keypress(GtkWidget *entry, GdkEventKey *event, void *data)
+gboolean chat_on_keypress(GtkWidget *entry,
+                          GdkEventKey *event,
+                          gpointer data)
 {
   Chat *chat = (Chat *) data;
   if (event->type == GDK_KEY_PRESS &&

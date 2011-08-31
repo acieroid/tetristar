@@ -40,12 +40,16 @@ function game.send_piece(id)
    tetris.server.send_to_all("PIECEPOS " .. id .. " " .. 
                              pos[1] .. "," .. pos[2])
 end
-   
+
 function game.start(id, command, args)
    if tetris.player.is_admin(id) then
       tetris.game.start()
       tetris.server.send_to_all("START")
-      tetris.player.set_piece(id, piece.random_piece())
+      -- each player get a new piece
+      for i, player_id in pairs(tetris.player.all()) do
+         field.new_piece(player_id)
+         game.send_piece(player_id)
+      end
    end
 end
 
@@ -64,7 +68,7 @@ function game.move(id, command, args)
       -- If the players move it down and he can't, the piece is
       -- dropped and the player get a new piece
       field.drop(id)
-      tetris.player.set_piece(id, piece.random_piece())
+      field.new_piece(id);
    end
 
    -- Finally send the field modifications
@@ -80,7 +84,7 @@ function game.rotate(id, command, args)
    end
 
    if field.can_rotate(id, direction) then
-      field.rotate(id)
+      field.rotate(id, direction)
    end
 
    game.send_piece(id)
@@ -90,7 +94,6 @@ end
 function game.drop(id, command, args)
    -- Drop the piece until it touches another piece
    while field.can_move(id, "DOWN") do
-      print("Moving down...")
       field.move(id, "DOWN")
    end
    field.drop(id)
@@ -107,6 +110,6 @@ end
 
 tetris.plugin.register("RECV", game.start, "START")
 tetris.plugin.register("RECV", game.move, "MOVE")
-tetris.plugin.register("RECV", game.move, "ROTATE")
+tetris.plugin.register("RECV", game.rotate, "ROTATE")
 tetris.plugin.register("RECV", game.drop, "DROP")
 tetris.plugin.register("TIMEOUT", game.update, 1)
