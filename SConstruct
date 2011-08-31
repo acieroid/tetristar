@@ -17,10 +17,11 @@ else:
     LUA = 'lua-5.1'
 
 GLIB = 'glib-2.0'
+GTHREAD = 'gthread-2.0'
 GTK = 'gtk+-2.0'
 CAIRO = 'cairo'
 
-Export('env', 'LINUX', 'LUA', 'GLIB', 'GTK', 'CAIRO')
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO')
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')

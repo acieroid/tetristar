@@ -10,6 +10,8 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "util.h"
+
 #ifdef DEBUG
 #define CHECK_STACK_START(l)                    \
   int lua_stack_size = lua_gettop((l));
@@ -33,6 +35,7 @@ typedef enum PluginType {
   PLUGIN_DISCONNECT,
   PLUGIN_SHUTDOWN,
   PLUGIN_RECV,
+  PLUGIN_TIMEOUT,
 } PluginType;
 
 /**
@@ -43,6 +46,7 @@ typedef struct Plugin {
   PluginType type;
   gchar *command;
   LuaFunction function;
+  int timeout, last_call;
 } Plugin;
 
 /**
@@ -74,7 +78,8 @@ void tetris_plugin_unload_all();
  */
 Plugin *tetris_plugin_new(PluginType type,
                           const gchar *command,
-                          LuaFunction fun);
+                          LuaFunction fun,
+                          int timeout);
 
 /**
  * Free a plugin created with tetris_plugin_new
@@ -109,7 +114,8 @@ void tetris_plugin_file_load(const gchar *file);
  */
 void tetris_plugin_register(PluginType type,
                             const gchar *command,
-                            LuaFunction function);
+                            LuaFunction function,
+                            int timeout);
 
 /**
  * Call all the plugins that should be called on a certain action

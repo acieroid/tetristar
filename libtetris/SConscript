@@ -1,10 +1,10 @@
-Import('env', 'LUA', 'GLIB')
+Import('env', 'LUA', 'GLIB', 'GTHREAD')
 
 lib_env = env.Clone()
 
 sources = ['libtetris.c', 'plugin.c', 'player.c', 'matrix.c',
            'game.c', 'lua_functions.c', 'util.c']
-LIBS = [LUA, GLIB]
+LIBS = [LUA, GLIB, GTHREAD]
 
 for lib in LIBS:
     lib_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')

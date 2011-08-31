@@ -64,3 +64,19 @@ void tetris_extract_command(const gchar *str,
   i++;
   *args = g_strndup(str+i, len-i);
 }
+
+int tetris_gcd(int a, int b)
+{
+  int tmp;
+  while (b != 0) {
+    tmp = b;
+    b = a % b;
+    a = tmp;
+  }
+  return a;
+}
+
+void tetris_usleep(guint microseconds)
+{
+  usleep(microseconds);
+}
