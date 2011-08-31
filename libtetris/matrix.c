@@ -67,8 +67,12 @@ TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
                                   int x, int y)
 {
   if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height)
+    /* in the matrix */
     return matrix->content[x][y];
-  /* Outside of the matrix: cell is already occupied */
+  if (x >= 0 && x < matrix->width && y < 0)
+    /* on the top of the matrix, where the pieces starts to fall */
+    return 0;
+  /* borders are inaccessibles */
   return 1;
 }
 
