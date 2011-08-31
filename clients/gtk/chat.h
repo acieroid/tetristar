@@ -5,6 +5,8 @@
 #ifndef CHAT_H
 #define CHAT_H
 
+#include <string.h>
+
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>

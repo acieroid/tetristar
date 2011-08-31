@@ -2,6 +2,8 @@
 
 enum {
   NEW_LINE,
+  COMMAND_PASSWORD,
+  COMMAND_START,
   LAST_SIGNAL
 };
 
@@ -12,6 +14,15 @@ static gboolean chat_on_keypress(GtkWidget *entry,
                                  gpointer data);
 
 static guint chat_signals[LAST_SIGNAL] = { 0 };
+
+static struct {
+  int signal;
+  gchar *command;
+} commands[] =   {
+  { COMMAND_PASSWORD, "password" },
+  { COMMAND_START, "start" },
+  { 0, NULL }
+};
 
 GType chat_get_type(void)
 {
@@ -34,13 +45,23 @@ GType chat_get_type(void)
 
 void chat_class_init(ChatClass *klass)
 {
+  int i;
+
   chat_signals[NEW_LINE] =
     g_signal_new("new-line", G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
-                 G_STRUCT_OFFSET (ChatClass, chat),
+                 G_STRUCT_OFFSET(ChatClass, chat),
                  NULL, NULL,
                  g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
                  G_TYPE_STRING);
+  for (i = 0; commands[i].command != NULL; i++)
+    chat_signals[commands[i].signal] =
+      g_signal_new(commands[i].command, G_TYPE_FROM_CLASS(klass),
+                   G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                   G_STRUCT_OFFSET(ChatClass, chat),
+                   NULL, NULL,
+                   g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                   G_TYPE_STRING);
 }
 
 void chat_init(Chat *chat)
@@ -68,10 +89,35 @@ gboolean chat_on_keypress(GtkWidget *entry,
                           gpointer data)
 {
   Chat *chat = (Chat *) data;
+  gchar *text;
+  int signal = NEW_LINE;
+  int i;
+  int text_size, command_size;
+
   if (event->type == GDK_KEY_PRESS &&
       event->keyval == GDK_KEY_Return) {
-    g_signal_emit(chat, chat_signals[NEW_LINE], 0,
-                  gtk_entry_get_text(GTK_ENTRY(entry)));
+    text = (gchar *) gtk_entry_get_text(GTK_ENTRY(entry));
+    text_size = strlen(text);
+
+    if (text_size == 0)
+      return TRUE;
+
+    if (text[0] == '/') {
+      for (i = 0; commands[i].command != NULL; i++) {
+        command_size = strlen(commands[i].command);
+        if (text_size < command_size)
+          continue;
+
+        if (g_ascii_strncasecmp(text+1, commands[i].command,
+                                command_size) == 0) {
+          signal = commands[i].signal;
+          /*           '/'  command       ' ' args... */
+          text = text + 1 + command_size + 1;
+        }
+      }
+    }
+
+    g_signal_emit(chat, chat_signals[signal], 0, text);
     gtk_entry_set_text(GTK_ENTRY(entry), "");
     return TRUE;
   }

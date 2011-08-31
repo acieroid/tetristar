@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 
 static void launch_network(GtkWidget *widget, gpointer data);
-static void send_line(Chat *chat, const gchar *line, gpointer data);
+static void send_command(Chat *chat, const gchar *args, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
@@ -11,7 +11,7 @@ static gboolean on_keypress(GtkWidget *widget,
 
 static struct {
   int keyval;
-  const char *command;
+  const gchar *command;
 } keybinds[] = {
   { GDK_KEY_Left, "MOVE LEFT" },
   { GDK_KEY_Right, "MOVE RIGHT" },
@@ -21,11 +21,29 @@ static struct {
   { GDK_KEY_VoidSymbol, NULL }
 };
 
+static struct {
+  const gchar *signal;
+  const gchar *command;
+  gboolean has_args;
+} commands[] = {
+  { "new-line", "SAY", TRUE },
+  { "password", "PASSWORD", TRUE },
+  { "start", "START", FALSE },
+  { 0, NULL, FALSE }
+};
+
+struct CommandInfo {
+  MainWindow *window;
+  int command_id;
+};
+
 typedef void *(*PthreadFunc) (void*);
 
 MainWindow *mainwindow_new(void)
 {
+  int i;
   MainWindow *window = g_malloc(sizeof(*window));
+  struct CommandInfo *command_info;
 
   window->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window->window),
@@ -44,8 +62,13 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(unlock_button), window);
 
   window->chat = chat_new();
-  g_signal_connect(G_OBJECT(window->chat), "new-line",
-                   G_CALLBACK(send_line), window);
+  for (i = 0; commands[i].command != NULL; i++) {
+    command_info = g_malloc(sizeof(*command_info));
+    command_info->command_id = i;
+    command_info->window = window;
+    g_signal_connect(G_OBJECT(window->chat), commands[i].signal,
+                     G_CALLBACK(send_command), command_info);
+  }
 
   window->context = context_new();
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
@@ -80,11 +103,20 @@ void launch_network(GtkWidget *widget, gpointer data)
                  (void *) window->network);
 }
 
-void send_line(Chat *chat, const gchar *line, gpointer data)
+void send_command(Chat *chat, const gchar *args, gpointer data)
 {
-  MainWindow *window = (MainWindow *) data;
-  gchar *str = g_strdup_printf("SAY %s", line);
-  network_send(window->network, str);
+  struct CommandInfo *command_info = (struct CommandInfo *) data;
+  gchar *str;
+
+  if (commands[command_info->command_id].has_args)
+    str = g_strdup_printf("%s %s",
+                          commands[command_info->command_id].command,
+                          args);
+  else
+    str = g_strdup_printf("%s", commands[command_info->command_id].command);
+
+  network_send(command_info->window->network, str);
+  g_free(str);
 }
 
 void connected_layout(GtkWidget *widget, gpointer data)
