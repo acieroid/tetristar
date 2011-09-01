@@ -8,24 +8,37 @@
 #include "network.h"
 #include "plugins.h"
 
+static MainWindow *mainwindow = NULL;
+static lua_State *lua_state = NULL;
+
 void quit_everything(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-  tetris_deinit();
-  /* TODO: stop & free the network */
+  g_debug("Shutting down plugins");
+  plugins_deinit();
+
+  g_debug("Destroying main window");
+  //mainwindow_destroy(mainwindow);
+
+  g_debug("Quitting gtk");
   gtk_main_quit();
+
+  g_debug("Shutting down libtetris");
+  tetris_plugin_deinit();
+  tetris_deinit();
+
+  g_debug("Shutting down lua");
+  lua_close(lua_state);
 }
 
 int main(int argc, char *argv[])
 {
-  MainWindow *mainwindow;
-
   g_debug("Initializing lua");
-  lua_State *l = lua_open();
-  luaL_openlibs(l);
+  lua_state = lua_open();
+  luaL_openlibs(lua_state);
 
   g_debug("Initializing libtetris");
   tetris_init();
-  tetris_plugin_init(l);
+  tetris_plugin_init(lua_state);
   tetris_lua_functions_setup();
 
   g_debug("Initializing GLib and GTK");
@@ -39,13 +52,13 @@ int main(int argc, char *argv[])
                    G_CALLBACK(quit_everything), NULL);
 
   g_debug("Initializing clients plugins");
-  plugins_init(l, mainwindow);
+  plugins_init(lua_state, mainwindow);
 
   g_debug("Loading config.lua");
-  if (luaL_loadfile(l, "config.lua") != 0 ||
-      lua_pcall(l, 0, 0, 0) != 0)
+  if (luaL_loadfile(lua_state, "config.lua") != 0 ||
+      lua_pcall(lua_state, 0, 0, 0) != 0)
     g_warning("Unable to load or run config.lua: %s",
-              lua_tostring(l, -1));
+              lua_tostring(lua_state, -1));
 
   g_debug("Launching main loop");
   gtk_main();

@@ -22,6 +22,7 @@ typedef struct MainWindow {
 } MainWindow;
 
 MainWindow *mainwindow_new(void);
+void mainwindow_destroy(MainWindow *window);
 
 Context *mainwindow_get_context(MainWindow *mw);
 

@@ -86,6 +86,14 @@ MainWindow *mainwindow_new(void)
   return window;
 }
 
+void mainwindow_free(MainWindow *window)
+{
+  gtk_widget_destroy(window->window);
+  gtk_widget_destroy(window->connect);
+  gtk_widget_destroy(window->
+    gtk_widget_destroy(window->vbox);
+
+
 void launch_network(GtkWidget *widget, gpointer data)
 {
   pthread_t thread;
