@@ -17,7 +17,7 @@ void quit_everything(GtkWidget *widget, GdkEvent *event, gpointer data)
   plugins_deinit();
 
   g_debug("Destroying main window");
-  //mainwindow_destroy(mainwindow);
+  mainwindow_free(mainwindow);
 
   g_debug("Quitting gtk");
   gtk_main_quit();

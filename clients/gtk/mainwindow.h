@@ -4,7 +4,6 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <libtetris.h>
-#include <pthread.h>
 
 #include "chat.h"
 #include "connect.h"
@@ -22,7 +21,7 @@ typedef struct MainWindow {
 } MainWindow;
 
 MainWindow *mainwindow_new(void);
-void mainwindow_destroy(MainWindow *window);
+void mainwindow_free(MainWindow *window);
 
 Context *mainwindow_get_context(MainWindow *mw);
 

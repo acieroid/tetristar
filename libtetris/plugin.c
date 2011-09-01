@@ -2,6 +2,10 @@
 
 static lua_State *lua_state = NULL;
 static GSList *plugins = NULL;
+static GStaticMutex mutex = G_STATIC_MUTEX_INIT;
+static int waiting_time = 1000000;
+
+static void tetris_plugin_timeout_loop(gpointer data);
 
 static int l_register(lua_State *l);
 
@@ -20,6 +24,11 @@ void tetris_plugin_init(lua_State *l)
 
   tetris_plugin_add_category("plugin");
   tetris_plugin_add_functions("plugin", plugin_functions);
+
+  g_thread_init(NULL);
+  g_thread_create((GThreadFunc) tetris_plugin_timeout_loop, NULL,
+                  FALSE, NULL);
+
   CHECK_STACK_END(l, 0);
 }
 
@@ -37,12 +46,15 @@ void tetris_plugin_unload_all()
 
 Plugin *tetris_plugin_new(PluginType type,
                           const gchar *command,
-                          LuaFunction fun)
+                          LuaFunction fun,
+                          int timeout)
 {
   Plugin *plugin = g_malloc(sizeof(*plugin));
   plugin->type = type;
   plugin->command = g_strdup(command);
   plugin->function = fun;
+  plugin->timeout = timeout;
+  plugin->last_call = 0;
   return plugin;
 }
 
@@ -106,10 +118,13 @@ void tetris_plugin_file_load(const gchar *file)
 
 void tetris_plugin_register(PluginType type,
                             const gchar *command,
-                            LuaFunction function)
+                            LuaFunction function,
+                            int timeout)
 {
   CHECK_STACK_START(lua_state);
-  Plugin *plugin = tetris_plugin_new(type, command, function);
+  Plugin *plugin = tetris_plugin_new(type, command, function, timeout);
+  if (type == PLUGIN_TIMEOUT)
+    waiting_time = tetris_gcd(waiting_time, timeout);
   plugins = g_slist_prepend(plugins, (gpointer) plugin);
   CHECK_STACK_END(lua_state, 0);
 }
@@ -127,6 +142,8 @@ void tetris_plugin_action(PluginType type,
   for (elem = plugins; elem != NULL; elem = elem->next) {
     plugin = elem->data;
     if (plugin->type == type) {
+      g_static_mutex_lock(&mutex);
+
       /* the function */
       lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
 
@@ -146,6 +163,7 @@ void tetris_plugin_action(PluginType type,
           /* the command doesn't match, we restore the stack and skip
              this iteration */
           lua_pop(lua_state, 2);
+          g_static_mutex_unlock(&mutex);
           continue;
         }
       }
@@ -155,14 +173,47 @@ void tetris_plugin_action(PluginType type,
                   lua_tostring(lua_state, -1));
         lua_pop(lua_state, 1);
       }
+      g_static_mutex_unlock(&mutex);
     }
   }
   CHECK_STACK_END(lua_state, 0);
 }
 
+void tetris_plugin_timeout_loop(gpointer data)
+{
+  GTimer *timer;
+  GSList *elem;
+  Plugin *plugin;
+
+  timer = g_timer_new();
+  while(TRUE) {
+    for (elem = plugins; elem != NULL; elem = elem->next) {
+      plugin = elem->data;
+
+      if (plugin->type == PLUGIN_TIMEOUT &&
+          ((int) 1000000*g_timer_elapsed(timer, NULL) >
+           plugin->last_call + plugin->timeout)) {
+        g_static_mutex_lock(&mutex);
+
+        lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
+        /* Execute the plugin */
+        if (lua_pcall(lua_state, 0, 0, 0) != 0) {
+          g_warning("Error when calling a plugin: %s",
+                    lua_tostring(lua_state, -1));
+          lua_pop(lua_state, 1);
+        }
+        plugin->last_call = 1000000*g_timer_elapsed(timer, NULL);
+
+        g_static_mutex_unlock(&mutex);
+      }
+    }
+    tetris_usleep(waiting_time);
+  }
+}
+
 int l_register(lua_State *l)
 {
-  int type;
+  int type, timeout;
   gchar *type_descr, *recv_command;
   LuaFunction function;
   CHECK_STACK_START(l);
@@ -180,6 +231,8 @@ int l_register(lua_State *l)
     type = PLUGIN_SHUTDOWN;
   else if (g_strcmp0(type_descr, "RECV") == 0)
     type = PLUGIN_RECV;
+  else if (g_strcmp0(type_descr, "TIMEOUT") == 0)
+    type = PLUGIN_TIMEOUT;
   else {
     g_warning("Unknown plugin type: %s", type_descr);
     return 0;
@@ -194,8 +247,12 @@ int l_register(lua_State *l)
     luaL_checktype(l, 3, LUA_TSTRING);
     recv_command = g_strdup(lua_tostring(l, 3));
   }
+  else if (type == PLUGIN_TIMEOUT) {
+    luaL_checktype(l, 3, LUA_TNUMBER);
+    timeout = lua_tonumber(l, 3);
+  }
 
-  tetris_plugin_register(type, recv_command, function);
+  tetris_plugin_register(type, recv_command, function, timeout);
   if (recv_command != NULL)
     g_free(recv_command);
   CHECK_STACK_END(l, 0);

@@ -1,4 +1,4 @@
-Import('env', 'LINUX', 'LUA', 'GLIB', 'libtetris')
+Import('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'libtetris')
 
 server_env = env.Clone()
 
@@ -9,7 +9,7 @@ if LINUX == '1':
 else:
     sources += ['/usr/local/lib/libenet.a']
 
-LIBS = [LUA, GLIB]
+LIBS = [LUA, GLIB, GTHREAD]
 
 for lib in LIBS:
     server_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')

@@ -103,8 +103,10 @@ function game.drop(id, command, args)
 end
 
 function game.update()
-   for i, id in pairs(tetris.player.all()) do
-      game.move(id, "MOVE", "DOWN")
+   if tetris.game.is_started() then
+      for i, id in pairs(tetris.player.all()) do
+         game.move(id, "MOVE", "DOWN")
+      end
    end
 end
 
@@ -112,4 +114,4 @@ tetris.plugin.register("RECV", game.start, "START")
 tetris.plugin.register("RECV", game.move, "MOVE")
 tetris.plugin.register("RECV", game.rotate, "ROTATE")
 tetris.plugin.register("RECV", game.drop, "DROP")
-tetris.plugin.register("TIMEOUT", game.update, 1)
+tetris.plugin.register("TIMEOUT", game.update, 1000000)

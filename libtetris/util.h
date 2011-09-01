@@ -5,6 +5,7 @@
 #ifndef LIBTETRIS_UTIL_H
 #define LIBTETRIS_UTIL_H
 
+#include <unistd.h>
 #include <string.h>
 
 #include <glib.h>
@@ -43,5 +44,15 @@ void tetris_extract_command(const gchar *str,
                             int len,
                             gchar **command,
                             gchar **args);
+
+/**
+ * Caclulate the greatest common divisor of two numbers
+ */
+int tetris_gcd(int a, int b);
+
+/**
+ * Sleep for the given next microseconds
+ */
+void tetris_usleep(guint microseconds);
 
 #endif /* LIBTETRIS_UTIL_H */

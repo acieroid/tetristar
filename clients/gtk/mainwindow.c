@@ -37,8 +37,6 @@ struct CommandInfo {
   int command_id;
 };
 
-typedef void *(*PthreadFunc) (void*);
-
 MainWindow *mainwindow_new(void)
 {
   int i;
@@ -88,15 +86,12 @@ MainWindow *mainwindow_new(void)
 
 void mainwindow_free(MainWindow *window)
 {
-  gtk_widget_destroy(window->window);
-  gtk_widget_destroy(window->connect);
-  gtk_widget_destroy(window->
-    gtk_widget_destroy(window->vbox);
+  /* TODO */
+}
 
 
 void launch_network(GtkWidget *widget, gpointer data)
 {
-  pthread_t thread;
   MainWindow *window = (MainWindow *) data;
 
   network_set_host(window->network,
@@ -107,8 +102,9 @@ void launch_network(GtkWidget *widget, gpointer data)
 
   /* we lock the button to avoid launching multiple network threads */
   connect_lock_button(CONNECT(window->connect));
-  pthread_create(&thread, NULL, (PthreadFunc) network_loop,
-                 (void *) window->network);
+  g_thread_create((GThreadFunc) network_loop,
+                  (gpointer) window->network,
+                  FALSE, NULL);
 }
 
 void send_command(Chat *chat, const gchar *args, gpointer data)
