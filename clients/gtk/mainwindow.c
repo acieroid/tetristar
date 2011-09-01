@@ -86,9 +86,16 @@ MainWindow *mainwindow_new(void)
 
 void mainwindow_free(MainWindow *window)
 {
-  /* TODO */
+  gtk_widget_destroy(window->connect);
+  gtk_widget_destroy(window->chat);
+  gtk_widget_destroy(window->context);
+  gtk_widget_destroy(window->vbox);
+  gtk_widget_destroy(window->window);
+  network_send(window->network, "BYE");
+  while (network_is_connected(window->network))
+    tetris_usleep(1000000);
+  network_free(window->network);
 }
-
 
 void launch_network(GtkWidget *widget, gpointer data)
 {

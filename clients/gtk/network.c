@@ -68,7 +68,6 @@ Network *network_new()
 
 void network_free(Network *network)
 {
-  network_shutdown(network);
   g_free(network);
 }
 
@@ -87,6 +86,7 @@ void network_set_nick(Network *network, const gchar *nick)
 
 void network_shutdown(Network *network)
 {
+
   enet_peer_disconnect(network->peer, 0);
   network->peer = NULL;
   enet_host_destroy(network->client);
@@ -159,6 +159,7 @@ void network_loop(Network *network)
     enet_host_service(network->client, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE:
+      g_debug("Got receive");
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
                              &command, &args);
