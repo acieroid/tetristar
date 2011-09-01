@@ -159,7 +159,6 @@ void network_loop(Network *network)
     enet_host_service(network->client, &event, 1000);
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE:
-      g_debug("Got receive");
       tetris_extract_command((const gchar *) event.packet->data,
                              event.packet->dataLength,
                              &command, &args);

@@ -96,7 +96,7 @@ gboolean chat_on_keypress(GtkWidget *entry,
 
   if (event->type == GDK_KEY_PRESS &&
       event->keyval == GDK_KEY_Return) {
-    text = (gchar *) gtk_entry_get_text(GTK_ENTRY(entry));
+    text = g_strdup(gtk_entry_get_text(GTK_ENTRY(entry)));
     text_size = strlen(text);
 
     if (text_size == 0)
@@ -118,6 +118,7 @@ gboolean chat_on_keypress(GtkWidget *entry,
     }
 
     g_signal_emit(chat, chat_signals[signal], 0, text);
+    g_free(text);
     gtk_entry_set_text(GTK_ENTRY(entry), "");
     return TRUE;
   }

@@ -36,6 +36,7 @@ GtkWidget *context_new(void);
 
 void context_add_player(Context *context, TetrisPlayer *player);
 void context_remove_player(Context *context, TetrisPlayer *player);
+void context_remove_all_players(Context *context);
 
 G_END_DECLS
 

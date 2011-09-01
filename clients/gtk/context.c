@@ -19,6 +19,7 @@ static gboolean context_idle(gpointer data);
 static gboolean context_draw(GtkWidget *drawing_area);
 static void context_cairo_draw_cell(cairo_t *cairo, int x, int y,
                                     TetrisCell cell);
+static void context_drawing_area_free(GtkWidget *drawing_area);
 
 static guint context_signals[LAST_SIGNAL] = { 0 };
 static GStaticMutex draw_mutex = G_STATIC_MUTEX_INIT;
@@ -156,6 +157,22 @@ void context_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
   cairo_restore(cairo);
 }
 
+void context_drawing_area_free(GtkWidget *drawing_area)
+{
+  TetrisPlayer *player;
+  cairo_t *cairo;
+
+  g_debug("Freeing drawing area");
+
+  player = g_object_get_data(G_OBJECT(drawing_area), "player");
+  tetris_player_remove(player);
+
+  cairo = g_object_get_data(G_OBJECT(drawing_area), "cairo");
+  cairo_destroy(cairo);
+
+  gtk_widget_destroy(drawing_area);
+}
+
 GtkWidget *context_new(void)
 {
   return GTK_WIDGET(g_object_new(CONTEXT_TYPE, NULL));
@@ -201,8 +218,13 @@ void context_remove_player(Context *context, TetrisPlayer *player)
                                                elem);
   gtk_container_remove(GTK_CONTAINER(context), drawing_area);
   gtk_idle_remove_by_data(drawing_area);
-  /*gtk_widget_set_realized(drawin_area, FALSE)*/
-  g_free(drawing_area);
+  gtk_widget_destroy(drawing_area);
 
   g_static_mutex_unlock(&draw_mutex);
+}
+
+void context_remove_all_players(Context *context)
+{
+  g_slist_free_full(context->drawing_areas,
+                    (GDestroyNotify) context_drawing_area_free);
 }
