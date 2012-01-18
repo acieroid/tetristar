@@ -103,7 +103,11 @@ gboolean context_expose(Context *context,
 gboolean context_idle(gpointer data)
 {
   GtkWidget *drawing_area = (GtkWidget *) data;
-  return context_draw(drawing_area);
+  if (g_object_get_data(G_OBJECT(drawing_area), "changed")) {
+    g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 0);
+    return context_draw(drawing_area);
+  }
+  return TRUE;
 }
 
 gboolean context_draw(GtkWidget *drawing_area)
@@ -196,6 +200,7 @@ void context_add_player(Context *context, TetrisPlayer *player)
 
   g_object_set_data(G_OBJECT(drawing_area), "player", player);
   g_object_set_data(G_OBJECT(drawing_area), "cairo", NULL);
+  g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 1);
 
   gtk_container_add(GTK_CONTAINER(context), drawing_area);
 
@@ -205,12 +210,14 @@ void context_add_player(Context *context, TetrisPlayer *player)
 void context_remove_player(Context *context, TetrisPlayer *player)
 {
   GtkWidget *drawing_area;
+  GSList *elem;
+
   /* take care of not removing a player while we're drawing */
   g_static_mutex_lock(&draw_mutex);
 
-  GSList *elem = g_slist_find_custom(context->drawing_areas,
-                                     (gpointer) player,
-                                     (GCompareFunc) context_compare);
+  elem = g_slist_find_custom(context->drawing_areas,
+                             (gpointer) player,
+                             (GCompareFunc) context_compare);
   if (elem == NULL)
     g_return_if_reached();
   drawing_area = (GtkWidget *) elem->data;
@@ -227,4 +234,18 @@ void context_remove_all_players(Context *context)
 {
   g_slist_free_full(context->drawing_areas,
                     (GDestroyNotify) context_drawing_area_free);
+}
+
+void context_field_changed(Context *context, TetrisPlayer *player)
+{
+  GtkWidget *drawing_area;
+  GSList *elem;
+
+  elem = g_slist_find_custom(context->drawing_areas,
+                             (gpointer) player,
+                             (GCompareFunc) context_compare);
+  if (elem == NULL)
+    g_return_if_reached();
+  drawing_area = (GtkWidget *) elem->data;
+  g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 1);
 }

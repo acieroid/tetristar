@@ -8,6 +8,7 @@ function field.field(id, command, args)
       tetris.matrix.set_cell(user_id, cell[1], cell[2], cell[3])
    end
    tetris.matrix.commit(user_id)
+   tetris.client.context_field_changed(user_id)
 end
 
 function field.piece(id, command, args)
@@ -15,6 +16,7 @@ function field.piece(id, command, args)
    local user_id, fieldspec = utils.split(args, " ", 
                                           tonumber, utils.parse_fieldspec)
    tetris.player.set_piece(user_id, fieldspec)
+   tetris.client.context_field_changed(user_id)
 end
 
 function field.piecepos(id, command, args)
@@ -24,8 +26,8 @@ function field.piecepos(id, command, args)
    local x, y = utils.split(rest, ",",
                             tonumber, tonumber)
    tetris.player.set_piece_position(user_id, {x, y})
+   tetris.client.context_field_changed(user_id)
 end
-   
 
 tetris.plugin.register("RECV", field.field, "FIELD")
 tetris.plugin.register("RECV", field.piece, "PIECE")

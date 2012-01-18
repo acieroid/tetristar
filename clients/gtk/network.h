@@ -1,5 +1,5 @@
 /**
-p * @file network.h
+ * @file network.h
  * @brief Implement the client side of the network
  */
 #ifndef NETWORK_H

@@ -118,7 +118,8 @@ gboolean chat_on_keypress(GtkWidget *entry,
     }
 
     g_signal_emit(chat, chat_signals[signal], 0, text);
-    g_free(text);
+    /* don't free because text is used in the signal handler */
+    /* g_free(text); */
     gtk_entry_set_text(GTK_ENTRY(entry), "");
     return TRUE;
   }
