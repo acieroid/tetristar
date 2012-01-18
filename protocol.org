@@ -1,19 +1,22 @@
 * Table of commands
-| Type       | Client           | Server             | Notes                                                                                     |
-|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
-| connection | HELLO NICK       | NEWPLAYER ID NICK  | The server might change the nick, the client *should* accept the nick given by the server |
-|            | BYE              | BYE ID             |                                                                                           |
-|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
-| im         | SAY TEXT         | SAY ID TEXT        |                                                                                           |
-|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
-| admin      | PASSWORD PASS    | ADMIN ID           |                                                                                           |
-|------------+------------------+--------------------+-------------------------------------------------------------------------------------------|
-| game       | START            | START              |                                                                                           |
-|            |                  | PIECE ID FIELDSPEC |                                                                                           |
-|            |                  | PIECEPOS ID X,Y    |                                                                                           |
-|            | MOVE DIRECTION   | FIELD ID FIELDSPEC | DIRECTION is LEFT, RIGHT or DOWN                                                          |
-|            | ROTATE DIRECTION | FIELD ID FIELDSPEC | DIRECTION is LEFT or RIGHT                                                                |
-|            | DROP             | FIELD ID FIELDSPEC |                                                                                           |
+| Type       | Client           | Server              | Notes                                                                                     |
+|------------+------------------+---------------------+-------------------------------------------------------------------------------------------|
+| connection | HELLO NICK       | NEWPLAYER ID NICK   | The server might change the nick, the client *should* accept the nick given by the server |
+|            | BYE              | BYE ID              |                                                                                           |
+|------------+------------------+---------------------+-------------------------------------------------------------------------------------------|
+| im         | SAY TEXT         | SAY ID TEXT         |                                                                                           |
+|------------+------------------+---------------------+-------------------------------------------------------------------------------------------|
+| admin      | PASSWORD PASS    | ADMIN ID            |                                                                                           |
+|------------+------------------+---------------------+-------------------------------------------------------------------------------------------|
+| game       | START            | START               |                                                                                           |
+|            |                  | PIECE ID FIELDSPEC  |                                                                                           |
+|            |                  | PIECEPOS ID X,Y     |                                                                                           |
+|            | MOVE DIRECTION   | FIELD ID FIELDSPEC  | DIRECTION is LEFT, RIGHT or DOWN                                                          |
+|            | ROTATE DIRECTION | FIELD ID FIELDSPEC  | DIRECTION is LEFT or RIGHT                                                                |
+|            | DROP             | FIELD ID FIELDSPEC  |                                                                                           |
+|            |                  | STATE ID WIN        | Note that multiple players can win                                                        |
+|            |                  | STATE ID LOSE       |                                                                                           |
+|            |                  | STATE ID NOTPLAYING | When a client connects to the server when a game is on, he has that state                 |
 * Description of the field (FIELDSPEC)
 The FIELDSPEC part of the FIELD command describe /changes/ to the
 field. An example of a FIELD command might be:

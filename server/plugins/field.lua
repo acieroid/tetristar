@@ -1,12 +1,25 @@
 field = {}
 
+function field.check_if_lost(id)
+   local p = tetris.player.get_piece(id)
+   p = piece.shift(p, tetris.player.get_piece_position(id))
+
+   if not field.is_valid_piece(id, shifted_p) then
+      tetris.player.lose(id)
+      tetris.server.send_to_all("STATE " .. id .. " LOST")
+   end
+end
+
 -- Give a new piece to a player
 function field.new_piece(id)
-   tetris.player.set_piece(id, piece.random_piece())
    -- TODO: don't hardcode the initial position
-   tetris.player.set_piece_position(id, {4, 0})
+   local initial_pos = {4, 0}
+   local p = piece.random_piece()
+   tetris.player.set_piece(id, p)
+   tetris.player.set_piece_position(id, initial_pos)
+   field.check_if_lost(id)
 end
-   
+
 function field.is_valid_piece(id, p)
    for i, cell in pairs(p) do
       if tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 then
@@ -29,6 +42,7 @@ function field.move(id, direction)
    local new_pos = piece.add_positions(current_pos,
                                        piece.position_from_direction(direction))
    tetris.player.set_piece_position(id, new_pos)
+   field.check_if_lost(id)
 end
 
 function field.can_rotate(id, direction)
@@ -43,6 +57,7 @@ function field.rotate(id, direction)
    -- rotate without checking
    local p = tetris.player.get_piece(id)
    tetris.player.set_piece(id, piece.rotate(p, direction))
+   field.check_if_lost(id)
 end
 
 function field.drop(id)
@@ -55,4 +70,3 @@ function field.drop(id)
    -- change the piece
    field.new_piece(id)
 end
-

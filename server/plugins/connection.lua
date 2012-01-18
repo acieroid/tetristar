@@ -12,12 +12,15 @@ function connection.hello(id, command, args)
         for i,player_id in pairs(tetris.player.all()) do
            player_nick = tetris.player.get_nick(player_id) 
            tetris.server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
+           player_state = tetris.player.get_state(player_id)
+           tetris.server.send(id, "STATE " .. player_id .. " " .. player_state)
         end
         -- Add the player
         tetris.player.add(id)
         tetris.player.set_nick(id, nick)
         -- Tell the other players about this one
         tetris.server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
+        tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
      else
         -- Nick already taken, try appending a '_'
         connection.hello(id, command, args .. "_")
