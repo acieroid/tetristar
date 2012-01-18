@@ -92,9 +92,11 @@ void mainwindow_free(MainWindow *window)
   gtk_widget_destroy(window->context);
   gtk_widget_destroy(window->vbox);
   gtk_widget_destroy(window->window);
-  network_send(window->network, "BYE");
-  while (network_is_connected(window->network))
-    tetris_usleep(1000000);
+  if (network_is_connected(window->network)) {
+    network_send(window->network, "BYE");
+    while (network_is_connected(window->network))
+      tetris_usleep(1000000);
+  }
   network_free(window->network);
 }
 

@@ -68,7 +68,8 @@ Network *network_new()
 
 void network_free(Network *network)
 {
-  g_free(network);
+  /* TODO: buggy */
+  /* g_free(network); */
 }
 
 void network_set_host(Network *network, const gchar *server, int port)
