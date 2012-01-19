@@ -42,13 +42,24 @@ function game.send_piece(id)
 end
 
 function game.start(id, command, args)
-   if tetris.player.is_admin(id) then
+   if tetris.player.is_admin(id) and not tetris.game.is_started() then
       tetris.game.start()
       tetris.server.send_to_all("START")
-      -- each player get a new piece
+      -- each player is now playing and gets a new piece
       for i, player_id in pairs(tetris.player.all()) do
+         tetris.server.send_to_all("STATE " .. id .. " PLAYING")
          field.new_piece(player_id)
          game.send_piece(player_id)
+      end
+   end
+end
+
+function game.stop(id, command, args)
+   if tetris.player.is_admin(id) and tetris.game.is_started() then
+      tetris.game.stop()
+      tetris.server.send_to_all("STOP")
+      for i, player_id in pairs(tetris.player.all()) do
+         tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
       end
    end
 end
@@ -111,6 +122,7 @@ function game.update()
 end
 
 tetris.plugin.register("RECV", game.start, "START")
+tetris.plugin.register("RECV", game.stop, "STOP")
 tetris.plugin.register("RECV", game.move, "MOVE")
 tetris.plugin.register("RECV", game.rotate, "ROTATE")
 tetris.plugin.register("RECV", game.drop, "DROP")

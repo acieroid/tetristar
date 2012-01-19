@@ -524,8 +524,7 @@ int l_game_reset(lua_State *l)
 int l_game_is_started(lua_State *l)
 {
   CHECK_STACK_START(l);
-  gboolean started = tetris_game_is_started();
-  lua_pushnumber(l, (int) started);
+  lua_pushboolean(l, (int) tetris_game_is_started());
   CHECK_STACK_END(l, 1);
   return 1;
 }

@@ -4,7 +4,7 @@ function field.check_if_lost(id)
    local p = tetris.player.get_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
 
-   if not field.is_valid_piece(id, shifted_p) then
+   if not field.is_valid_piece(id, p) then
       tetris.player.lose(id)
       tetris.server.send_to_all("STATE " .. id .. " LOST")
    end
