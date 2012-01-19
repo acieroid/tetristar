@@ -15,6 +15,7 @@
 typedef struct TetrisPlayer {
   int id;
   gboolean admin;
+  gboolean playing;
   gchar *nick;
   TetrisMatrix *matrix;
   GSList *piece;
@@ -81,6 +82,16 @@ gboolean tetris_player_is_admin(TetrisPlayer *player);
  * Set the player's admin status
  */
 void tetris_player_set_admin(TetrisPlayer *player, gboolean status);
+
+/**
+ * Return TRUE if the playir is playing
+ */
+gboolean tetris_player_is_playing(TetrisPlayer *player);
+
+/**
+ * Set the player's playing status
+ */
+void tetris_player_set_playing(TetrisPlayer *player, gboolean status);
 
 /**
  * Add a new player

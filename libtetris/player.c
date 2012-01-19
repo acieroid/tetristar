@@ -80,6 +80,17 @@ void tetris_player_set_admin(TetrisPlayer *player, gboolean status)
   player->admin = status;
 }
 
+gboolean tetris_player_is_playing(TetrisPlayer *player)
+{
+  return player->playing;
+}
+
+void tetris_player_set_playing(TetrisPlayer *player, gboolean status)
+{
+  player->playing = status;
+}
+
+
 void tetris_player_add(TetrisPlayer *player)
 {
   players = g_slist_prepend(players, player);

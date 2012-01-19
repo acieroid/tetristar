@@ -14,8 +14,8 @@
 |            | MOVE DIRECTION   | FIELD ID FIELDSPEC  | DIRECTION is LEFT, RIGHT or DOWN                                                          |
 |            | ROTATE DIRECTION | FIELD ID FIELDSPEC  | DIRECTION is LEFT or RIGHT                                                                |
 |            | DROP             | FIELD ID FIELDSPEC  |                                                                                           |
-|            |                  | STATE ID WIN        | Note that multiple players can win                                                        |
-|            |                  | STATE ID LOSE       |                                                                                           |
+|            |                  | WON ID              | Note that multiple players can win                                                        |
+|            |                  | LOST ID             |                                                                                           |
 |            |                  | STATE ID PLAYING    |                                                                                           |
 |            |                  | STATE ID NOTPLAYING | When a client connects to the server when a game is on, he has that state                 |
 * Description of the field (FIELDSPEC)
