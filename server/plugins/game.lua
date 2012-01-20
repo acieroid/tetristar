@@ -47,8 +47,8 @@ function game.start(id, command, args)
       tetris.server.send_to_all("START")
       -- each player is now playing and gets a new piece
       for i, player_id in pairs(tetris.player.all()) do
-         tetris.player.set_playing(id, true)
-         tetris.server.send_to_all("STATE " .. id .. " PLAYING")
+         tetris.player.set_playing(player_id, true)
+         tetris.server.send_to_all("STATE " .. player_id .. " PLAYING")
          field.new_piece(player_id)
          game.send_piece(player_id)
       end
@@ -60,65 +60,76 @@ function game.stop(id, command, args)
       tetris.game.stop()
       tetris.server.send_to_all("STOP")
       for i, player_id in pairs(tetris.player.all()) do
-         tetris.server.set_playing(id, false)
-         tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+         tetris.server.set_playing(player_id, false)
+         tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
       end
    end
 end
 
 function game.move(id, command, args)
-   direction = args
-   if not (direction == "LEFT" or direction == "RIGHT" 
-           or direction == "DOWN") then
-      -- Unknown direction, we don't do anything
-      return
-   end
+   if tetris.player.is_playing(id) then
+      local direction = args
+      if not (direction == "LEFT" or direction == "RIGHT" 
+              or direction == "DOWN") then
+         -- Unknown direction, we don't do anything
+         return
+      end
 
-   if field.can_move(id, direction) then
-      -- If the player can move the piece... well it moves it
-      field.move(id, direction)
-   elseif direction == "DOWN" then
-      -- If the players move it down and he can't, the piece is
-      -- dropped and the player get a new piece
-      field.drop(id)
-      field.new_piece(id);
-   end
+      if field.can_move(id, direction) then
+         -- If the player can move the piece... well it moves it
+         field.move(id, direction)
+      elseif direction == "DOWN" then
+         -- If the players move it down and he can't, the piece is
+         -- dropped and the player get a new piece
+         field.drop(id)
+         field.new_piece(id);
+      end
 
-   -- Finally send the field modifications
-   game.send_piece(id)
-   game.send_field(id)
+      -- Finally send the field modifications
+      game.send_piece(id)
+      game.send_field(id)
+   end
 end
 
 function game.rotate(id, command, args)
-   direction = args
-   if not (direction == "LEFT" or direction == "RIGHT") then
-      -- Unknown direction
-      return
-   end
+   if tetris.player.is_playing(id) then
+      local direction = args
+      if not (direction == "LEFT" or direction == "RIGHT") then
+         -- Unknown direction
+         return
+      end
 
-   if field.can_rotate(id, direction) then
-      field.rotate(id, direction)
-   end
+      if field.can_rotate(id, direction) then
+         field.rotate(id, direction)
+      end
 
-   game.send_piece(id)
-   game.send_field(id)
+      game.send_piece(id)
+      game.send_field(id)
+   end
 end
 
 function game.drop(id, command, args)
-   -- Drop the piece until it touches another piece
-   while field.can_move(id, "DOWN") do
-      field.move(id, "DOWN")
-   end
-   field.drop(id)
+   if tetris.player.is_playing(id) then
+      -- Drop the piece until it touches another piece
+      while field.can_move(id, "DOWN") do
+         field.move(id, "DOWN")
+      end
+      field.drop(id)
 
-   game.send_piece(id)
-   game.send_field(id)
+      game.send_piece(id)
+      game.send_field(id)
+   end
 end
 
 function game.update()
    if tetris.game.is_started() then
       for i, id in pairs(tetris.player.all()) do
-         game.move(id, "MOVE", "DOWN")
+         if tetris.player.is_playing(id) then
+            game.move(id, "MOVE", "DOWN")
+         else
+            print("Player " .. id .. " is not playing")
+            print(":" .. tetris.player.is_playing(id))
+         end
       end
    end
 end

@@ -1,4 +1,3 @@
-
 connection = {}
 
 function connection.hello(id, command, args)
@@ -19,7 +18,6 @@ function connection.hello(id, command, args)
            else
               state = "NOTPLAYING"
            end
-           player_state = tetris.player.get_state(player_id)
            tetris.server.send(id, "STATE " .. player_id .. " " .. state)
         end
         -- Add the player
