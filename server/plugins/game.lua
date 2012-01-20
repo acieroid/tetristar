@@ -47,6 +47,7 @@ function game.start(id, command, args)
       tetris.server.send_to_all("START")
       -- each player is now playing and gets a new piece
       for i, player_id in pairs(tetris.player.all()) do
+         tetris.player.set_playing(id, true)
          tetris.server.send_to_all("STATE " .. id .. " PLAYING")
          field.new_piece(player_id)
          game.send_piece(player_id)
@@ -59,6 +60,7 @@ function game.stop(id, command, args)
       tetris.game.stop()
       tetris.server.send_to_all("STOP")
       for i, player_id in pairs(tetris.player.all()) do
+         tetris.server.set_playing(id, false)
          tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
       end
    end
