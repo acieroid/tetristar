@@ -5,9 +5,11 @@ function field.check_if_lost(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
 
    if not field.is_valid_piece(id, p) then
-      tetris.player.lose(id)
-      tetris.server.send_to_all("STATE " .. id .. " LOST")
+      tetris.player.set_playing(id, false)
+      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+      tetris.server.send_to_all("LOST " .. id)
    end
+   -- TODO: check if it's the last player to lose
 end
 
 -- Give a new piece to a player
