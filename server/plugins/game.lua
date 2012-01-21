@@ -126,9 +126,6 @@ function game.update()
       for i, id in pairs(tetris.player.all()) do
          if tetris.player.is_playing(id) then
             game.move(id, "MOVE", "DOWN")
-         else
-            print("Player " .. id .. " is not playing")
-            print(":" .. tetris.player.is_playing(id))
          end
       end
    end
