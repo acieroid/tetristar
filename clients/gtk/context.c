@@ -31,6 +31,7 @@ static const char *colors_names[N_COLORS] = {
   "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
 };
 static GdkColor colors[N_COLORS] = { {} };
+static GdkColor white = {};
 
 GType context_get_type(void)
 {
@@ -57,6 +58,7 @@ void context_class_init(ContextClass *klass)
   if (colors != NULL)
     for (i = 0; i < N_COLORS; i++)
       gdk_color_parse(colors_names[i], &colors[i]);
+  gdk_color_parse("white", &white);
 }
 
 void context_init(Context *context)
@@ -118,6 +120,8 @@ gboolean context_draw(GtkWidget *drawing_area)
   GSList *elem;
   cairo_t *cairo;
   int x, y;
+  char *notplaying = "Not playing";
+  cairo_text_extents_t extents;
 
   if (!gtk_widget_get_realized(drawing_area))
     return FALSE;
@@ -144,6 +148,18 @@ gboolean context_draw(GtkWidget *drawing_area)
        elem = elem->next) {
     info = elem->data;
     context_cairo_draw_cell(cairo, x + info->x, y + info->y, info->cell);
+  }
+
+  if (!tetris_player_is_playing(player)) {
+    cairo_save(cairo);
+    gdk_cairo_set_source_color(cairo, &white);
+    cairo_set_font_size(cairo, 15);
+    cairo_text_extents(cairo, notplaying, &extents);
+    cairo_translate(cairo,
+                    tetris_matrix_get_width(matrix)/2 * cell_size -
+                    extents.width/2,
+                    tetris_matrix_get_height(matrix)/2 * cell_size);
+    cairo_show_text(cairo, "Not playing");
   }
 
   g_static_mutex_unlock(&draw_mutex);
