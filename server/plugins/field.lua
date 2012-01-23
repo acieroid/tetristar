@@ -1,5 +1,38 @@
 field = {}
 
+-- Check if a player wins (ie. it is the last player playing) and send
+-- commands
+function field.check_who_wins()
+   local last_playing = nil
+
+   print("check_who_wins")
+   -- If we have one lonely player, we let him continue playing :)
+   if tetris.player.number() > 1 then
+      for i, id in pairs(tetris.player.all()) do
+         if tetris.player.is_playing(id) then
+            print("Player " .. id .. " is playing")
+            if last_playing == nil then
+               last_playing = id
+            else
+               -- there is at least two playing players
+               last_playing = nil
+               break
+            end
+         end
+      end
+
+      -- whe have a winner
+      if last_playing ~= nil then
+         print("Only one player playing: " .. last_playing)
+         tetris.player.set_playing(last_playing, false)
+         tetris.server.send_to_all("STATE " .. last_playing .. "NOTPLAYING")
+         tetris.server.send_to_all("WON " .. last_playing)
+      end
+   end
+end
+
+-- Check if the player ID has lost and send commands to inform clients
+-- if that's the case
 function field.check_if_lost(id)
    local p = tetris.player.get_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
@@ -9,7 +42,7 @@ function field.check_if_lost(id)
       tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
       tetris.server.send_to_all("LOST " .. id)
    end
-   -- TODO: check if it's the last player to lose
+   field.check_who_wins()
 end
 
 -- Give a new piece to a player
@@ -19,7 +52,6 @@ function field.new_piece(id)
    local p = piece.random_piece()
    tetris.player.set_piece(id, p)
    tetris.player.set_piece_position(id, initial_pos)
-   field.check_if_lost(id)
 end
 
 function field.is_valid_piece(id, p)
@@ -44,7 +76,6 @@ function field.move(id, direction)
    local new_pos = piece.add_positions(current_pos,
                                        piece.position_from_direction(direction))
    tetris.player.set_piece_position(id, new_pos)
-   field.check_if_lost(id)
 end
 
 function field.can_rotate(id, direction)
@@ -59,7 +90,6 @@ function field.rotate(id, direction)
    -- rotate without checking
    local p = tetris.player.get_piece(id)
    tetris.player.set_piece(id, piece.rotate(p, direction))
-   field.check_if_lost(id)
 end
 
 function field.drop(id)
@@ -69,6 +99,7 @@ function field.drop(id)
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
    end
-   -- change the piece
+   -- change the piece and check if we lost
    field.new_piece(id)
+   field.check_if_lost(id)
 end

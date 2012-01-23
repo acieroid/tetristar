@@ -88,7 +88,7 @@ void mainwindow_free(MainWindow *window)
 {
   gtk_widget_destroy(window->connect);
   gtk_widget_destroy(window->chat);
-  context_remove_all_players(window->context);
+  context_remove_all_players(CONTEXT(window->context));
   gtk_widget_destroy(window->context);
   gtk_widget_destroy(window->vbox);
   gtk_widget_destroy(window->window);

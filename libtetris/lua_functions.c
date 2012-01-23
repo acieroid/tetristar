@@ -15,6 +15,7 @@ static int l_players_get_piece_position(lua_State *l);
 static int l_players_set_piece_position(lua_State *l);
 static int l_players_nick_available(lua_State *l);
 static int l_players_exists(lua_State *l);
+static int l_players_number(lua_State *l);
 
 static int l_matrix_set_cell(lua_State *l);
 static int l_matrix_get_cell(lua_State *l);
@@ -49,6 +50,7 @@ static struct {
       { "remove", l_players_remove },
       { "nick_available", l_players_nick_available },
       { "exists", l_players_exists },
+      { "number", l_players_number },
       { NULL, NULL }
     }
   },
@@ -408,6 +410,17 @@ int l_players_exists(lua_State *l)
   lua_pushboolean(l, tetris_player_find(id) != NULL);
   CHECK_STACK_END(l, 1);
   return 1; /* return a boolean */
+}
+
+int l_players_number(lua_State *l)
+{
+  int n;
+  CHECK_STACK_START(l);
+
+  n = g_slist_length(tetris_player_all(l));
+  lua_pushnumber(l, n);
+  CHECK_STACK_END(l, 1);
+  return 1; /* return a number */
 }
 
 int l_matrix_set_cell(lua_State *l)
