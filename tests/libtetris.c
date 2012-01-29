@@ -9,6 +9,7 @@ TetrisMatrix *matrix;
 void setup()
 {
   player = tetris_player_new(PLAYER_ID);
+  matrix = tetris_player_get_matrix(player);
 }
 
 void teardown()
@@ -59,7 +60,6 @@ START_TEST(test_matrix_simple)
 {
   int x, y, width, height;
 
-  matrix = tetris_player_get_matrix(player);
   fail_unless(matrix != NULL,
               "Player do not have a matrix");
 
@@ -90,6 +90,44 @@ START_TEST(test_matrix_simple)
 }
 END_TEST
 
+START_TEST(test_matrix_changes)
+{
+  GSList *changes, *elem;
+  TetrisCellInfo *info;
+  int y;
+
+  tetris_matrix_set_cell(matrix, 0, 0, 1);
+  tetris_matrix_set_cell(matrix, 0, 1, 1);
+  tetris_matrix_set_cell(matrix, 0, 2, 1);
+  tetris_matrix_set_cell(matrix, 0, 3, 1);
+  fail_unless(tetris_matrix_get_cell(matrix, 0, 0) == 0 &&
+              tetris_matrix_get_cell(matrix, 0, 1) == 0 &&
+              tetris_matrix_get_cell(matrix, 0, 2) == 0 &&
+              tetris_matrix_get_cell(matrix, 0, 3) == 0 &&
+              "Change were commited without a call to commit");
+
+  changes = tetris_matrix_diff(matrix);
+
+  fail_unless(g_slist_length(changes) == 4,
+              "Wrong number of changes");
+
+  y = 3;
+  for (elem = changes; elem != NULL; elem = elem->next) {
+    info = (TetrisCellInfo *) elem->data;
+    fail_unless(info->x == 0 && info->y == y && info->cell == 1,
+                "Diff is incorrect");
+    y--;
+  }
+
+  tetris_matrix_commit(matrix);
+
+  fail_unless(tetris_matrix_get_cell(matrix, 0, 0) == 1 &&
+              tetris_matrix_get_cell(matrix, 0, 1) == 1 &&
+              tetris_matrix_get_cell(matrix, 0, 2) == 1 &&
+              tetris_matrix_get_cell(matrix, 0, 3) == 1);
+}
+END_TEST
+
 START_TEST(test_game_stop)
 {
   tetris_game_stop();
@@ -106,6 +144,7 @@ Suite *suite()
   tcase_add_test(tc_libtetris, test_game_start);
   tcase_add_test(tc_libtetris, test_player);
   tcase_add_test(tc_libtetris, test_matrix_simple);
+  tcase_add_test(tc_libtetris, test_matrix_changes);
   tcase_add_test(tc_libtetris, test_game_stop);
   suite_add_tcase(s, tc_libtetris);
 

@@ -97,7 +97,7 @@ TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
   l = g_slist_find_custom(matrix->changes, pos,
                           (GCompareFunc) compare_cell_with_pos);
   if (l)
-    return ((TetrisCellInfo *)l->data)->cell;
+    return ((TetrisCellInfo *) l->data)->cell;
   else
     return tetris_matrix_get_cell(matrix, x, y);
 }
