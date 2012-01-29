@@ -1,0 +1,15 @@
+Import('env', 'libtetris', 'LUA', 'GLIB', 'GTHREAD', 'CHECK')
+
+test_env = env.Clone()
+
+sources = ['libtetris.c']
+
+LIBS = [LUA, GLIB, GTHREAD, CHECK]
+
+for lib in LIBS:
+    test_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
+
+test_env['LIBS'] += [libtetris]
+
+program = test_env.Program(target = 'libtetris', source = sources)
+# TODO: run the test from scons

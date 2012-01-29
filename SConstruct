@@ -20,10 +20,12 @@ GLIB = 'glib-2.0'
 GTHREAD = 'gthread-2.0'
 GTK = 'gtk+-2.0'
 CAIRO = 'cairo'
+CHECK = 'check'
 
-Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO')
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK')
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')
 SConscript(['server/SConscript',
-            'clients/SConscript'])
+            'clients/SConscript',
+            'tests/SConscript'])
