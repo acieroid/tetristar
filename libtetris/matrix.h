@@ -76,6 +76,13 @@ TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
                                   int x, int y);
 
 /**
+ * Get a cell from the matrix, looking first at cell which aren't
+ * commited yet
+ */
+TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
+                                             int x, int y);
+
+/**
  * Return a list of cell infos that represents the cells that have
  * been changed since the last commit
  * @sa tetris_matrix_commit

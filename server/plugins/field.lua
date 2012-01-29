@@ -5,12 +5,10 @@ field = {}
 function field.check_who_wins()
    local last_playing = nil
 
-   print("check_who_wins")
    -- If we have one lonely player, we let him continue playing :)
    if tetris.player.number() > 1 then
       for i, id in pairs(tetris.player.all()) do
          if tetris.player.is_playing(id) then
-            print("Player " .. id .. " is playing")
             if last_playing == nil then
                last_playing = id
             else
@@ -23,7 +21,6 @@ function field.check_who_wins()
 
       -- whe have a winner
       if last_playing ~= nil then
-         print("Only one player playing: " .. last_playing)
          tetris.player.set_playing(last_playing, false)
          tetris.server.send_to_all("STATE " .. last_playing .. "NOTPLAYING")
          tetris.server.send_to_all("WON " .. last_playing)
@@ -43,6 +40,37 @@ function field.check_if_lost(id)
       tetris.server.send_to_all("LOST " .. id)
    end
    field.check_who_wins()
+end
+
+-- Look if there are full lines and if so, clear them
+function field.clear_lines(id)
+   print("Clearing lines...")
+   local line_complete
+   for line = 0, tetris.matrix.get_height(id)-1 do
+      -- Find a complete line
+      line_complete = true
+      for column = 0, tetris.matrix.get_width(id)-1 do
+         if tetris.matrix.get_uncommited_cell(id, column, line) == 0 then
+            print(line .. ", " .. column .. ": empty")
+            line_complete = false
+            break
+         else
+            print(line .. ", " .. column .. ": " .. tetris.matrix.get_uncommited_cell(id, column, line))
+         end
+      end
+
+      if line_complete then
+         print("Line " .. line .. " is complete")
+         -- Move every upper line down
+         for upper_line = line-1, 0, -1 do
+            print("Moving upper line: " .. upper_line)
+            for column = 0, tetris.matrix.get_width(id)-1 do
+               local cell = tetris.matrix.get_uncommited_cell(id, column, upper_line)
+               tetris.matrix.set_cell(id, column, upper_line+1, cell)
+            end
+         end
+      end
+   end
 end
 
 -- Give a new piece to a player
@@ -99,7 +127,10 @@ function field.drop(id)
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
    end
-   -- change the piece and check if we lost
+   -- change the piece
    field.new_piece(id)
+   -- check if we lost
    field.check_if_lost(id)
+   -- clear the lines if necesarry
+   field.clear_lines(id)
 end

@@ -59,8 +59,11 @@ void tetris_matrix_set_cell(TetrisMatrix *matrix,
     matrix->changes =
       g_slist_prepend(matrix->changes,
                       (gpointer) tetris_cell_info_new(x, y, cell));
-  else
+  else {
+    g_warning("tetris_matrix_set_cell called on cell %d, %d on a matrix of size %dx%d",
+              x, y, matrix->width, matrix->height);
     g_return_if_reached();
+  }
 }
 
 TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
@@ -76,6 +79,29 @@ TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
   return 1;
 }
 
+static int compare_cell_with_pos(TetrisCellInfo *cell, int position[2])
+{
+  if (cell->x == position[0] && cell->y == position[1]) {
+    return 0;
+  }
+  return -1;
+}
+
+TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
+                                             int x, int y)
+{
+  int pos[2] = { x, y };
+  GSList *l;
+
+  /* Look if the cell is in the changes list */
+  l = g_slist_find_custom(matrix->changes, pos,
+                          (GCompareFunc) compare_cell_with_pos);
+  if (l)
+    return ((TetrisCellInfo *)l->data)->cell;
+  else
+    return tetris_matrix_get_cell(matrix, x, y);
+}
+
 GSList *tetris_matrix_diff(TetrisMatrix *matrix)
 {
   return matrix->changes;
@@ -85,6 +111,9 @@ void tetris_matrix_commit(TetrisMatrix *matrix)
 {
   GSList *elem;
   TetrisCellInfo *info;
+
+  /* reverse the changes to apply them in the right order */
+  matrix->changes = g_slist_reverse(matrix->changes);
 
   /* apply the changes */
   for (elem = matrix->changes; elem != NULL; elem = elem->next) {
