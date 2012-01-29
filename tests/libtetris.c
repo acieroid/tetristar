@@ -17,11 +17,15 @@ void teardown()
   tetris_player_free(player);
 }
 
-START_TEST(test_game_start)
+START_TEST(test_game)
 {
   tetris_game_start();
   fail_unless(tetris_game_is_started() == TRUE,
               "Game has not been started");
+
+  tetris_game_stop();
+  fail_unless(tetris_game_is_started() == FALSE,
+              "Game has not been stopped");
 }
 END_TEST
 
@@ -121,6 +125,9 @@ START_TEST(test_matrix_changes)
 
   tetris_matrix_commit(matrix);
 
+  fail_unless(tetris_matrix_diff(matrix) == NULL,
+              "Diff still return something althought there has been a commit");
+
   fail_unless(tetris_matrix_get_cell(matrix, 0, 0) == 1 &&
               tetris_matrix_get_cell(matrix, 0, 1) == 1 &&
               tetris_matrix_get_cell(matrix, 0, 2) == 1 &&
@@ -128,11 +135,27 @@ START_TEST(test_matrix_changes)
 }
 END_TEST
 
-START_TEST(test_game_stop)
+START_TEST(test_matrix_uncommit)
 {
-  tetris_game_stop();
-  fail_unless(tetris_game_is_started() == FALSE,
-              "Game has not been stopped");
+  tetris_matrix_set_cell(matrix, 0, 0, 1);
+  tetris_matrix_set_cell(matrix, 0, 1, 1);
+  fail_unless(tetris_matrix_get_cell(matrix, 0, 0) == 0 &&
+              tetris_matrix_get_cell(matrix, 0, 1) == 0 &&
+              tetris_matrix_get_uncommited_cell(matrix, 0, 0) == 1 &&
+              tetris_matrix_get_uncommited_cell(matrix, 0, 1) == 1,
+              "Not getting uncommited changes");
+
+  tetris_matrix_set_cell(matrix, 0, 0, 0);
+  tetris_matrix_set_cell(matrix, 0, 1, 0);
+  fail_unless(tetris_matrix_get_uncommited_cell(matrix, 0, 0) == 0 &&
+              tetris_matrix_get_uncommited_cell(matrix, 0, 1) == 0,
+              "Uncommited changes are not in order");
+
+  tetris_matrix_commit(matrix);
+
+  fail_unless(tetris_matrix_get_cell(matrix, 0, 0) == 0 &&
+              tetris_matrix_get_cell(matrix, 0, 1) == 0,
+              "Changes had not been correctly commited");
 }
 END_TEST
 
@@ -141,11 +164,11 @@ Suite *suite()
   Suite *s = suite_create("Tetristar");
 
   TCase *tc_libtetris = tcase_create("Libtetris");
-  tcase_add_test(tc_libtetris, test_game_start);
+  tcase_add_test(tc_libtetris, test_game);
   tcase_add_test(tc_libtetris, test_player);
   tcase_add_test(tc_libtetris, test_matrix_simple);
   tcase_add_test(tc_libtetris, test_matrix_changes);
-  tcase_add_test(tc_libtetris, test_game_stop);
+  tcase_add_test(tc_libtetris, test_matrix_uncommit);
   suite_add_tcase(s, tc_libtetris);
 
   return s;
