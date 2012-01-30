@@ -556,8 +556,13 @@ int l_matrix_diff(lua_State *l)
 
   /* return a new table which contains the infos */
   tetris_lua_push_fieldspec(l, diff);
+
+  /* free the changes list */
+  g_slist_free_full(diff,
+                    (GDestroyNotify) tetris_cell_info_free);
+  
   CHECK_STACK_END(l, 1);
-  return 1;
+  return 1; /* return a table */
 }
 
 int l_matrix_commit(lua_State *l)

@@ -42,28 +42,39 @@ function field.check_if_lost(id)
    field.check_who_wins()
 end
 
+-- Print the field of a player
+function field.print(id)
+   print("Player " .. id .. " field:")
+   local cell
+   for line = 0, tetris.matrix.get_height(id)-1 do
+      for column = 0, tetris.matrix.get_width(id)-1 do
+         cell = tetris.matrix.get_cell(id, column, line)
+         if cell == 0 then
+            io.write(" ")
+         else
+            io.write(cell)
+         end
+      end
+      io.write("\n")
+   end
+end
+
 -- Look if there are full lines and if so, clear them
 function field.clear_lines(id)
-   print("Clearing lines...")
    local line_complete
    for line = 0, tetris.matrix.get_height(id)-1 do
       -- Find a complete line
       line_complete = true
       for column = 0, tetris.matrix.get_width(id)-1 do
          if tetris.matrix.get_uncommited_cell(id, column, line) == 0 then
-            print(line .. ", " .. column .. ": empty")
             line_complete = false
             break
-         else
-            print(line .. ", " .. column .. ": " .. tetris.matrix.get_uncommited_cell(id, column, line))
          end
       end
 
       if line_complete then
-         print("Line " .. line .. " is complete")
          -- Move every upper line down
          for upper_line = line-1, 0, -1 do
-            print("Moving upper line: " .. upper_line)
             for column = 0, tetris.matrix.get_width(id)-1 do
                local cell = tetris.matrix.get_uncommited_cell(id, column, upper_line)
                tetris.matrix.set_cell(id, column, upper_line+1, cell)

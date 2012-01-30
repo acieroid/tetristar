@@ -8,9 +8,14 @@
 #include <glib.h>
 
 /**
- * A cell is simply a positive integer. The cell 0 is the empty cell.
+ * A cell is simply a positive integer.
  */
 typedef unsigned int TetrisCell;
+
+/**
+ * The empty cell
+ */
+static const TetrisCell EMPTY = 0;
 
 /**
  * The cell info structure is used to have the information on a cell
@@ -36,7 +41,7 @@ void tetris_cell_info_free(TetrisCellInfo *info);
  */
 typedef struct TetrisMatrix {
   TetrisCell **content;
-  GSList *changes;
+  TetrisCell **changes;
   int width;
   int height;
 } TetrisMatrix;
@@ -78,13 +83,15 @@ TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
 /**
  * Get a cell from the matrix, looking first at cell which aren't
  * commited yet
+ * @sa tetris_matrix_get_cell
  */
 TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
                                              int x, int y);
 
 /**
  * Return a list of cell infos that represents the cells that have
- * been changed since the last commit
+ * been changed since the last commit. The list should be freed after
+ * use.
  * @sa tetris_matrix_commit
  */
 GSList *tetris_matrix_diff(TetrisMatrix *matrix);

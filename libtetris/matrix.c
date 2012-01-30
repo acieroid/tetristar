@@ -20,12 +20,14 @@ TetrisMatrix *tetris_matrix_new(int width, int height)
   TetrisMatrix *matrix = g_malloc(sizeof(*matrix));
   matrix->width = width;
   matrix->height = height;
-  matrix->changes = NULL;
   matrix->content = g_malloc(width*sizeof(*matrix->content));
+  matrix->changes = g_malloc(width*sizeof(*matrix->changes));
   for (x = 0; x < width; x++) {
     matrix->content[x] = g_malloc(height*sizeof(**matrix->content));
+    matrix->changes[x] = g_malloc(height*sizeof(**matrix->changes));
     for (y = 0; y < height; y++) {
-      matrix->content[x][y] = 0;
+      matrix->content[x][y] = EMPTY;
+      matrix->changes[x][y] = EMPTY;
     }
   }
   return matrix;
@@ -34,11 +36,12 @@ TetrisMatrix *tetris_matrix_new(int width, int height)
 void tetris_matrix_free(TetrisMatrix *matrix)
 {
   int x;
-  for (x = 0; x < matrix->width; x++)
+  for (x = 0; x < matrix->width; x++) {
     g_free(matrix->content[x]);
+    g_free(matrix->changes[x]);
+  }
   g_free(matrix->content);
-  g_slist_free_full(matrix->changes,
-                    (GDestroyNotify) tetris_cell_info_free);
+  g_free(matrix->changes);
   g_free(matrix);
 }
 
@@ -55,10 +58,9 @@ int tetris_matrix_get_height(TetrisMatrix *matrix)
 void tetris_matrix_set_cell(TetrisMatrix *matrix,
                             int x, int y, TetrisCell cell)
 {
-  if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height)
-    matrix->changes =
-      g_slist_prepend(matrix->changes,
-                      (gpointer) tetris_cell_info_new(x, y, cell));
+  if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height) {
+    matrix->changes[x][y] = cell;
+  }
   else {
     g_warning("tetris_matrix_set_cell called on cell %d, %d on a matrix of size %dx%d",
               x, y, matrix->width, matrix->height);
@@ -79,50 +81,40 @@ TetrisCell tetris_matrix_get_cell(TetrisMatrix *matrix,
   return 1;
 }
 
-static int compare_cell_with_pos(TetrisCellInfo *cell, int position[2])
-{
-  if (cell->x == position[0] && cell->y == position[1]) {
-    return 0;
-  }
-  return -1;
-}
-
 TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
                                              int x, int y)
 {
-  int pos[2] = { x, y };
-  GSList *l;
-
-  /* Look if the cell is in the changes list */
-  l = g_slist_find_custom(matrix->changes, pos,
-                          (GCompareFunc) compare_cell_with_pos);
-  if (l)
-    return ((TetrisCellInfo *) l->data)->cell;
-  else
-    return tetris_matrix_get_cell(matrix, x, y);
+  if (x >= 0 && y >= 0 && x < matrix->width && y < matrix->height)
+    return matrix->changes[x][y];
+  if (x >= 0 && x < matrix->width && y < 0)
+    return 0;
+  return 1;
 }
 
 GSList *tetris_matrix_diff(TetrisMatrix *matrix)
 {
-  return matrix->changes;
+  int x, y;
+  TetrisCellInfo *cell;
+  GSList *changes = NULL;
+
+  for (x = 0; x < matrix->width; x++) {
+    for (y = 0; y < matrix->height; y++) {
+      if (matrix->content[x][y] != matrix->changes[x][y]) {
+        cell = tetris_cell_info_new(x, y, matrix->changes[x][y]);
+        changes = g_slist_prepend(changes, (gpointer) cell);
+      }
+    }
+  }
+
+  return changes;
 }
 
 void tetris_matrix_commit(TetrisMatrix *matrix)
 {
-  GSList *elem;
-  TetrisCellInfo *info;
-
-  /* reverse the changes to apply them in the right order */
-  matrix->changes = g_slist_reverse(matrix->changes);
+  int x, y;
 
   /* apply the changes */
-  for (elem = matrix->changes; elem != NULL; elem = elem->next) {
-    info = (TetrisCellInfo *) elem->data;
-    matrix->content[info->x][info->y] = info->cell;
-  }
-
-  /* and free the changes list */
-  g_slist_free_full(matrix->changes,
-                    (GDestroyNotify) tetris_cell_info_free);
-  matrix->changes = NULL;
+  for (x = 0; x < matrix->width; x++)
+    for (y = 0; y < matrix->height; y++)
+      matrix->content[x][y] = matrix->changes[x][y];
 }
