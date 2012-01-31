@@ -101,6 +101,13 @@ void tetris_player_remove(TetrisPlayer *player)
   players = g_slist_remove(players, player);
 }
 
+void tetris_player_remove_all()
+{
+  g_slist_free_full(players,
+                    (GDestroyNotify) tetris_player_free);
+  players = NULL;
+}
+
 TetrisPlayer *tetris_player_find(int id)
 {
   GSList *elem;

@@ -104,6 +104,11 @@ void tetris_player_add(TetrisPlayer *player);
 void tetris_player_remove(TetrisPlayer *player);
 
 /**
+ * Remove all the players
+ */
+void tetris_player_remove_all();
+
+/**
  * Find a player by its nick. If the player is not found, return NULL
  */
 TetrisPlayer *tetris_player_find(int id);

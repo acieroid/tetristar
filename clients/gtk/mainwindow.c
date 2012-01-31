@@ -5,7 +5,8 @@ static void send_command(Chat *chat, const gchar *args, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
-static void cant_connect(GtkWidget *widget, gpointer data);
+static void clean_after_disconnect(GtkWidget *widget, gpointer data);
+static void error_message(GtkWidget *widget, gpointer data);
 static gboolean on_keypress(GtkWidget *widget,
                             GdkEventKey *event,
                             gpointer data);
@@ -57,10 +58,14 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(connected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "disconnected",
                    G_CALLBACK(disconnected_layout), window);
+  g_signal_connect(G_OBJECT(window->network), "disconnected",
+                   G_CALLBACK(error_message), "Connection closed by the server");
+    g_signal_connect(G_OBJECT(window->network), "disconnected",
+                   G_CALLBACK(clean_after_disconnect), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(unlock_button), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
-                   G_CALLBACK(cant_connect), window);
+                   G_CALLBACK(error_message), "Cannot connect to the server");
 
   window->chat = chat_new();
   for (i = 0; commands[i].command != NULL; i++) {
@@ -74,7 +79,6 @@ MainWindow *mainwindow_new(void)
   window->context = context_new();
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
                    G_CALLBACK(on_keypress), window);
-
   window->vbox = gtk_vbox_new(TRUE, 1);
   gtk_container_add(GTK_CONTAINER(window->vbox), window->context);
   gtk_container_add(GTK_CONTAINER(window->vbox), window->chat);
@@ -166,11 +170,19 @@ void unlock_button(GtkWidget *widget, gpointer data)
   connect_unlock_button(CONNECT(window->connect));
 }
 
-void cant_connect(GtkWidget *widget, gpointer data)
+void clean_after_disconnect(GtkWidget *widget, gpointer data)
 {
+  MainWindow *window = (MainWindow *) data;
+
+  context_remove_all_players(CONTEXT(window->context));
+}
+
+void error_message(GtkWidget *widget, gpointer data)
+{
+  gchar *message = (gchar *) data;
   GtkWidget *dialog = gtk_message_dialog_new(NULL, 0, GTK_MESSAGE_ERROR,
                                              GTK_BUTTONS_OK,
-                                             "Cannot connect to server");
+                                             message);
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
 }

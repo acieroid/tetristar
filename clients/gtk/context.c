@@ -182,7 +182,7 @@ void context_drawing_area_free(GtkWidget *drawing_area)
   TetrisPlayer *player;
   cairo_t *cairo;
 
-  g_debug("Freeing drawing area");
+  gtk_idle_remove_by_data(drawing_area);
 
   player = g_object_get_data(G_OBJECT(drawing_area), "player");
   tetris_player_remove(player);
@@ -250,6 +250,7 @@ void context_remove_all_players(Context *context)
 {
   g_slist_free_full(context->drawing_areas,
                     (GDestroyNotify) context_drawing_area_free);
+  context->drawing_areas = NULL;
 }
 
 void context_field_changed(Context *context, TetrisPlayer *player)
