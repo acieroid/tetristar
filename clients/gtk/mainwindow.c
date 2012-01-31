@@ -5,6 +5,7 @@ static void send_command(Chat *chat, const gchar *args, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
+static void cant_connect(GtkWidget *widget, gpointer data);
 static gboolean on_keypress(GtkWidget *widget,
                             GdkEventKey *event,
                             gpointer data);
@@ -58,6 +59,8 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(disconnected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(unlock_button), window);
+  g_signal_connect(G_OBJECT(window->network), "cant-connect",
+                   G_CALLBACK(cant_connect), window);
 
   window->chat = chat_new();
   for (i = 0; commands[i].command != NULL; i++) {
@@ -161,6 +164,15 @@ void unlock_button(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   connect_unlock_button(CONNECT(window->connect));
+}
+
+void cant_connect(GtkWidget *widget, gpointer data)
+{
+  GtkWidget *dialog = gtk_message_dialog_new(NULL, 0, GTK_MESSAGE_ERROR,
+                                             GTK_BUTTONS_OK,
+                                             "Cannot connect to server");
+  gtk_dialog_run(GTK_DIALOG(dialog));
+  gtk_widget_destroy(dialog);
 }
 
 gboolean on_keypress(GtkWidget *widget,
