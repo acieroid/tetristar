@@ -21,9 +21,7 @@ function field.check_who_wins()
 
       -- whe have a winner
       if last_playing ~= nil then
-         tetris.player.set_playing(last_playing, false)
-         tetris.server.send_to_all("STATE " .. last_playing .. "NOTPLAYING")
-         tetris.server.send_to_all("WON " .. last_playing)
+         game.win(last_playing)
       end
    end
 end
@@ -35,11 +33,9 @@ function field.check_if_lost(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
 
    if not field.is_valid_piece(id, p) then
-      tetris.player.set_playing(id, false)
-      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-      tetris.server.send_to_all("LOST " .. id)
+      game.lost(id)
+      field.check_who_wins()
    end
-   field.check_who_wins()
 end
 
 -- Print the field of a player
@@ -95,7 +91,7 @@ end
 
 function field.is_valid_piece(id, p)
    for i, cell in pairs(p) do
-      if tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 then
+      if (tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0) then
          return false
       end
    end
@@ -138,8 +134,13 @@ function field.drop(id)
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
    end
-   -- change the piece
-   field.new_piece(id)
+   -- if the piece was not valid, we lost
+   if field.is_valid_piece(id, p) then
+      -- change the piece
+      field.new_piece(id)
+   else
+      game.lost(id)
+   end
    -- check if we lost
    field.check_if_lost(id)
    -- clear the lines if necesarry

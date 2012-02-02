@@ -85,8 +85,11 @@ function game.move(id, command, args)
          field.new_piece(id);
       end
 
+      if tetris.player.is_playing(id) then
+         -- Don't send a new piece if lost
+         game.send_piece(id)
+      end
       -- Finally send the field modifications
-      game.send_piece(id)
       game.send_field(id)
    end
 end
@@ -103,7 +106,9 @@ function game.rotate(id, command, args)
          field.rotate(id, direction)
       end
 
-      game.send_piece(id)
+      if tetris.player.is_playing(id) then
+         game.send_piece(id)
+      end
       game.send_field(id)
    end
 end
@@ -116,7 +121,9 @@ function game.drop(id, command, args)
       end
       field.drop(id)
 
-      game.send_piece(id)
+      if tetris.player.is_playing(id) then
+         game.send_piece(id)
+      end
       game.send_field(id)
    end
 end
@@ -131,9 +138,23 @@ function game.update()
    end
 end
 
+-- A player just lost
+function game.lost(id)
+   tetris.player.set_playing(id, false)
+   tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+   tetris.server.send_to_all("LOST " .. id)
+end
+
+-- We have a winner
+function game.win(id)
+   tetris.player.set_playing(id, false)
+   tetris.server.send_to_all("STATE " .. id .. "NOTPLAYING")
+   tetris.server.send_to_all("WON " .. id)
+end
+
 tetris.plugin.register("RECV", game.start, "START")
 tetris.plugin.register("RECV", game.stop, "STOP")
 tetris.plugin.register("RECV", game.move, "MOVE")
 tetris.plugin.register("RECV", game.rotate, "ROTATE")
 tetris.plugin.register("RECV", game.drop, "DROP")
-tetris.plugin.register("TIMEOUT", game.update, 1000000)
+--tetris.plugin.register("TIMEOUT", game.update, 1000000)
