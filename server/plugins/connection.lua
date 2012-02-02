@@ -41,6 +41,11 @@ end
 
 function connection.bye(id, command, args)
    tetris.server.disconnect(id)
+   tetris.player.remove(id)
+   -- If it was the last player, stop the game
+   if #tetris.player.all() == 0 then
+      tetris.game.stop()
+   end
 end
 
 tetris.plugin.register("RECV", connection.hello, "HELLO")
