@@ -21,9 +21,15 @@ G_BEGIN_DECLS
 #define IS_CHAT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE(klass), CHAT_TYPE)
 
 typedef struct Chat {
+  /* Widget */
   GtkTable table;
   GtkWidget *text_view;
   GtkWidget *entry;
+
+  /* History management */
+  GList *history, *history_current;
+  gboolean in_history;
+  
 } Chat;
 
 typedef struct ChatClass {
@@ -45,6 +51,11 @@ void chat_set_focus(Chat *chat);
  * Add some text to the chat
  */
 void chat_add_text(Chat *chat, const gchar *format, ...);
+
+/**
+ * Clear all the data from the chat
+ */
+void chat_clear(Chat *chat);
 
 G_END_DECLS
 

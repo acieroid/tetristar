@@ -137,7 +137,7 @@ void send_command(Chat *chat, const gchar *args, gpointer data)
     str = g_strdup_printf("%s", commands[command_info->command_id].command);
 
   network_send(command_info->window->network, str);
-  g_free(str);
+  /* Do no free str since it is kept in the history */
 }
 
 void connected_layout(GtkWidget *widget, gpointer data)
@@ -175,6 +175,7 @@ void clean_after_disconnect(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
 
   context_remove_all_players(CONTEXT(window->context));
+  chat_clear(CHAT(window->chat));
 }
 
 void error_message(GtkWidget *widget, gpointer data)
