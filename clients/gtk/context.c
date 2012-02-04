@@ -15,7 +15,7 @@ static gboolean context_configure(Context *context,
 static gboolean context_expose (Context *context,
                                 GdkEventExpose *event,
                                 gpointer data);
-static gboolean context_idle(gpointer data);
+static gboolean context_update(gpointer data);
 static gboolean context_draw(GtkWidget *drawing_area);
 static void context_cairo_draw_cell(cairo_t *cairo, int x, int y,
                                     TetrisCell cell);
@@ -102,9 +102,13 @@ gboolean context_expose(Context *context,
   return context_draw(drawing_area);
 }
 
-gboolean context_idle(gpointer data)
+gboolean context_update(gpointer data)
 {
   GtkWidget *drawing_area = (GtkWidget *) data;
+  if (drawing_area == NULL) {
+    /* the object has been destroyed, so we stop the updates */
+    return FALSE;
+  }
   if (g_object_get_data(G_OBJECT(drawing_area), "changed")) {
     g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 0);
     return context_draw(drawing_area);
@@ -182,7 +186,7 @@ void context_drawing_area_free(GtkWidget *drawing_area)
   TetrisPlayer *player;
   cairo_t *cairo;
 
-  gtk_idle_remove_by_data(drawing_area);
+  g_static_mutex_lock(&draw_mutex);
 
   player = g_object_get_data(G_OBJECT(drawing_area), "player");
   tetris_player_remove(player);
@@ -191,6 +195,8 @@ void context_drawing_area_free(GtkWidget *drawing_area)
   cairo_destroy(cairo);
 
   gtk_widget_destroy(drawing_area);
+
+  g_static_mutex_unlock(&draw_mutex);
 }
 
 GtkWidget *context_new(void)
@@ -212,7 +218,8 @@ void context_add_player(Context *context, TetrisPlayer *player)
                    G_CALLBACK(context_configure), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area), "expose-event",
                    G_CALLBACK(context_expose), drawing_area);
-  gtk_idle_add(context_idle, drawing_area);
+  /* we try to refresh each 100ms */
+  gtk_timeout_add(100, context_update, drawing_area);
 
   g_object_set_data(G_OBJECT(drawing_area), "player", player);
   g_object_set_data(G_OBJECT(drawing_area), "cairo", NULL);
@@ -240,8 +247,7 @@ void context_remove_player(Context *context, TetrisPlayer *player)
   context->drawing_areas = g_slist_remove_link(context->drawing_areas,
                                                elem);
   gtk_container_remove(GTK_CONTAINER(context), drawing_area);
-  gtk_idle_remove_by_data(drawing_area);
-  gtk_widget_destroy(drawing_area);
+  context_drawing_area_free(drawing_area);
 
   g_static_mutex_unlock(&draw_mutex);
 }
