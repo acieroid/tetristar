@@ -111,8 +111,16 @@ gboolean chat_on_keypress(GtkWidget *entry,
         return TRUE;
 
       /* add the text to the history */
-      chat->history = g_list_prepend(chat->history, text);
-      g_debug("New item in history: %s", text);
+      if (chat->history && g_strcmp0(chat->history->data, "") == 0) {
+        chat->history->data = text;
+      }
+      else if (chat->history && g_strcmp0(chat->history->data, text) == 0) {
+        g_free(text); /* don't add it two times */
+        text = chat->history->data;
+      }
+      else {
+        chat->history = g_list_prepend(chat->history, text);
+      }
 
       /* is it a command */
       if (text[0] == '/') {
@@ -160,9 +168,15 @@ gboolean chat_on_keypress(GtkWidget *entry,
       if (chat->in_history) {
         if (chat->history_current->prev == NULL) {
           /* already at the most recent entry */
-          return TRUE;
+          if (g_strcmp0(chat->history_current->data, "") == 0)
+            return TRUE; /* already a blank line, do nothing */
+          /* not a blank line, add one below */
+          text = g_strdup("");
+          chat->history = g_list_prepend(chat->history, text);
+          chat->history_current = chat->history;
         }
-        chat->history_current = chat->history_current->prev;
+        else
+          chat->history_current = chat->history_current->prev;
         gtk_entry_set_text(GTK_ENTRY(entry), chat->history_current->data);
       }
       /* else we don't do anything */
