@@ -53,6 +53,10 @@ void connect_init(Connect *connect)
   connect->nick_hbox = gtk_hbox_new(TRUE, 1);
   connect->nick_label = gtk_label_new("Nick");
   connect->nick_entry = gtk_entry_new();
+  /* note that the GTK manual recommends not to connect to this
+     signal, maybe there is a cleaner solution? */
+  g_signal_connect(G_OBJECT(connect->nick_entry), "activate",
+                   G_CALLBACK(connect_emit), (void *) connect);
   gtk_label_set_mnemonic_widget(GTK_LABEL(connect->nick_label),
                                 connect->nick_entry);
   gtk_box_pack_start(GTK_BOX(connect->nick_hbox), connect->nick_label,
@@ -64,6 +68,8 @@ void connect_init(Connect *connect)
   connect->server_hbox = gtk_hbox_new(TRUE, 1);
   connect->server_label = gtk_label_new("Server");
   connect->server_entry = gtk_entry_new();
+  g_signal_connect(G_OBJECT(connect->server_entry), "activate",
+                   G_CALLBACK(connect_emit), (void *) connect);
   gtk_entry_set_text(GTK_ENTRY(connect->server_entry), DEFAULT_SERVER);
   gtk_label_set_mnemonic_widget(GTK_LABEL(connect->server_label),
                                 connect->server_entry);

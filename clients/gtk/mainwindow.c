@@ -60,7 +60,7 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(disconnected_layout), window);
   g_signal_connect(G_OBJECT(window->network), "disconnected",
                    G_CALLBACK(error_message), "Connection closed by the server");
-    g_signal_connect(G_OBJECT(window->network), "disconnected",
+  g_signal_connect(G_OBJECT(window->network), "disconnected",
                    G_CALLBACK(clean_after_disconnect), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(unlock_button), window);
