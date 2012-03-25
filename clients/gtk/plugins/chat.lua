@@ -29,6 +29,10 @@ function chat.say(id, command, args)
    tetris.client.chat_add_text("<" .. nick .. "> " .. text .. "\n")
 end
 
+function chat.servmsg(id, command, args)
+   tetris.client.chat_add_text(">>> server message: " .. args)
+end
+
 function chat.bye(id, command, args)
    -- BYE ID
    local user_id = tonumber(args)
@@ -43,3 +47,4 @@ tetris.plugin.register("RECV", chat.say, "SAY")
 tetris.plugin.register("RECV", chat.start, "START")
 tetris.plugin.register("RECV", chat.admin, "ADMIN")
 tetris.plugin.register("RECV", chat.bye, "BYE")
+tetris.plugin.register("RECV", chat.servmsg, "SERVMSG")
