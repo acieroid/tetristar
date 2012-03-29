@@ -30,7 +30,8 @@ function chat.say(id, command, args)
 end
 
 function chat.servmsg(id, command, args)
-   tetris.client.chat_add_text(">>> server message: " .. args)
+   -- SERVMSG TEXT
+   tetris.client.chat_add_text(">>> server message: " .. args .. "\n")
 end
 
 function chat.bye(id, command, args)

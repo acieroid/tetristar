@@ -148,8 +148,9 @@ end
 -- We have a winner
 function game.win(id)
    tetris.player.set_playing(id, false)
-   tetris.server.send_to_all("STATE " .. id .. "NOTPLAYING")
+   tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
    tetris.server.send_to_all("WON " .. id)
+   winlist.add(id)
 end
 
 tetris.plugin.register("RECV", game.start, "START")
