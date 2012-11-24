@@ -1,4 +1,4 @@
-Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA', 'CAIRO', 'libtetris')
+Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA', 'CAIRO', 'GTHREAD', 'libtetris')
 
 gtk_env = env.Clone()
 
@@ -10,7 +10,7 @@ if LINUX == '1':
 else:
     sources += ['/usr/local/lib/libenet.a']
 
-LIBS = [LUA, GLIB, GTK, CAIRO]
+LIBS = [LUA, GLIB, GTK, CAIRO, GTHREAD]
 
 for lib in LIBS:
     gtk_env.ParseConfig('pkg-config ' + lib + ' --cflags --libs')
