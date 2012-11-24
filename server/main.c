@@ -61,10 +61,11 @@ void catch_signal(int signum)
 {
   switch (signum) {
   case SIGINT:
+    g_message("Exiting tetristar...");
     tetristar_deinit();
     exit(0);
   case SIGUSR1:
-    g_debug("Reloading plugins");
+    g_message("Reloading plugins");
     tetris_plugin_unload_all();
     plugins_load_all();
     break;
