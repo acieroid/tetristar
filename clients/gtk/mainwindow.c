@@ -123,9 +123,10 @@ void launch_network(GtkWidget *widget, gpointer data)
 
   /* we lock the button to avoid launching multiple network threads */
   connect_lock_button(CONNECT(window->connect));
-  g_thread_create((GThreadFunc) network_loop,
-                  (gpointer) window->network,
-                  FALSE, NULL);
+  g_thread_new("network",
+               (GThreadFunc) network_loop,
+               (gpointer) window->network);
+
 }
 
 void send_command(Chat *chat, const gchar *args, gpointer data)
