@@ -2,6 +2,7 @@
 
 enum {
   NEW_LINE,
+  UNKNOWN_COMMAND,
   COMMAND_PASSWORD,
   COMMAND_START,
   LAST_SIGNAL
@@ -49,6 +50,13 @@ void chat_class_init(ChatClass *klass)
 
   chat_signals[NEW_LINE] =
     g_signal_new("new-line", G_TYPE_FROM_CLASS(klass),
+                 G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
+                 G_STRUCT_OFFSET(ChatClass, chat),
+                 NULL, NULL,
+                 g_cclosure_marshal_VOID__STRING, G_TYPE_NONE, 1,
+                 G_TYPE_STRING);
+  chat_signals[UNKNOWN_COMMAND] =
+    g_signal_new("unknown-command", G_TYPE_FROM_CLASS(klass),
                  G_SIGNAL_RUN_FIRST | G_SIGNAL_ACTION,
                  G_STRUCT_OFFSET(ChatClass, chat),
                  NULL, NULL,
@@ -124,16 +132,20 @@ gboolean chat_on_keypress(GtkWidget *entry,
 
       /* is it a command */
       if (text[0] == '/') {
+        signal = UNKNOWN_COMMAND;
+        text++; /* skip the '/' */
+
         for (i = 0; commands[i].command != NULL; i++) {
           command_size = strlen(commands[i].command);
           if (text_size < command_size)
             continue;
 
-          if (g_ascii_strncasecmp(text+1, commands[i].command,
+          if (g_ascii_strncasecmp(text, commands[i].command,
                                   command_size) == 0) {
             signal = commands[i].signal;
-            /*           '/'  command       ' ' args... */
-            text = text + 1 + command_size + 1;
+            /* skip the command and point to the arguments */
+            text = text + command_size + 1;
+            break;
           }
         }
       }

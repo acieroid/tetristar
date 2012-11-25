@@ -2,6 +2,7 @@
 
 static void launch_network(GtkWidget *widget, gpointer data);
 static void send_command(Chat *chat, const gchar *args, gpointer data);
+static void unknown_command(Chat *chat, const gchar *command, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
@@ -76,6 +77,9 @@ MainWindow *mainwindow_new(void)
                      G_CALLBACK(send_command), command_info);
   }
 
+  g_signal_connect(G_OBJECT(window->chat), "unknown-command",
+                   G_CALLBACK(unknown_command), NULL);
+
   window->context = context_new();
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
                    G_CALLBACK(on_keypress), window);
@@ -138,6 +142,17 @@ void send_command(Chat *chat, const gchar *args, gpointer data)
 
   network_send(command_info->window->network, str);
   /* Do no free str since it is kept in the history */
+}
+
+void unknown_command(Chat *chat, const gchar *command, gpointer data)
+{
+  /* drop the args */
+  gchar *space = strchr(command, ' ');
+  if (space != NULL) {
+    *space = '\0';
+  }
+
+  chat_add_text(chat, ">>> Unknown command: %s\n", command);
 }
 
 void connected_layout(GtkWidget *widget, gpointer data)
