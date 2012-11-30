@@ -43,26 +43,35 @@ end
 
 function game.start(id, command, args)
    if tetris.player.is_admin(id) and not tetris.game.is_started() then
-      tetris.game.start()
-      tetris.server.send_to_all("START")
-      -- each player is now playing and gets a new piece
+      -- each player is now playing and gets a clean field and a new piece
       for i, player_id in pairs(tetris.player.all()) do
          tetris.player.set_playing(player_id, true)
          tetris.server.send_to_all("STATE " .. player_id .. " PLAYING")
+         field.clean(player_id)
+         game.send_field(player_id)
          field.new_piece(player_id)
          game.send_piece(player_id)
       end
+      -- start the game
+      tetris.game.start()
+      tetris.server.send_to_all("START")
    end
 end
 
-function game.stop(id, command, args)
+-- Called when a STOP message is received
+function game.adminstop(id, command, args)
    if tetris.player.is_admin(id) and tetris.game.is_started() then
-      tetris.game.stop()
-      tetris.server.send_to_all("STOP")
-      for i, player_id in pairs(tetris.player.all()) do
-         tetris.server.set_playing(player_id, false)
-         tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
-      end
+      game.stop()
+   end
+end
+
+-- Stop the game
+function game.stop()
+   tetris.game.stop()
+   tetris.server.send_to_all("STOP")
+   for i, player_id in pairs(tetris.player.all()) do
+      tetris.player.set_playing(player_id, false)
+      tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
    end
 end
 
@@ -140,17 +149,22 @@ end
 
 -- A player just lost
 function game.lost(id)
-   tetris.player.set_playing(id, false)
-   tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-   tetris.server.send_to_all("LOST " .. id)
+   if tetris.player.is_playing(id) then
+      tetris.player.set_playing(id, false)
+      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+      tetris.server.send_to_all("LOST " .. id)
+      field.check_who_wins()
+   end
 end
 
 -- We have a winner
 function game.win(id)
-   tetris.player.set_playing(id, false)
-   tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-   tetris.server.send_to_all("WON " .. id)
-   winlist.add(id)
+   if tetris.player.is_playing(id) then
+      tetris.player.set_playing(id, false)
+      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+      tetris.server.send_to_all("WON " .. id)
+      winlist.add(id)
+   end
 end
 
 tetris.plugin.register("RECV", game.start, "START")

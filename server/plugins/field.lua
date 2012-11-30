@@ -5,8 +5,13 @@ field = {}
 function field.check_who_wins()
    local last_playing = nil
 
-   -- If we have one lonely player, we let him continue playing :)
-   if tetris.player.number() > 1 then
+   -- If we have one player, the game stops when he loses
+   if tetris.player.number() == 1 then
+      id = tetris.player.all()[1]
+      if not tetris.player.is_playing(id) then
+         game.stop()
+      end
+   elseif tetris.player.number() > 1 then
       for i, id in pairs(tetris.player.all()) do
          if tetris.player.is_playing(id) then
             if last_playing == nil then
@@ -22,6 +27,7 @@ function field.check_who_wins()
       -- whe have a winner
       if last_playing ~= nil then
          game.win(last_playing)
+         game.stop()
       end
    end
 end
@@ -34,7 +40,6 @@ function field.check_if_lost(id)
 
    if not field.is_valid_piece(id, p) then
       game.lost(id)
-      field.check_who_wins()
    end
 end
 
@@ -76,6 +81,16 @@ function field.clear_lines(id)
                tetris.matrix.set_cell(id, column, upper_line+1, cell)
             end
          end
+      end
+   end
+end
+
+-- Clean the entire field of a player
+function field.clean(id)
+   local EMPTY = 0 -- TODO: get this value from libtetris
+   for line = 0, tetris.matrix.get_height(id)-1 do
+      for column = 0, tetris.matrix.get_width(id)-1 do
+         tetris.matrix.set_cell(id, column, line, EMPTY)
       end
    end
 end

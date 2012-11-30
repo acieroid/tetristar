@@ -21,6 +21,10 @@ function chat.start(id, command, args)
    tetris.client.chat_add_text(" ** The game has started\n")
 end
 
+function chat.stop(id, command, args)
+   tetris.client.chat_add_text(" ** End of the game\n")
+end
+
 function chat.say(id, command, args)
    -- SAY ID TEXT
    local user_id, text = utils.split(args, " ",
@@ -46,6 +50,7 @@ end
 tetris.plugin.register("RECV", chat.newplayer, "NEWPLAYER")
 tetris.plugin.register("RECV", chat.say, "SAY")
 tetris.plugin.register("RECV", chat.start, "START")
+tetris.plugin.register("RECV", chat.stop, "STOP")
 tetris.plugin.register("RECV", chat.admin, "ADMIN")
 tetris.plugin.register("RECV", chat.bye, "BYE")
 tetris.plugin.register("RECV", chat.servmsg, "SERVMSG")
