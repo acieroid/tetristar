@@ -212,6 +212,10 @@ gboolean on_keypress(GtkWidget *widget,
   MainWindow *window = (MainWindow *) data;
 
   if (event->type == GDK_KEY_PRESS) {
+    if (event->keyval == GDK_KEY_Tab) {
+      chat_set_focus(CHAT(window->chat));
+      return TRUE;
+    }
     for (i = 0; keybinds[i].command != NULL; i++) {
       if (event->keyval == keybinds[i].keyval) {
         network_send(window->network, (gchar *) keybinds[i].command);
