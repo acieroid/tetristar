@@ -100,8 +100,25 @@ function field.new_piece(id)
    -- TODO: don't hardcode the initial position
    local initial_pos = {4, 0}
    local p = piece.random_piece()
-   tetris.player.set_piece(id, p)
-   tetris.player.set_piece_position(id, initial_pos)
+   local p_check = piece.shift(p, initial_pos)
+   if field.is_valid_piece_uncommited(id, p_check) then
+      tetris.player.set_piece(id, p)
+      tetris.player.set_piece_position(id, initial_pos)
+   else
+      -- Can't spawn a new piece, the player loses
+      tetris.player.set_piece(id, {})
+      game.lost(id)
+   end
+end
+
+-- Uncommited version of field.is_valid_piece
+function field.is_valid_piece_uncommited(id, p)
+   for i, cell in pairs(p) do
+      if (tetris.matrix.get_uncommited_cell(id, cell[1], cell[2]) ~= 0) then
+         return false
+      end
+   end
+   return true
 end
 
 function field.is_valid_piece(id, p)
@@ -149,11 +166,11 @@ function field.drop(id)
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
    end
-   -- if the piece was not valid, we lost
    if field.is_valid_piece(id, p) then
       -- change the piece
       field.new_piece(id)
    else
+      -- the piece was not valid, the player loses
       game.lost(id)
    end
    -- check if we lost
