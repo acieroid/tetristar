@@ -126,10 +126,25 @@ GSList *tetris_player_all()
   return players;
 }
 
-gboolean tetris_nick_is_available(char *nick)
+gboolean tetris_nick_is_valid(gchar *nick) {
+  /* no empty nicks */
+  if (strlen(nick) == 0)
+    return FALSE;
+
+  /* no nicks with spaces */
+  if (strchr(nick, ' ') != NULL)
+    return FALSE;
+
+  return TRUE;
+}
+
+gboolean tetris_nick_is_available(gchar *nick)
 {
   GSList *elem;
   TetrisPlayer *player;
+
+  if (!tetris_nick_is_valid(nick))
+  return FALSE;
 
   for (elem = players; elem != NULL; elem = elem->next) {
     player = elem->data;

@@ -13,6 +13,7 @@ static int l_players_get_piece(lua_State *l);
 static int l_players_set_piece(lua_State *l);
 static int l_players_get_piece_position(lua_State *l);
 static int l_players_set_piece_position(lua_State *l);
+static int l_players_nick_valid(lua_State *l);
 static int l_players_nick_available(lua_State *l);
 static int l_players_exists(lua_State *l);
 static int l_players_number(lua_State *l);
@@ -49,6 +50,7 @@ static struct {
       { "get_piece_position", l_players_get_piece_position },
       { "set_piece_position", l_players_set_piece_position },
       { "remove", l_players_remove },
+      { "nick_valid", l_players_nick_valid },
       { "nick_available", l_players_nick_available },
       { "exists", l_players_exists },
       { "number", l_players_number },
@@ -385,6 +387,20 @@ int l_players_remove(lua_State *l)
   tetris_player_remove(player);
   CHECK_STACK_END(l, 0);
   return 0;
+}
+
+int l_players_nick_valid(lua_State *l)
+{
+  char *nick;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TSTRING);
+  nick = g_strdup(lua_tostring(l, 1));
+
+  lua_pushboolean(l, tetris_nick_is_valid(nick));
+  g_free(nick);
+  CHECK_STACK_END(l, 1);
+  return 1; /* return a boolean */
 }
 
 int l_players_nick_available(lua_State *l)

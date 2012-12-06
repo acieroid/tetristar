@@ -6,6 +6,7 @@
 #define LIBTETRIS_PLAYER_H
 
 #include <glib.h>
+#include <string.h>
 
 #include "matrix.h"
 
@@ -119,8 +120,12 @@ TetrisPlayer *tetris_player_find(int id);
 GSList *tetris_player_all();
 
 /**
- * Check if a nick is available
- * @TODO also check if the nick is well formed (no spaces etc.)
+ * Check if a nick is valid
+ */
+gboolean tetris_nick_is_valid(gchar *nick);
+
+/**
+ * Check if a nick is available (and valid)
  */
 gboolean tetris_nick_is_available(gchar *nick);
 

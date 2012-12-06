@@ -60,6 +60,23 @@ START_TEST(test_player)
 }
 END_TEST
 
+START_TEST(test_nick_valid)
+{
+  gchar *empty_nick = "";
+  gchar *space_nick = "foo bar";
+  gchar *valid_nick = "foo";
+
+  fail_unless(tetris_nick_is_valid(empty_nick) == FALSE,
+              "Empty nick not invalid");
+
+  fail_unless(tetris_nick_is_valid(space_nick) == FALSE,
+              "Nick that contains a space is not invalid");
+
+  fail_unless(tetris_nick_is_valid(valid_nick) == TRUE,
+              "Valid nick is not valid");
+}
+END_TEST
+
 START_TEST(test_matrix_simple)
 {
   int x, y, width, height;
@@ -166,6 +183,7 @@ Suite *suite()
   TCase *tc_libtetris = tcase_create("Libtetris");
   tcase_add_test(tc_libtetris, test_game);
   tcase_add_test(tc_libtetris, test_player);
+  tcase_add_test(tc_libtetris, test_nick_valid);
   tcase_add_test(tc_libtetris, test_matrix_simple);
   tcase_add_test(tc_libtetris, test_matrix_changes);
   tcase_add_test(tc_libtetris, test_matrix_uncommit);
