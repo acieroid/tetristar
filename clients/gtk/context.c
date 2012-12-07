@@ -70,6 +70,9 @@ void context_init(Context *context)
 gint context_compare(gpointer drawing_area, gpointer player)
 {
   TetrisPlayer *player_a, *player_b;
+  if (drawing_area == NULL) {
+    return 0;
+  }
 
   player_a = g_object_get_data(G_OBJECT(drawing_area), "player");
   player_b = (TetrisPlayer *) player;
@@ -105,10 +108,7 @@ gboolean context_expose(Context *context,
 gboolean context_update(gpointer data)
 {
   GtkWidget *drawing_area = (GtkWidget *) data;
-  if (drawing_area == NULL) {
-    /* the object has been destroyed, so we stop the updates */
-    return FALSE;
-  }
+
   if (g_object_get_data(G_OBJECT(drawing_area), "changed")) {
     g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 0);
     return context_draw(drawing_area);
@@ -185,8 +185,12 @@ void context_drawing_area_free(GtkWidget *drawing_area)
 {
   TetrisPlayer *player;
   cairo_t *cairo;
+  guint tag;
 
   g_static_mutex_lock(&draw_mutex);
+
+  tag = (guint) g_object_get_data(G_OBJECT(drawing_area), "timeout-tag");
+  g_source_remove(tag);
 
   player = g_object_get_data(G_OBJECT(drawing_area), "player");
   tetris_player_remove(player);
@@ -207,6 +211,7 @@ GtkWidget *context_new(void)
 void context_add_player(Context *context, TetrisPlayer *player)
 {
   GtkWidget *drawing_area;
+  guint tag;
 
   drawing_area = gtk_drawing_area_new();
   context->drawing_areas = g_slist_prepend(context->drawing_areas,
@@ -219,8 +224,9 @@ void context_add_player(Context *context, TetrisPlayer *player)
   g_signal_connect(G_OBJECT(drawing_area), "expose-event",
                    G_CALLBACK(context_expose), drawing_area);
   /* we try to refresh each 100ms */
-  gtk_timeout_add(100, context_update, drawing_area);
+  tag = g_timeout_add(100, context_update, drawing_area);
 
+  g_object_set_data(G_OBJECT(drawing_area), "timeout-tag", (gpointer) tag);
   g_object_set_data(G_OBJECT(drawing_area), "player", player);
   g_object_set_data(G_OBJECT(drawing_area), "cairo", NULL);
   g_object_set_data(G_OBJECT(drawing_area), "changed", (gpointer) 1);
