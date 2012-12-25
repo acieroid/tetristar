@@ -75,7 +75,11 @@ GSList *config_get_list(const gchar *name, GSList *def)
     break;
   case LUA_TTABLE:
     res = NULL;
-    size = luaL_getn(lua_state, -1);
+#if LUA_VERSION_NUM >= 502
+    size = lua_rawlen(lua_state, -1);
+#else
+    size = lua_objlen(lua_state, -1);
+#endif
     for (i = 1; i <= size; i++) {
       lua_rawgeti(lua_state, -1, i);
       if (lua_isstring(lua_state, -1))

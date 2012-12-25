@@ -2,7 +2,7 @@ env = Environment(CPPPATH=[], LIBPATH=[], LIBS=[])
 
 CFLAGS = ARGUMENTS.get('CFLAGS', '')
 DEBUG = ARGUMENTS.get('DEBUG', '1')
-LINUX = ARGUMENTS.get('LINUX', '0')
+LINUX = ARGUMENTS.get('LINUX', '1')
 
 env['CFLAGS'] += ['-Wall']
 if DEBUG == '1':

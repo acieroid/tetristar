@@ -33,7 +33,7 @@ void quit_everything(GtkWidget *widget, GdkEvent *event, gpointer data)
 int main(int argc, char *argv[])
 {
   g_debug("Initializing lua");
-  lua_state = lua_open();
+  lua_state = luaL_newstate();
   luaL_openlibs(lua_state);
 
   g_debug("Initializing libtetris");

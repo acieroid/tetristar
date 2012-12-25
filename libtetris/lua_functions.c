@@ -130,7 +130,11 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
   lua_pushnil(l);
   while (lua_next(l, index) != 0) {
     /* a table representing a cell is on the top of the stack */
+#if LUA_VERSION_NUM >= 502
+    if (lua_rawlen(l, -1) != 3) {
+#else
     if (lua_objlen(l, -1) != 3) {
+#endif
       g_warning("Invalid cell");
       return res;
     }

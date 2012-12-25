@@ -15,7 +15,7 @@ void tetristar_init(gchar *configfile)
   g_debug("Initializing tetristar server");
 
   g_debug("Inilializing lua");
-  lua_state = lua_open();
+  lua_state = luaL_newstate();
   luaL_openlibs(lua_state);
 
   g_debug("Initializing configuration");
