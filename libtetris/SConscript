@@ -1,9 +1,14 @@
-Import('env', 'LUA', 'GLIB', 'GTHREAD')
+Import('env', 'BUILD_IN_TMP', 'LUA', 'GLIB', 'GTHREAD')
 
 lib_env = env.Clone()
 
 sources = ['libtetris.c', 'plugin.c', 'player.c', 'matrix.c',
            'game.c', 'lua_functions.c', 'util.c']
+
+if BUILD_IN_TMP:
+    lib_env.VariantDir('/tmp/tetristar/libtetris', '.', duplicate=0)
+    sources = map(lambda x: '/tmp/tetristar/libtetris/' + x, sources)
+
 LIBS = [LUA, GLIB, GTHREAD]
 
 for lib in LIBS:

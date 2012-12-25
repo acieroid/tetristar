@@ -1,8 +1,11 @@
-Import('env', 'LINUX')
+Import('env', 'BUILD_IN_TMP', 'LINUX')
 
 simple_env = env.Clone()
 
 sources = ['simple.c']
+if BUILD_IN_TMP:
+    simple_env.VariantDir('/tmp/tetristar/simple', '.', duplicate=0)
+    sources = map(lambda x: '/tmp/tetristar/simple/' + x, sources)
 
 if LINUX == '1':
     simple_env['LIBS'] += ['enet']

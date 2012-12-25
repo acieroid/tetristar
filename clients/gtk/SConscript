@@ -1,9 +1,13 @@
-Import('env', 'LINUX', 'GLIB', 'GTK', 'LUA', 'CAIRO', 'GTHREAD', 'libtetris')
+Import('env', 'BUILD_IN_TMP', 'LINUX', 'GLIB', 'GTK', 'LUA', 'CAIRO', 'GTHREAD', 'libtetris')
 
 gtk_env = env.Clone()
 
 sources = ['main.c', 'connect.c', 'network.c', 'chat.c', 'context.c',
            'mainwindow.c', 'plugins.c']
+
+if BUILD_IN_TMP:
+    gtk_env.VariantDir('/tmp/tetristar/gtk', '.', duplicate=0)
+    sources = map(lambda x: '/tmp/tetristar/gtk/' + x, sources)
 
 if LINUX == '1':
     gtk_env['LIBS'] += ['enet']

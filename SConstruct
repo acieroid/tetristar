@@ -3,6 +3,7 @@ env = Environment(CPPPATH=[], LIBPATH=[], LIBS=[])
 CFLAGS = ARGUMENTS.get('CFLAGS', '')
 DEBUG = ARGUMENTS.get('DEBUG', '1')
 LINUX = ARGUMENTS.get('LINUX', '1')
+BUILD_IN_TMP = ARGUMENTS.get('BUILD_IN_TMP', '1')
 
 env['CFLAGS'] += ['-Wall']
 if DEBUG == '1':
@@ -22,7 +23,7 @@ GTK = 'gtk+-2.0'
 CAIRO = 'cairo'
 CHECK = 'check'
 
-Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK')
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK', 'BUILD_IN_TMP')
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')

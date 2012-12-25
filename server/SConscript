@@ -1,8 +1,11 @@
-Import('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'libtetris')
+Import('env', 'BUILD_IN_TMP', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'libtetris')
 
 server_env = env.Clone()
 
 sources = ['main.c', 'configuration.c', 'network.c', 'plugins.c']
+if BUILD_IN_TMP:
+    server_env.VariantDir('/tmp/tetristar/server', '.', duplicate=0)
+    sources = map(lambda x: '/tmp/tetristar/server/' + x, sources)
 
 if LINUX == '1':
     server_env['LIBS'] += ['enet']

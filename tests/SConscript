@@ -1,8 +1,11 @@
-Import('env', 'libtetris', 'LUA', 'GLIB', 'GTHREAD', 'CHECK')
+Import('env', 'BUILD_IN_TMP', 'libtetris', 'LUA', 'GLIB', 'GTHREAD', 'CHECK')
 
 test_env = env.Clone()
 
 sources = ['libtetris.c']
+if BUILD_IN_TMP:
+    test_env.VariantDir('/tmp/tetristar/tests', '.', duplicate=0)
+    sources = map(lambda x: '/tmp/tetristar/tests/' + x, sources)
 
 LIBS = [LUA, GLIB, GTHREAD, CHECK]
 
