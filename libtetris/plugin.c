@@ -25,9 +25,9 @@ void tetris_plugin_init(lua_State *l)
   tetris_plugin_add_category("plugin");
   tetris_plugin_add_functions("plugin", plugin_functions);
 
-  g_thread_init(NULL);
-  g_thread_create((GThreadFunc) tetris_plugin_timeout_loop, NULL,
-                  FALSE, NULL);
+  g_thread_new("libtetris",
+               (GThreadFunc) tetris_plugin_timeout_loop,
+               NULL);
 
   CHECK_STACK_END(l, 0);
 }

@@ -42,7 +42,6 @@ int main(int argc, char *argv[])
   tetris_lua_functions_setup();
 
   g_debug("Initializing GLib and GTK");
-  g_thread_init(NULL);
   gdk_threads_init();
   gtk_init(&argc, &argv);
 
