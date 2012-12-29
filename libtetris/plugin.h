@@ -46,7 +46,7 @@ typedef struct Plugin {
   PluginType type;
   gchar *command;
   LuaFunction function;
-  int timeout, last_call;
+  int timeout, last_call, next_call;
 } Plugin;
 
 /**

@@ -27,6 +27,8 @@ function game.send_field(id)
    tetris.server.send_to_all("FIELD " .. id .. " " .. fieldspec)
    -- Apply the modifications
    tetris.matrix.commit(id)
+   -- Reset the update timer
+   tetris.plugin.reset_timer(game.update)
 end
 
 -- Send the actual piece of a player
@@ -87,11 +89,15 @@ function game.move(id, command, args)
       if field.can_move(id, direction) then
          -- If the player can move the piece... well it moves it
          field.move(id, direction)
+         -- Reset the timer for update only if the piece is moved down
+         if direction == "DOWN" then
+            tetris.plugin.reset_timer(game.update)
+         end
       elseif direction == "DOWN" then
          -- If the players move it down and he can't, the piece is
          -- dropped and the player get a new piece
          field.drop(id)
-         field.new_piece(id);
+         field.new_piece(id)
       end
 
       if tetris.player.is_playing(id) then
