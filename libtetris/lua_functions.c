@@ -28,6 +28,8 @@ static int l_matrix_commit(lua_State *l);
 
 static int l_game_start(lua_State *l);
 static int l_game_stop(lua_State *l);
+static int l_game_pause(lua_State *l);
+static int l_game_is_paused(lua_State *l);
 static int l_game_reset(lua_State *l);
 static int l_game_is_started(lua_State *l);
 
@@ -73,6 +75,8 @@ static struct {
       { "stop", l_game_stop },
       { "reset", l_game_reset },
       { "is_started", l_game_is_started },
+      { "pause", l_game_pause },
+      { "is_paused", l_game_is_paused },
       { NULL, NULL }
     }
   },
@@ -628,6 +632,22 @@ int l_game_is_started(lua_State *l)
 {
   CHECK_STACK_START(l);
   lua_pushboolean(l, tetris_game_is_started());
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_game_pause(lua_State *l)
+{
+  CHECK_STACK_START(l);
+  tetris_game_pause();
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_game_is_paused(lua_State *l)
+{
+  CHECK_STACK_START(l);
+  lua_pushboolean(l, tetris_game_is_paused());
   CHECK_STACK_END(l, 1);
   return 1;
 }

@@ -24,6 +24,16 @@ void tetris_game_stop();
 gboolean tetris_game_is_started();
 
 /**
+ * Toggle the pause state of the game
+ */
+void tetris_game_pause();
+
+/**
+ * Return the pause state of the game
+ */
+gboolean tetris_game_is_paused();
+
+/**
  * Reset a game state
  */
 void tetris_game_reset();
