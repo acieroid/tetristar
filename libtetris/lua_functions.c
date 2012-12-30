@@ -13,6 +13,9 @@ static int l_players_get_piece(lua_State *l);
 static int l_players_set_piece(lua_State *l);
 static int l_players_get_piece_position(lua_State *l);
 static int l_players_set_piece_position(lua_State *l);
+static int l_players_add_points(lua_State *l);
+static int l_players_reset_points(lua_State *l);
+static int l_players_get_points(lua_State *l);
 static int l_players_nick_valid(lua_State *l);
 static int l_players_nick_available(lua_State *l);
 static int l_players_exists(lua_State *l);
@@ -51,6 +54,9 @@ static struct {
       { "set_piece", l_players_set_piece },
       { "get_piece_position", l_players_get_piece_position },
       { "set_piece_position", l_players_set_piece_position },
+      { "add_points", l_players_add_points },
+      { "reset_points", l_players_reset_points },
+      { "get_points", l_players_get_points },
       { "remove", l_players_remove },
       { "nick_valid", l_players_nick_valid },
       { "nick_available", l_players_nick_available },
@@ -378,8 +384,67 @@ int l_players_set_piece_position(lua_State *l)
 
   /* and set the player's piece position */
   tetris_player_set_piece_position(player, position);
+
   CHECK_STACK_END(l, 0);
   return 0;
+}
+
+int l_players_add_points(lua_State *l)
+{
+  int id, points;
+  TetrisPlayer *player;
+  CHECK_STACK_START(l);
+
+  /* player's id */
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  /* points to add */
+  luaL_checktype(l, 2, LUA_TNUMBER);
+  points = lua_tonumber(l, 2);
+
+  /* add the points */
+  tetris_player_add_points(player, points);
+
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_players_reset_points(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  CHECK_STACK_START(l);
+
+  /* player's id */
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  /* reset the points */
+  tetris_player_reset_points(player);
+
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_players_get_points(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  CHECK_STACK_START(l);
+
+  /* player's id */
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  /* return the points of the player */
+  lua_pushnumber(l, tetris_player_get_points(player));
+
+  CHECK_STACK_END(l, 1);
+  return 1;
 }
 
 int l_players_remove(lua_State *l)

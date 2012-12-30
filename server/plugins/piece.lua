@@ -1,5 +1,9 @@
 piece = {}
 
+-- All the possibles cells
+piece.cells = {0, 1, 2, 3, 4, 5, 6, 7}
+
+-- All the possible pieces
 piece.pieces = {
 -- The T
    {                { 0, -1, 1 },
@@ -36,10 +40,17 @@ piece.pieces = {
    }
 }
 
+-- Return a random piece
 function piece.random_piece()
    return piece.pieces[math.random(#piece.pieces)]
 end
 
+-- Return a random cell
+function piece.random_cell()
+   return piece.cells[math.random(#piece.cells)]
+end
+
+-- Return a (dx, dy) pair corresponding to a given direction
 function piece.position_from_direction(direction)
    local inc_x = 0
    local inc_y = 0
@@ -55,10 +66,12 @@ function piece.position_from_direction(direction)
    return { inc_x, inc_y }
 end
 
+-- Add two position pairs
 function piece.add_positions(a, b)
    return { a[1] + b[1], a[2] + b[2] }
 end
 
+-- Move a piece in a direction
 function piece.move(p, direction)
    local inc_pos = piece.position_from_direction(direction)
    local new_p = {}
@@ -70,6 +83,7 @@ function piece.move(p, direction)
    return new_p
 end
 
+-- Move a piece by a certain distance
 function piece.shift(p, position)
    local new_p = {}
    for i, cell in pairs(p) do
@@ -80,6 +94,7 @@ function piece.shift(p, position)
    return new_p
 end
 
+-- Rotate a piece in a given direction
 function piece.rotate(p, direction)
    -- rotation matrix when theta = 90 degrees
    local rot_right = { { 0, -1 }, { 1, 0 } }

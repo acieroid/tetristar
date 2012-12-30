@@ -13,6 +13,7 @@ TetrisPlayer *tetris_player_new(int id)
   player->piece = NULL;
   player->piece_position[0] = 5;
   player->piece_position[1] = 0;
+  player->points = 0;
   return player;
 }
 
@@ -90,6 +91,20 @@ void tetris_player_set_playing(TetrisPlayer *player, gboolean status)
   player->playing = status;
 }
 
+void tetris_player_add_points(TetrisPlayer *player, int points)
+{
+  player->points += points;
+}
+
+void tetris_player_reset_points(TetrisPlayer *player)
+{
+  player->points = 0;
+}
+
+int tetris_player_get_points(TetrisPlayer *player)
+{
+  return player->points;
+}
 
 void tetris_player_add(TetrisPlayer *player)
 {

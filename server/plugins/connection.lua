@@ -29,6 +29,7 @@ function connection.hello(id, command, args)
         tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
      else
         -- Nick already taken, try appending a '_'
+        -- TODO: this will loop forever if the nick is invalid
         connection.hello(id, command, args .. "_")
      end
   end

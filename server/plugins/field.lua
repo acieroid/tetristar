@@ -62,7 +62,8 @@ end
 
 -- Look if there are full lines and if so, clear them
 function field.clear_lines(id)
-   local line_complete
+   local nlines = 0
+   local line_complete = false
    for line = 0, tetris.matrix.get_height(id)-1 do
       -- Find a complete line
       line_complete = true
@@ -74,6 +75,7 @@ function field.clear_lines(id)
       end
 
       if line_complete then
+         nlines = nlines+1
          -- Move every upper line down
          for upper_line = line-1, 0, -1 do
             for column = 0, tetris.matrix.get_width(id)-1 do
@@ -82,6 +84,74 @@ function field.clear_lines(id)
             end
          end
       end
+   end
+   field.lines_cleared(id, nlines)
+end
+
+-- Called when a player cleared n lines
+function field.lines_cleared(id, n)
+   local points = 0
+   if n == 1 then
+      points = 40
+   elseif n == 2 then
+      points = 100
+   elseif n == 3 then
+      points = 300
+   elseif n == 4 then
+      points = 1200
+   else
+      -- invalid number of lines cleared
+      return
+   end
+
+   tetris.player.add_points(id, points)
+   if n > 1 and n <= 4 then
+      for i, player_id in pairs(tetris.player.all()) do
+         if player_id ~= id then
+            field.add_lines(player_id, n-1)
+         end
+      end
+      tetris.server.send_to_all("SERVMSG " .. tetris.player.get_nick(id) .. " sent " .. n-1 .. " to everyone")
+   end
+end
+
+-- Add n lines on the bottom of a player's field
+function field.add_lines(id, n)
+   for line = 0, n do
+      field.add_line(id)
+   end
+end
+
+-- Add a line on the bottom of a player's field
+function field.add_line(id)
+   local lost = false
+   -- Check if the player will lose when adding a line
+   for column = 0, tetris.matrix.get_width(id)-1 do
+      local cell = tetris.matrix.get_uncommited_cell(id, column, 0)
+      if cell ~= 0 then
+         lost = true
+      end
+   end
+
+   -- Move every line up
+   for lower_line = 1, tetris.matrix.get_height(id)-1 do
+      for column = 0, tetris.matrix.get_width(id)-1 do
+         local cell = tetris.matrix.get_uncommited_cell(id, column, lower_line)
+         tetris.matrix.set_cell(id, column, lower_line-1, cell)
+      end
+   end
+
+   local line = tetris.matrix.get_height(id)-1
+   -- Fill the new line with random pieces
+   for column = 0, tetris.matrix.get_width(id)-1 do
+      local cell = piece.random_cell()
+      tetris.matrix.set_cell(id, column, line, cell)
+   end
+   -- Be sure to have at least one blank cell
+   tetris.matrix.set_cell(id, math.random(tetris.matrix.get_width(id)-1), line, 0)
+
+   if lost then
+      game.lost(id)
    end
 end
 
