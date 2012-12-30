@@ -13,10 +13,12 @@ static void tetris_plugin_timeout_loop(gpointer data);
 
 static int l_register(lua_State *l);
 static int l_reset_timer(lua_State *l);
+static int l_change_timeout(lua_State *l);
 
 static PluginFunction plugin_functions[] = {
   { "register", l_register },
-  { "reset_timer", l_reset_timer }
+  { "reset_timer", l_reset_timer },
+  { "change_timeout", l_change_timeout }
 };
 
 void tetris_plugin_init(lua_State *l)
@@ -63,7 +65,7 @@ Plugin *tetris_plugin_new(PluginType type,
   plugin->command = g_strdup(command);
   plugin->function = fun;
   plugin->timeout = timeout;
-  plugin->lat_call = 0;
+  plugin->last_call = 0;
   plugin->next_call = 0;
   return plugin;
 }
@@ -73,6 +75,32 @@ void tetris_plugin_free(Plugin *plugin)
   if (plugin->command != NULL)
     g_free(plugin->command);
   g_free(plugin);
+}
+
+Plugin *tetris_plugin_find(LuaFunction fun)
+{
+  GSList *elem;
+  Plugin *plugin;
+  CHECK_STACK_START(lua_state);
+
+  for (elem = plugins; elem != NULL; elem = elem->next) {
+    plugin = elem->data;
+    /* push the functions to compare on the stack */
+    lua_rawgeti(lua_state, LUA_REGISTRYINDEX, fun);
+    lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
+    /* compare the functions */
+    if (plugin->type == PLUGIN_TIMEOUT && lua_compare(lua_state, 1, 2, LUA_OPEQ)) {
+      lua_pop(lua_state, 2);
+      CHECK_STACK_END(lua_state, 0);
+      return plugin;
+    }
+    /* pop compared functions from the stack */
+    lua_pop(lua_state, 2);
+  }
+
+  CHECK_STACK_END(lua_state, 0);
+  /* No plugin found */
+  return NULL;
 }
 
 void tetris_plugin_add_category(const gchar *category)
@@ -270,27 +298,48 @@ int l_register(lua_State *l)
 
 int l_reset_timer(lua_State *l)
 {
-  GSList *elem;
   Plugin *plugin;
   LuaFunction function;
   CHECK_STACK_START(l);
 
   luaL_checktype(l, 1, LUA_TFUNCTION);
-  /* store the function passed as argument */
   function = luaL_ref(l, LUA_REGISTRYINDEX);
 
-  for (elem = plugins; elem != NULL; elem = elem->next) {
-    plugin = elem->data;
-    /* push the functions to compare on the stack */
-    lua_rawgeti(l, LUA_REGISTRYINDEX, function);
-    lua_rawgeti(l, LUA_REGISTRYINDEX, plugin->function);
-    /* compare the functions */
-    if (plugin->type == PLUGIN_TIMEOUT && lua_compare(l, 1, 2, LUA_OPEQ)) {
-      /* reset the timer of this plugin */
-      plugin->next_call = (int) (TIMER_MULT*g_timer_elapsed(timer, NULL)) +
-        plugin->timeout;
-    }
-    lua_pop(l, 2);
+  plugin = tetris_plugin_find(function);
+  if (plugin && plugin->type == PLUGIN_TIMEOUT) {
+    /* reset the timer of this plugin */
+    plugin->next_call = (int) (TIMER_MULT*g_timer_elapsed(timer, NULL)) +
+      plugin->timeout;
+  } else {
+    g_warning("reset_timer argument should be a TIMEOUT plugin function");
+  }
+
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_change_timeout(lua_State *l)
+{
+  Plugin *plugin;
+  LuaFunction function;
+  int timeout;
+  CHECK_STACK_START(l);
+
+  /* the plugin's function */
+  luaL_checktype(l, 1, LUA_TFUNCTION);
+  lua_pushvalue(l, 1);
+  function = luaL_ref(l, LUA_REGISTRYINDEX);
+
+  /* the new timeout */
+  luaL_checktype(l, 2, LUA_TNUMBER);
+  timeout = lua_tonumber(l, 2);
+
+  plugin = tetris_plugin_find(function);
+  if (plugin && plugin->type == PLUGIN_TIMEOUT) {
+    /* change the timeout of this plugin */
+    plugin->timeout = timeout;
+  } else {
+    g_warning("change_timeout argument should be a TIMEOUT plugin function");
   }
 
   CHECK_STACK_END(l, 0);

@@ -87,6 +87,12 @@ Plugin *tetris_plugin_new(PluginType type,
 void tetris_plugin_free(Plugin *plugin);
 
 /**
+ * Find a plugin given a reference to its lua function. Returns NULL
+ * if no plugin matched the function given as argument.
+ */
+Plugin *tetris_plugin_find(LuaFunction fun);
+
+/**
  * Add a new category of plugin functions
  */
 void tetris_plugin_add_category(const gchar *category);
