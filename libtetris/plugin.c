@@ -231,9 +231,13 @@ void tetris_plugin_timeout_loop(gpointer data)
            plugin->next_call)) {
         g_static_mutex_lock(&mutex);
 
+        /* the function */
         lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
+        /* pass the delta as argument */
+        lua_pushnumber(lua_state,
+                       (int) (TIMER_MULT*g_timer_elapsed(timer, NULL)) - plugin->last_call);
         /* Execute the plugin */
-        if (lua_pcall(lua_state, 0, 0, 0) != 0) {
+        if (lua_pcall(lua_state, 1, 0, 0) != 0) {
           g_warning("Error when calling a plugin: %s",
                     lua_tostring(lua_state, -1));
           lua_pop(lua_state, 1);
