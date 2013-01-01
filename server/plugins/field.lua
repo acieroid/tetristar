@@ -109,6 +109,7 @@ function field.lines_cleared(id, n)
       for i, player_id in pairs(tetris.player.all()) do
          if player_id ~= id then
             field.add_lines(player_id, n-1)
+            game.send_field(player_id)
          end
       end
       tetris.server.send_to_all("SERVMSG " .. tetris.player.get_nick(id) .. " sent " .. n-1 .. " to everyone")
