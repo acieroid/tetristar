@@ -40,6 +40,9 @@ piece.pieces = {
    }
 }
 
+-- Initialize the random state
+math.randomseed(os.time())
+
 -- Return a random piece
 function piece.random_piece()
    return piece.pieces[math.random(#piece.pieces)]
