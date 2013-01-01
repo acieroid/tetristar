@@ -90,6 +90,7 @@ end
 
 -- Called when a player cleared n lines
 function field.lines_cleared(id, n)
+   -- Add points
    local points = 0
    if n == 1 then
       points = 40
@@ -104,6 +105,7 @@ function field.lines_cleared(id, n)
       return
    end
 
+   -- Send lines to other players
    tetris.player.add_points(id, points)
    if n > 1 and n <= 4 then
       for i, player_id in pairs(tetris.player.all()) do
@@ -112,8 +114,11 @@ function field.lines_cleared(id, n)
             game.send_field(player_id)
          end
       end
-      tetris.server.send_to_all("SERVMSG " .. tetris.player.get_nick(id) .. " sent " .. n-1 .. " to everyone")
+      tetris.server.send_to_all("SERVMSG " .. tetris.player.get_nick(id) .. " sent " .. n-1 .. " lines to everyone")
    end
+
+   -- Statistics
+   stats.lines_cleared(id, n)
 end
 
 -- Add n lines on the bottom of a player's field
@@ -248,4 +253,6 @@ function field.drop(id)
    field.check_if_lost(id)
    -- clear the lines if necesarry
    field.clear_lines(id)
+   -- statistics
+   stats.block_dropped(id)
 end

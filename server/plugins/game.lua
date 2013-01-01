@@ -57,6 +57,7 @@ function game.start(id, command, args)
          game.send_field(player_id)
          field.new_piece(player_id)
          game.send_piece(player_id)
+         stats.player_started(player_id)
       end
       -- start the game
       tetris.game.start()
@@ -76,9 +77,13 @@ function game.stop()
    tetris.game.stop()
    tetris.server.send_to_all("STOP")
    for i, player_id in pairs(tetris.player.all()) do
-      tetris.player.set_playing(player_id, false)
-      tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
+      if tetris.player.is_playing(player_id) then
+         stats.player_finished(player_id)
+         tetris.player.set_playing(player_id, false)
+         tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
+      end
    end
+   stats.send()
 end
 
 function game.move(id, command, args)
@@ -187,6 +192,7 @@ end
 -- A player just lost
 function game.lost(id)
    if tetris.player.is_playing(id) then
+      stats.player_finished(id)
       tetris.player.set_playing(id, false)
       tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
       tetris.server.send_to_all("LOST " .. id)
@@ -197,6 +203,7 @@ end
 -- We have a winner
 function game.win(id)
    if tetris.player.is_playing(id) then
+      stats.player_finished(id)
       tetris.player.set_playing(id, false)
       tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
       tetris.server.send_to_all("WON " .. id)
