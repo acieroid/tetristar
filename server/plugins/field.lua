@@ -35,10 +35,7 @@ end
 -- Check if the player ID has lost and send commands to inform clients
 -- if that's the case
 function field.check_if_lost(id)
-   local p = tetris.player.get_piece(id)
-   p = piece.shift(p, tetris.player.get_piece_position(id))
-
-   if not field.is_valid_piece(id, p) then
+   if not field.is_valid_player_piece(id) then
       game.lost(id)
    end
 end
@@ -110,7 +107,9 @@ function field.lines_cleared(id, n)
    if n > 1 and n <= 4 then
       for i, player_id in pairs(tetris.player.all()) do
          if player_id ~= id then
+            -- Add the lines
             field.add_lines(player_id, n-1)
+            -- Send the field
             game.send_field(player_id)
          end
       end
@@ -238,16 +237,12 @@ end
 function field.drop(id)
    local p = tetris.player.get_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
+
+   -- change the piece
+   field.new_piece(id)
    -- add the current piece to the matrix
    for i, cell in pairs(p) do
       tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
-   end
-   if field.is_valid_piece(id, p) then
-      -- change the piece
-      field.new_piece(id)
-   else
-      -- the piece was not valid, the player loses
-      game.lost(id)
    end
    -- check if we lost
    field.check_if_lost(id)
@@ -255,4 +250,20 @@ function field.drop(id)
    field.clear_lines(id)
    -- statistics
    stats.block_dropped(id)
+end
+
+-- Add the player piece to the player's matrix
+function field.add_player_piece(id)
+   local p = tetris.player.get_piece(id)
+   p = piece.shift(p, tetris.player.get_piece_position(id))
+   for i, cell in pairs(p) do
+      tetris.matrix.set_cell(id, cell[1], cell[2], cell[3])
+   end
+end
+
+-- Check if a player's piece is well placed
+function field.is_valid_player_piece(id)
+   local p = tetris.player.get_piece(id)
+   p = piece.shift(p, tetris.player.get_piece_position(id))
+   return field.is_valid_piece(id, p)
 end

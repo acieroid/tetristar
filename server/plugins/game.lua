@@ -104,9 +104,8 @@ function game.move(id, command, args)
          end
       elseif direction == "DOWN" then
          -- If the players move it down and he can't, the piece is
-         -- dropped and the player get a new piece
+         -- dropped, and field.drop gives the player a new piece
          field.drop(id)
-         field.new_piece(id)
       end
 
       if tetris.player.is_playing(id) then
