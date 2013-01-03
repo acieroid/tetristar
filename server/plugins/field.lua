@@ -174,8 +174,15 @@ end
 function field.new_piece(id)
    -- TODO: don't hardcode the initial position
    local initial_pos = {4, 0}
-   local p = piece.random_piece()
+   -- Use next piece
+   local p = tetris.player.get_next_piece(id)
+   print(p)
+   if #p == 0 then
+      -- No next piece yet
+      p = piece.random_piece()
+   end
    local p_check = piece.shift(p, initial_pos)
+   -- Put it in the matrix
    if field.is_valid_piece_uncommited(id, p_check) then
       tetris.player.set_piece(id, p)
       tetris.player.set_piece_position(id, initial_pos)
@@ -184,6 +191,8 @@ function field.new_piece(id)
       tetris.player.set_piece(id, {})
       game.lost(id)
    end
+   -- Prepare next piece
+   tetris.player.set_next_piece(id, piece.random_piece())
 end
 
 -- Uncommited version of field.is_valid_piece

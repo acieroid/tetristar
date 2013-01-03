@@ -8,11 +8,12 @@ TetrisPlayer *tetris_player_new(int id)
   player->id = id;
   player->nick = NULL;
   player->admin = FALSE;
-  /** @TODO: take dimensions as parameters somewhere */
+  /* TODO: take dimensions as parameters somewhere */
   player->matrix = tetris_matrix_new(10, 22);
   player->piece = NULL;
   player->piece_position[0] = 5;
   player->piece_position[1] = 0;
+  player->next_piece = NULL;
   player->points = 0;
   return player;
 }
@@ -21,6 +22,12 @@ void tetris_player_free(TetrisPlayer *player)
 {
   if (player->nick != NULL)
     g_free(player->nick);
+  if (player->piece != NULL)
+    g_slist_free_full(player->piece,
+                      (GDestroyNotify) tetris_cell_info_free);
+  if (player->next_piece != NULL)
+    g_slist_free_full(player->next_piece,
+                      (GDestroyNotify) tetris_cell_info_free);
   tetris_matrix_free(player->matrix);
   g_free(player);
 }
@@ -69,6 +76,18 @@ void tetris_player_set_piece_position(TetrisPlayer *player,
 {
   player->piece_position[0] = position[0];
   player->piece_position[1] = position[1];
+}
+
+GSList *tetris_player_get_next_piece(TetrisPlayer *player)
+{
+  return player->next_piece;
+}
+
+void tetris_player_set_next_piece(TetrisPlayer *player, GSList *piece)
+{
+  g_slist_free_full(player->next_piece,
+                    (GDestroyNotify) tetris_cell_info_free);
+  player->next_piece = piece;
 }
 
 gboolean tetris_player_is_admin(TetrisPlayer *player)

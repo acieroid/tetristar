@@ -13,6 +13,8 @@ static int l_players_get_piece(lua_State *l);
 static int l_players_set_piece(lua_State *l);
 static int l_players_get_piece_position(lua_State *l);
 static int l_players_set_piece_position(lua_State *l);
+static int l_players_get_next_piece(lua_State *l);
+static int l_players_set_next_piece(lua_State *l);
 static int l_players_add_points(lua_State *l);
 static int l_players_reset_points(lua_State *l);
 static int l_players_get_points(lua_State *l);
@@ -54,6 +56,8 @@ static struct {
       { "set_piece", l_players_set_piece },
       { "get_piece_position", l_players_get_piece_position },
       { "set_piece_position", l_players_set_piece_position },
+      { "get_next_piece", l_players_get_next_piece },
+      { "set_next_piece", l_players_set_next_piece },
       { "add_points", l_players_add_points },
       { "reset_points", l_players_reset_points },
       { "get_points", l_players_get_points },
@@ -385,6 +389,43 @@ int l_players_set_piece_position(lua_State *l)
   /* and set the player's piece position */
   tetris_player_set_piece_position(player, position);
 
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_players_get_next_piece(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  GSList *piece;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  player = tetris_player_find(id);
+  piece = tetris_player_get_next_piece(player);
+
+  tetris_lua_push_fieldspec(l, piece);
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_players_set_next_piece(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  GSList *piece;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  luaL_checktype(l, 2, LUA_TTABLE);
+  piece = tetris_lua_get_fieldspec(l, 2);
+
+  player = tetris_player_find(id);
+  tetris_player_set_next_piece(player, piece);
   CHECK_STACK_END(l, 0);
   return 0;
 }
