@@ -2,6 +2,7 @@
 | Type       | Client           | Server                 | Notes                                                                                     |
 |------------+------------------+------------------------+-------------------------------------------------------------------------------------------|
 | connection | HELLO NICK       | NEWPLAYER ID NICK      | The server might change the nick, the client *should* accept the nick given by the server |
+|            |                  | NICKTAKEN              | The nick is already taken                                                                 |
 |            | BYE              | BYE ID                 |                                                                                           |
 |------------+------------------+------------------------+-------------------------------------------------------------------------------------------|
 | im         | SAY TEXT         | SAY ID TEXT            |                                                                                           |
@@ -11,7 +12,7 @@
 | game       | START            | START                  |                                                                                           |
 |            |                  | PIECE ID FIELDSPEC     | When the player receives a new piece                                                      |
 |            |                  | PIECEPOS ID X,Y        | When the piece's position changed                                                         |
-|            |                  | NEXTPIECE ID FIELDSPEC | The next piece the player will receive                                          |
+|            |                  | NEXTPIECE ID FIELDSPEC | The next piece the player will receive                                                    |
 |            | MOVE DIRECTION   | FIELD ID FIELDSPEC     | DIRECTION is LEFT, RIGHT or DOWN                                                          |
 |            | ROTATE DIRECTION | FIELD ID FIELDSPEC     | DIRECTION is LEFT or RIGHT                                                                |
 |            | DROP             | FIELD ID FIELDSPEC     |                                                                                           |

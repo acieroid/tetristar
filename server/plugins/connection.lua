@@ -1,38 +1,48 @@
 connection = {}
 
 function connection.hello(id, command, args)
-   nick = args
-   -- a client can only send *one* HELLO
-   if not tetris.player.exists(id) then
-     if tetris.player.nick_available(nick) then
-        -- Send his nick to the player
-        tetris.server.send(id, "HELLO " .. id .. " " .. nick)
-        -- Send all the players connected to the player
-        for i,player_id in pairs(tetris.player.all()) do
-           player_nick = tetris.player.get_nick(player_id) 
-           tetris.server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
+   local nick = args
+   local tries = 3 -- try with 3 different nicks before failing
+   while tries > 0 do
+      -- a client can only send *one* HELLO
+      if not tetris.player.exists(id) then
+         if tetris.player.nick_available(nick) then
+            -- Send his nick to the player
+            tetris.server.send(id, "HELLO " .. id .. " " .. nick)
+            -- Send all the other players' information to the new player
+            for i,player_id in pairs(tetris.player.all()) do
+               player_nick = tetris.player.get_nick(player_id) 
+               tetris.server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
 
-           local state
-           if tetris.player.is_playing(player_id) then
-              state = "PLAYING"
-           else
-              state = "NOTPLAYING"
-           end
-           tetris.server.send(id, "STATE " .. player_id .. " " .. state)
-        end
-        -- Add the player
-        tetris.player.add(id)
-        tetris.player.set_nick(id, nick)
-        -- Tell the other players about this one
-        tetris.server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
-        tetris.player.set_playing(id, false)
-        tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-     else
-        -- Nick already taken, try appending a '_'
-        -- TODO: this will loop forever if the nick is invalid
-        connection.hello(id, command, args .. "_")
-     end
-  end
+               local state
+               if tetris.player.is_playing(player_id) then
+                  state = "PLAYING"
+                  -- TODO
+                  -- local fieldspec = game.to_fieldspec(tetris.matrix.get(id))
+                  -- tetris.server.send("FIELD " .. player_id .. " " .. fieldspec)
+               else
+                  state = "NOTPLAYING"
+               end
+               tetris.server.send(id, "STATE " .. player_id .. " " .. state)
+            end
+            -- Add the player
+            tetris.player.add(id)
+            tetris.player.set_nick(id, nick)
+            -- Tell the other players about this one
+            tetris.server.send_to_all("NEWPLAYER " .. id .. " " .. nick)
+            tetris.player.set_playing(id, false)
+            tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
+            return -- done
+         end
+         -- Nick already taken, try appending a '_'
+         nick = nick .. "_"
+         tries = tries - 1
+      end
+   end
+   -- No valid nick, refuse the connection
+   tetris.server.send(id, "NICKTAKEN")
+   tetris.server.disconnect(id)
+   tetris.player.remove(id)
 end
 
 function connection.disconnect(id)
