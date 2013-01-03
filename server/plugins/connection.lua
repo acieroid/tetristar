@@ -14,16 +14,18 @@ function connection.hello(id, command, args)
                player_nick = tetris.player.get_nick(player_id) 
                tetris.server.send(id, "NEWPLAYER " .. player_id .. " " .. player_nick)
 
+               -- Send the state of other players
                local state
                if tetris.player.is_playing(player_id) then
                   state = "PLAYING"
-                  -- TODO
-                  -- local fieldspec = game.to_fieldspec(tetris.matrix.get(id))
-                  -- tetris.server.send("FIELD " .. player_id .. " " .. fieldspec)
                else
                   state = "NOTPLAYING"
                end
                tetris.server.send(id, "STATE " .. player_id .. " " .. state)
+
+               -- Send the field of other players
+               local fieldspec = game.to_fieldspec(tetris.matrix.get_cells(player_id))
+               tetris.server.send(id, "FIELD " .. player_id .. " " .. fieldspec)
             end
             -- Add the player
             tetris.player.add(id)

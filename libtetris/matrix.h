@@ -89,6 +89,12 @@ TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
                                              int x, int y);
 
 /**
+ * Return a list of all the filled (and commited) cells in this matrix
+ * @sa tetris_matrix_diff
+ */
+GSList *tetris_matrix_get_cells(TetrisMatrix *matrix);
+
+/**
  * Return a list of cell infos that represents the cells that have
  * been changed since the last commit. The list should be freed after
  * use.

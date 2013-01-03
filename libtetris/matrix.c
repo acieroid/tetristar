@@ -91,6 +91,24 @@ TetrisCell tetris_matrix_get_uncommited_cell(TetrisMatrix *matrix,
   return 1;
 }
 
+GSList *tetris_matrix_get_cells(TetrisMatrix *matrix)
+{
+  int x, y;
+  TetrisCellInfo *cell;
+  GSList *cells = NULL;
+
+  for (x = 0; x < matrix->width; x++) {
+    for (y = 0; y < matrix->height; y++) {
+      if (matrix->content[x][y] != EMPTY) {
+        cell = tetris_cell_info_new(x, y, matrix->content[x][y]);
+        cells = g_slist_prepend(cells, (gpointer) cell);
+      }
+    }
+  }
+
+  return cells;
+}
+
 GSList *tetris_matrix_diff(TetrisMatrix *matrix)
 {
   int x, y;

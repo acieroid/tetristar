@@ -176,7 +176,6 @@ function field.new_piece(id)
    local initial_pos = {4, 0}
    -- Use next piece
    local p = tetris.player.get_next_piece(id)
-   print(p)
    if #p == 0 then
       -- No next piece yet
       p = piece.random_piece()
