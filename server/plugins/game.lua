@@ -45,6 +45,9 @@ function game.send_piece(id)
    local pos = tetris.player.get_piece_position(id)
    tetris.server.send_to_all("PIECEPOS " .. id .. " " .. 
                              pos[1] .. "," .. pos[2])
+   p = tetris.player.get_next_piece(id)
+   fieldspec = game.to_fieldspec(p)
+   tetris.server.send_to_all("NEXTPIECE " .. id .. " " .. fieldspec)
 end
 
 function game.start(id, command, args)
