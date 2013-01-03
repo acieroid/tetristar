@@ -181,13 +181,12 @@ void context_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
   cairo_restore(cairo);
 }
 
+/* When calling this function, the draw_mutex should be locked first */
 void context_drawing_area_free(GtkWidget *drawing_area)
 {
   TetrisPlayer *player;
   cairo_t *cairo;
   guint tag;
-
-  g_static_mutex_lock(&draw_mutex);
 
   tag = (guint) g_object_get_data(G_OBJECT(drawing_area), "timeout-tag");
   g_source_remove(tag);
@@ -199,8 +198,6 @@ void context_drawing_area_free(GtkWidget *drawing_area)
   cairo_destroy(cairo);
 
   gtk_widget_destroy(drawing_area);
-
-  g_static_mutex_unlock(&draw_mutex);
 }
 
 GtkWidget *context_new(void)
@@ -252,7 +249,6 @@ void context_remove_player(Context *context, TetrisPlayer *player)
   drawing_area = (GtkWidget *) elem->data;
   context->drawing_areas = g_slist_remove_link(context->drawing_areas,
                                                elem);
-  gtk_container_remove(GTK_CONTAINER(context), drawing_area);
   context_drawing_area_free(drawing_area);
 
   g_static_mutex_unlock(&draw_mutex);
@@ -260,9 +256,11 @@ void context_remove_player(Context *context, TetrisPlayer *player)
 
 void context_remove_all_players(Context *context)
 {
+  g_static_mutex_lock(&draw_mutex);
   g_slist_free_full(context->drawing_areas,
                     (GDestroyNotify) context_drawing_area_free);
   context->drawing_areas = NULL;
+  g_static_mutex_unlock(&draw_mutex);
 }
 
 void context_field_changed(Context *context, TetrisPlayer *player)
