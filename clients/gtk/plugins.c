@@ -8,6 +8,8 @@ static int l_chat_add_text(lua_State *l);
 static int l_context_add_player(lua_State *l);
 static int l_context_remove_player(lua_State *l);
 static int l_context_field_changed(lua_State *l);
+static int l_display_error(lua_State *l);
+static int l_disconnect(lua_State *l);
 
 static PluginFunction l_functions[] = {
   { "send", l_send },
@@ -15,6 +17,8 @@ static PluginFunction l_functions[] = {
   { "context_add_player", l_context_add_player },
   { "context_remove_player", l_context_remove_player },
   { "context_field_changed", l_context_field_changed },
+  { "display_error", l_display_error },
+  { "disconnect", l_disconnect },
   { NULL, NULL }
 };
 
@@ -90,5 +94,22 @@ int l_context_field_changed(lua_State *l)
   player = tetris_player_find(id);
 
   context_field_changed(CONTEXT(main_window->context), player);
+  return 0;
+}
+
+int l_display_error(lua_State *l)
+{
+  const gchar *message;
+
+  luaL_checktype(l, 1, LUA_TSTRING);
+  message = lua_tostring(l, 1);
+
+  display_error(message);
+  return 0;
+}
+
+int l_disconnect(lua_State *l)
+{
+  network_send(main_window->network, "BYE");
   return 0;
 }

@@ -47,6 +47,13 @@ function chat.bye(id, command, args)
    tetris.player.remove(user_id)
 end
 
+function chat.nicktaken(id, command, args)
+   -- NICKTAKEN
+   -- TODO: the disconnect event seems to be caught before the NICKTAKEN message
+   tetris.client.display_error("Nick already taken")
+   tetris.client.disconnect()
+end   
+
 tetris.plugin.register("RECV", chat.newplayer, "NEWPLAYER")
 tetris.plugin.register("RECV", chat.say, "SAY")
 tetris.plugin.register("RECV", chat.start, "START")
@@ -54,3 +61,4 @@ tetris.plugin.register("RECV", chat.stop, "STOP")
 tetris.plugin.register("RECV", chat.admin, "ADMIN")
 tetris.plugin.register("RECV", chat.bye, "BYE")
 tetris.plugin.register("RECV", chat.servmsg, "SERVMSG")
+tetris.plugin.register("RECV", chat.nicktaken, "NICKTAKEN")

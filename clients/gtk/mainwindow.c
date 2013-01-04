@@ -196,7 +196,12 @@ void clean_after_disconnect(GtkWidget *widget, gpointer data)
 
 void error_message(GtkWidget *widget, gpointer data)
 {
-  gchar *message = (gchar *) data;
+  const gchar *message = (gchar *) data;
+  display_error(message);
+}
+
+void display_error(const gchar *message)
+{
   GtkWidget *dialog = gtk_message_dialog_new(NULL, 0, GTK_MESSAGE_ERROR,
                                              GTK_BUTTONS_OK,
                                              message);

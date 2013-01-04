@@ -25,4 +25,9 @@ void mainwindow_free(MainWindow *window);
 
 Context *mainwindow_get_context(MainWindow *mw);
 
+/**
+ * Display an error dialog with the given message
+ */
+void display_error(const gchar *message);
+
 #endif /* MAINWINDOW_H */
