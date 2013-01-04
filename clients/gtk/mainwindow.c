@@ -11,6 +11,10 @@ static void error_message(GtkWidget *widget, gpointer data);
 static gboolean on_keypress(GtkWidget *widget,
                             GdkEventKey *event,
                             gpointer data);
+static void disconnect_clicked(GtkToolButton *button, gpointer data);
+static void play_clicked(GtkToolButton *button, gpointer data);
+static void pause_clicked(GtkToolButton *button, gpointer data);
+static void stop_clicked(GtkToolButton *button, gpointer data);
 
 static struct {
   int keyval;
@@ -83,10 +87,41 @@ MainWindow *mainwindow_new(void)
   window->context = context_new();
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
                    G_CALLBACK(on_keypress), window);
-  window->vbox = gtk_vbox_new(TRUE, 1);
-  gtk_container_add(GTK_CONTAINER(window->vbox), window->context);
-  gtk_container_add(GTK_CONTAINER(window->vbox), window->chat);
+  window->connected_vbox = gtk_vbox_new(TRUE, 1);
+  gtk_container_add(GTK_CONTAINER(window->connected_vbox), window->context);
+  gtk_container_add(GTK_CONTAINER(window->connected_vbox), window->chat);
 
+  window->toolbar = gtk_toolbar_new();
+
+  i = 0;
+  window->button_disconnect = gtk_tool_button_new_from_stock(GTK_STOCK_DISCONNECT);
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(window->button_disconnect), "Disconnect");
+  g_signal_connect(G_OBJECT(window->button_disconnect), "clicked",
+                   G_CALLBACK(disconnect_clicked), window);
+  gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), window->button_disconnect, i++);
+
+  window->button_play = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(window->button_play), "Play");
+  g_signal_connect(G_OBJECT(window->button_play), "clicked",
+                   G_CALLBACK(play_clicked), window);
+  gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), window->button_play, i++);
+
+  window->button_pause = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(window->button_pause), "Pause");
+  g_signal_connect(G_OBJECT(window->button_pause), "clicked",
+                   G_CALLBACK(pause_clicked), window);
+  gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), window->button_pause, i++);
+
+  window->button_stop = gtk_tool_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(window->button_stop), "Stop");
+  g_signal_connect(G_OBJECT(window->button_stop), "clicked",
+                   G_CALLBACK(stop_clicked), window);
+  gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), window->button_stop, i++);
+
+  window->main_vbox = gtk_vbox_new(TRUE, 1);
+  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->toolbar);
+
+  gtk_container_add(GTK_CONTAINER(window->window), window->main_vbox);
   /* we start disconnected */
   window->connected = 0;
   disconnected_layout(NULL, window);
@@ -101,7 +136,13 @@ void mainwindow_free(MainWindow *window)
   gtk_widget_destroy(window->chat);
   context_remove_all_players(CONTEXT(window->context));
   gtk_widget_destroy(window->context);
-  gtk_widget_destroy(window->vbox);
+  gtk_widget_destroy(window->connected_vbox);
+  gtk_widget_destroy(window->toolbar);
+  gtk_widget_destroy(GTK_WIDGET(window->button_disconnect));
+  gtk_widget_destroy(GTK_WIDGET(window->button_play));
+  gtk_widget_destroy(GTK_WIDGET(window->button_pause));
+  gtk_widget_destroy(GTK_WIDGET(window->button_stop));
+  gtk_widget_destroy(window->main_vbox);
   gtk_widget_destroy(window->window);
   if (network_is_connected(window->network)) {
     network_send(window->network, "BYE");
@@ -161,10 +202,12 @@ void connected_layout(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   window->connected = 1;
   g_object_ref(window->connect); /* keep a reference */
-  gtk_container_remove(GTK_CONTAINER(window->window), window->connect);
-  gtk_container_add(GTK_CONTAINER(window->window), window->vbox);
+  gtk_container_remove(GTK_CONTAINER(window->main_vbox), window->connect);
+  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connected_vbox);
   chat_set_focus(CHAT(window->chat));
-  gtk_widget_show_all(window->vbox);
+  gtk_widget_show_all(window->connected_vbox);
+
+  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), FALSE);
 }
 
 void disconnected_layout(GtkWidget *widget, gpointer data)
@@ -172,12 +215,14 @@ void disconnected_layout(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   if (window->connected) {
     window->connected = 0;
-    g_object_ref(window->vbox);
-    gtk_container_remove(GTK_CONTAINER(window->window), window->vbox);
+    g_object_ref(window->connected_vbox);
+    gtk_container_remove(GTK_CONTAINER(window->main_vbox), window->connected_vbox);
   }
   connect_unlock_button(CONNECT(window->connect));
-  gtk_container_add(GTK_CONTAINER(window->window), window->connect);
+  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connect);
   gtk_widget_show_all(window->connect);
+
+  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), TRUE);
 }
 
 void unlock_button(GtkWidget *widget, gpointer data)
@@ -229,4 +274,28 @@ gboolean on_keypress(GtkWidget *widget,
     }
   }
   return FALSE;
+}
+
+void disconnect_clicked(GtkToolButton *button, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  network_shutdown(window->network);
+}
+
+void play_clicked(GtkToolButton *button, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  network_send(window->network, "PLAY");
+}
+
+void pause_clicked(GtkToolButton *button, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  network_send(window->network, "PAUSE");
+}
+
+void stop_clicked(GtkToolButton *button, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  network_send(window->network, "STOP");
 }

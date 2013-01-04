@@ -15,7 +15,11 @@ typedef struct MainWindow {
   GtkWidget *connect;
   GtkWidget *chat;
   GtkWidget *context;
-  GtkWidget *vbox;
+  GtkWidget *connected_vbox, *main_vbox;
+
+  GtkWidget *toolbar;
+  GtkToolItem *button_disconnect, *button_play, *button_pause, *button_stop;
+
   Network *network;
   int connected;
 } MainWindow;
