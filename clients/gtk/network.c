@@ -87,7 +87,9 @@ void network_set_nick(Network *network, const gchar *nick)
 
 void network_shutdown(Network *network)
 {
-
+  if (!network_is_connected(network)) {
+    return;
+  }
   enet_peer_disconnect(network->peer, 0);
   network->peer = NULL;
   enet_host_destroy(network->client);
@@ -142,6 +144,10 @@ int network_is_connected(Network *network)
 void network_send(Network *network, gchar *string)
 {
   ENetPacket *packet;
+  if (!network_is_connected(network)) {
+    return;
+  }
+
   packet = enet_packet_create(string, strlen(string)+1,
                               ENET_PACKET_FLAG_RELIABLE);
   enet_peer_send(network->peer, 0, packet);
