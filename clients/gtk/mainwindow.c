@@ -137,11 +137,11 @@ void mainwindow_free(MainWindow *window)
   context_remove_all_players(CONTEXT(window->context));
   gtk_widget_destroy(window->context);
   gtk_widget_destroy(window->connected_vbox);
-  gtk_widget_destroy(window->toolbar);
   gtk_widget_destroy(GTK_WIDGET(window->button_disconnect));
   gtk_widget_destroy(GTK_WIDGET(window->button_play));
   gtk_widget_destroy(GTK_WIDGET(window->button_pause));
   gtk_widget_destroy(GTK_WIDGET(window->button_stop));
+  gtk_widget_destroy(window->toolbar);
   gtk_widget_destroy(window->main_vbox);
   gtk_widget_destroy(window->window);
   if (network_is_connected(window->network)) {
