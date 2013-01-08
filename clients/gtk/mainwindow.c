@@ -118,8 +118,8 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(stop_clicked), window);
   gtk_toolbar_insert(GTK_TOOLBAR(window->toolbar), window->button_stop, i++);
 
-  window->main_vbox = gtk_vbox_new(TRUE, 1);
-  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->toolbar);
+  window->main_vbox = gtk_vbox_new(FALSE, 1);
+  gtk_box_pack_start(GTK_BOX(window->main_vbox), window->toolbar, FALSE, FALSE, 0);
 
   gtk_container_add(GTK_CONTAINER(window->window), window->main_vbox);
   /* we start disconnected */
