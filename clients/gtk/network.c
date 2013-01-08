@@ -11,6 +11,7 @@ static void network_class_init(NetworkClass *klass);
 static void network_init(Network *network);
 
 static guint network_signals[LAST_SIGNAL] = { 0 };
+static GStaticMutex network_mutex = G_STATIC_MUTEX_INIT;
 
 GType network_get_type(void)
 {
@@ -90,6 +91,8 @@ void network_shutdown(Network *network)
   if (!network_is_connected(network)) {
     return;
   }
+  g_static_mutex_lock(&network_mutex);
+  network->connected = FALSE;
   enet_peer_disconnect(network->peer, 0);
   network->peer = NULL;
   enet_host_destroy(network->client);
@@ -98,6 +101,7 @@ void network_shutdown(Network *network)
     g_free(network->nick);
     network->nick = NULL;
   }
+  g_static_mutex_unlock(&network_mutex);
 }
 
 void network_connect(Network *network)
@@ -164,6 +168,7 @@ void network_loop(Network *network)
 
   while (network_is_connected(network)) {
     enet_host_service(network->client, &event, 1000);
+    g_static_mutex_lock(&network_mutex);
     switch (event.type) {
     case ENET_EVENT_TYPE_RECEIVE:
       tetris_extract_command((const gchar *) event.packet->data,
@@ -189,6 +194,7 @@ void network_loop(Network *network)
     default:
       break;
     }
+    g_static_mutex_unlock(&network_mutex);
   }
   network_shutdown(network);
 }

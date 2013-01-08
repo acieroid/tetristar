@@ -279,6 +279,7 @@ gboolean on_keypress(GtkWidget *widget,
 void disconnect_clicked(GtkToolButton *button, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
+  disconnected_layout(NULL, window);
   network_shutdown(window->network);
 }
 
