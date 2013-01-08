@@ -207,7 +207,7 @@ void connected_layout(GtkWidget *widget, gpointer data)
   chat_set_focus(CHAT(window->chat));
   gtk_widget_show_all(window->connected_vbox);
 
-  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), FALSE);
+  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), TRUE);
 }
 
 void disconnected_layout(GtkWidget *widget, gpointer data)
@@ -222,7 +222,7 @@ void disconnected_layout(GtkWidget *widget, gpointer data)
   gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connect);
   gtk_widget_show_all(window->connect);
 
-  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), TRUE);
+  gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), FALSE);
 }
 
 void unlock_button(GtkWidget *widget, gpointer data)
@@ -285,7 +285,7 @@ void disconnect_clicked(GtkToolButton *button, gpointer data)
 void play_clicked(GtkToolButton *button, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
-  network_send(window->network, "PLAY");
+  network_send(window->network, "START");
 }
 
 void pause_clicked(GtkToolButton *button, gpointer data)
