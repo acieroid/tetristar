@@ -53,6 +53,8 @@ MainWindow *mainwindow_new(void)
   window->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(window->window),
                        "Tetristar GTK Client");
+  gtk_window_set_default_size(GTK_WINDOW(window->window),
+                              300, 700);
 
   window->connect = connect_new();
   g_signal_connect(G_OBJECT(window->connect), "connect",
