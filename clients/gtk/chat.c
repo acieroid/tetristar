@@ -74,6 +74,7 @@ void chat_class_init(ChatClass *klass)
 
 void chat_init(Chat *chat)
 {
+
   gtk_table_resize(GTK_TABLE(chat), 3, 3);
 
   chat->text_view = gtk_text_view_new();
@@ -81,7 +82,15 @@ void chat_init(Chat *chat)
 
   gtk_text_view_set_editable(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat->text_view), FALSE);
-  gtk_table_attach(GTK_TABLE(chat), chat->text_view, 0, 1, 0, 1,
+
+  chat->scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chat->scroll),
+                                 GTK_POLICY_AUTOMATIC,
+                                 GTK_POLICY_AUTOMATIC);
+  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(chat->scroll),
+                                        chat->text_view);
+
+  gtk_table_attach(GTK_TABLE(chat), chat->scroll, 0, 1, 0, 1,
                    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
 
   chat->entry = gtk_entry_new();

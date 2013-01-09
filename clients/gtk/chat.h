@@ -23,6 +23,7 @@ G_BEGIN_DECLS
 typedef struct Chat {
   /* Widget */
   GtkTable table;
+  GtkWidget *scroll;
   GtkWidget *text_view;
   GtkWidget *entry;
 
