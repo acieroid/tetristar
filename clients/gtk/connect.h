@@ -65,6 +65,11 @@ void connect_lock_button(Connect *connect);
  */
 void connect_unlock_button(Connect *connect);
 
+/**
+ * Grab the focus
+ */
+void connect_grab_focus(Connect *connect);
+
 G_END_DECLS
 
 #endif /* CONNECT_H */

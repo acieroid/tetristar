@@ -221,6 +221,7 @@ void disconnected_layout(GtkWidget *widget, gpointer data)
   connect_unlock_button(CONNECT(window->connect));
   gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connect);
   gtk_widget_show_all(window->connect);
+  connect_grab_focus(CONNECT(window->connect));
 
   gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), FALSE);
 }

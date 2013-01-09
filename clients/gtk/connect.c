@@ -95,6 +95,7 @@ void connect_init(Connect *connect)
   g_signal_connect(G_OBJECT(connect->button), "clicked",
                    G_CALLBACK(connect_emit), (void *) connect);
   gtk_box_pack_start(GTK_BOX(connect), connect->button, TRUE, TRUE, 0);
+  gtk_widget_grab_focus(connect->nick_entry);
 }
 
 GtkWidget *connect_new(void)
@@ -125,4 +126,9 @@ void connect_lock_button(Connect *connect)
 void connect_unlock_button(Connect *connect)
 {
   gtk_widget_set_sensitive(connect->button, TRUE);
+}
+
+void connect_grab_focus(Connect *connect)
+{
+  gtk_widget_grab_focus(connect->nick_entry);
 }
