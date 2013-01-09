@@ -89,9 +89,9 @@ MainWindow *mainwindow_new(void)
   window->context = context_new();
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
                    G_CALLBACK(on_keypress), window);
-  window->connected_vbox = gtk_vbox_new(TRUE, 1);
-  gtk_container_add(GTK_CONTAINER(window->connected_vbox), window->context);
-  gtk_container_add(GTK_CONTAINER(window->connected_vbox), window->chat);
+  window->connected_pane = gtk_vpaned_new();
+  gtk_paned_pack1(GTK_PANED(window->connected_pane), window->context, TRUE, FALSE);
+  gtk_paned_pack2(GTK_PANED(window->connected_pane), window->chat, FALSE, FALSE);
 
   window->toolbar = gtk_toolbar_new();
 
@@ -138,7 +138,7 @@ void mainwindow_free(MainWindow *window)
   gtk_widget_destroy(window->chat);
   context_remove_all_players(CONTEXT(window->context));
   gtk_widget_destroy(window->context);
-  gtk_widget_destroy(window->connected_vbox);
+  gtk_widget_destroy(window->connected_pane);
   gtk_widget_destroy(GTK_WIDGET(window->button_disconnect));
   gtk_widget_destroy(GTK_WIDGET(window->button_play));
   gtk_widget_destroy(GTK_WIDGET(window->button_pause));
@@ -205,9 +205,9 @@ void connected_layout(GtkWidget *widget, gpointer data)
   window->connected = 1;
   g_object_ref(window->connect); /* keep a reference */
   gtk_container_remove(GTK_CONTAINER(window->main_vbox), window->connect);
-  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connected_vbox);
+  gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connected_pane);
   chat_set_focus(CHAT(window->chat));
-  gtk_widget_show_all(window->connected_vbox);
+  gtk_widget_show_all(window->connected_pane);
 
   gtk_widget_set_sensitive(GTK_WIDGET(window->button_disconnect), TRUE);
 }
@@ -217,8 +217,8 @@ void disconnected_layout(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   if (window->connected) {
     window->connected = 0;
-    g_object_ref(window->connected_vbox);
-    gtk_container_remove(GTK_CONTAINER(window->main_vbox), window->connected_vbox);
+    g_object_ref(window->connected_pane);
+    gtk_container_remove(GTK_CONTAINER(window->main_vbox), window->connected_pane);
   }
   connect_unlock_button(CONNECT(window->connect));
   gtk_container_add(GTK_CONTAINER(window->main_vbox), window->connect);
