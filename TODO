@@ -1,0 +1,32 @@
+Server:
+  - Bonuses - Need clients improvements first
+  - Improve rotation (compare to other tetrises first)
+    - Direction of rotation
+    - Repeating layouts: S only have two rotations in tetris, but 4 in tetristar (two shifted by one case)
+  - Add error messages
+  - Verify lua input
+
+Client 
+  - Improve layout
+    - Next piece
+  - Graphic modification
+  - More commands (/stop, etc.)
+  - Shadow
+  - Key repeat
+
+Misc:
+  - Write some documentation
+
+BUGS:
+  - Sometimes the connection is closed without any reason
+  - Disconnect/reconnect on the client: problem (3 clients connected)
+
+Optional:
+  - Detect and reward T-spins
+  - Think about an "event" system for within the script, a-la Observable. For example, when a line is cleared, an event "line-cleared" is launched, and every function that subscribed to it is called. This will allow better extensibility
+  - Dynamically load plugin
+  - Find a cool way to reward combos
+  - String formatting for tetris.server.send*
+  - Teams
+  - Spectators
+  - Remember nickname, server name
