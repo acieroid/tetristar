@@ -10,7 +10,6 @@ Client
   - Improve layout
     - Next piece
   - Graphic modification
-  - More commands (/stop, etc.)
   - Shadow
   - Key repeat
 
@@ -19,7 +18,7 @@ Misc:
 
 BUGS:
   - Sometimes the connection is closed without any reason
-  - Disconnect/reconnect on the client: problem (3 clients connected)
+  - Some problems with the signals in the clients (with disconnect & quit)
 
 Optional:
   - Detect and reward T-spins
