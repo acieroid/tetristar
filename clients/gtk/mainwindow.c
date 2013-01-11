@@ -15,6 +15,7 @@ static void disconnect_clicked(GtkWidget *widget, gpointer data);
 static void play_clicked(GtkWidget *widget, gpointer data);
 static void pause_clicked(GtkWidget *widget, gpointer data);
 static void stop_clicked(GtkWidget *widget, gpointer data);
+static void quit(GtkWidget *widget, gpointer data);
 
 static struct {
   int keyval;
@@ -89,7 +90,10 @@ MainWindow *mainwindow_new(void)
 #if 0
   g_signal_connect(G_OBJECT(window->chat), "disconnect",
                    G_CALLBACK(disconnect_clicked), window);
+  g_signal_connect(G_OBJECT(window->chat), "quit",
+                   G_CALLBACK(quit), window);
 #endif
+
   g_signal_connect(G_OBJECT(window->chat), "unknown-command",
                    G_CALLBACK(unknown_command), NULL);
 
@@ -310,4 +314,10 @@ void stop_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   network_send(window->network, "STOP");
+}
+
+void quit(GtkWidget *widget, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  gtk_widget_destroy(GTK_WIDGET(window));
 }

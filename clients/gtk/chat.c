@@ -8,6 +8,7 @@ enum {
   COMMAND_STOP,
   COMMAND_PAUSE,
   COMMAND_DISCONNECT,
+  COMMAND_QUIT,
   LAST_SIGNAL
 };
 
@@ -28,6 +29,7 @@ static struct {
   { COMMAND_STOP, "stop" },
   { COMMAND_PAUSE, "pause" },
   { COMMAND_DISCONNECT, "disconnect" },
+  { COMMAND_QUIT, "quit" },
   { 0, NULL }
 };
 

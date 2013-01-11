@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
   mainwindow = mainwindow_new();
   g_signal_connect(G_OBJECT(mainwindow->window), "delete-event",
                    G_CALLBACK(quit_everything), NULL);
+  g_signal_connect(G_OBJECT(mainwindow->window), "destroy-event",
+                   G_CALLBACK(quit_everything), NULL);
 
   g_debug("Initializing clients plugins");
   plugins_init(lua_state, mainwindow);
