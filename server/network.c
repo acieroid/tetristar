@@ -38,10 +38,6 @@ void network_deinit()
   tetris_plugin_action(PLUGIN_SHUTDOWN, -1, NULL, NULL);
 
   /* Disconnect each clients */
-  g_slist_foreach(network->clients, (GFunc) enet_peer_disconnect, 0);
-  /* we wait 3 seconds for the clients to disconnect */
-  network_handle_packet(3000);
-  /* and we force the disconnection of the remaining clients */
   g_slist_foreach(network->clients, (GFunc) enet_peer_disconnect_now, 0);
 
   /* ENet's documentation doesn't say anything about how to properly
