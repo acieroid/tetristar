@@ -85,8 +85,11 @@ MainWindow *mainwindow_new(void)
                      G_CALLBACK(send_command), command_info);
   }
 
+  /* TODO: this make the application segfault */
+#if 0
   g_signal_connect(G_OBJECT(window->chat), "disconnect",
                    G_CALLBACK(disconnect_clicked), window);
+#endif
   g_signal_connect(G_OBJECT(window->chat), "unknown-command",
                    G_CALLBACK(unknown_command), NULL);
 
@@ -288,6 +291,7 @@ void disconnect_clicked(GtkWidget *widget, gpointer data)
   MainWindow *window = (MainWindow *) data;
   disconnected_layout(NULL, window);
   network_shutdown(window->network);
+  clean_after_disconnect(NULL, window);
 }
 
 void play_clicked(GtkWidget *widget, gpointer data)

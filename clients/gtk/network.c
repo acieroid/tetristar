@@ -93,7 +93,7 @@ void network_shutdown(Network *network)
   }
   g_static_mutex_lock(&network_mutex);
   network->connected = FALSE;
-  enet_peer_disconnect(network->peer, 0);
+  enet_peer_disconnect_now(network->peer, 0);
   network->peer = NULL;
   enet_host_destroy(network->client);
   network->client = NULL;
