@@ -11,10 +11,10 @@ static void error_message(GtkWidget *widget, gpointer data);
 static gboolean on_keypress(GtkWidget *widget,
                             GdkEventKey *event,
                             gpointer data);
-static void disconnect_clicked(GtkToolButton *button, gpointer data);
-static void play_clicked(GtkToolButton *button, gpointer data);
-static void pause_clicked(GtkToolButton *button, gpointer data);
-static void stop_clicked(GtkToolButton *button, gpointer data);
+static void disconnect_clicked(GtkWidget *widget, gpointer data);
+static void play_clicked(GtkWidget *widget, gpointer data);
+static void pause_clicked(GtkWidget *widget, gpointer data);
+static void stop_clicked(GtkWidget *widget, gpointer data);
 
 static struct {
   int keyval;
@@ -36,6 +36,8 @@ static struct {
   { "new-line", "SAY", TRUE },
   { "password", "PASSWORD", TRUE },
   { "start", "START", FALSE },
+  { "stop", "STOP", FALSE },
+  { "pause", "PAUSE", FALSE },
   { 0, NULL, FALSE }
 };
 
@@ -83,6 +85,8 @@ MainWindow *mainwindow_new(void)
                      G_CALLBACK(send_command), command_info);
   }
 
+  g_signal_connect(G_OBJECT(window->chat), "disconnect",
+                   G_CALLBACK(disconnect_clicked), window);
   g_signal_connect(G_OBJECT(window->chat), "unknown-command",
                    G_CALLBACK(unknown_command), NULL);
 
@@ -279,26 +283,26 @@ gboolean on_keypress(GtkWidget *widget,
   return FALSE;
 }
 
-void disconnect_clicked(GtkToolButton *button, gpointer data)
+void disconnect_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   disconnected_layout(NULL, window);
   network_shutdown(window->network);
 }
 
-void play_clicked(GtkToolButton *button, gpointer data)
+void play_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   network_send(window->network, "START");
 }
 
-void pause_clicked(GtkToolButton *button, gpointer data)
+void pause_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   network_send(window->network, "PAUSE");
 }
 
-void stop_clicked(GtkToolButton *button, gpointer data)
+void stop_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   network_send(window->network, "STOP");

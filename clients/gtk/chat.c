@@ -5,6 +5,9 @@ enum {
   UNKNOWN_COMMAND,
   COMMAND_PASSWORD,
   COMMAND_START,
+  COMMAND_STOP,
+  COMMAND_PAUSE,
+  COMMAND_DISCONNECT,
   LAST_SIGNAL
 };
 
@@ -22,6 +25,9 @@ static struct {
 } commands[] =   {
   { COMMAND_PASSWORD, "password" },
   { COMMAND_START, "start" },
+  { COMMAND_STOP, "stop" },
+  { COMMAND_PAUSE, "pause" },
+  { COMMAND_DISCONNECT, "disconnect" },
   { 0, NULL }
 };
 
