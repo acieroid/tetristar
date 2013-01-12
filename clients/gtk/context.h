@@ -28,7 +28,7 @@ typedef struct Context {
 typedef struct ContextClass {
   GtkHBoxClass parent_class;
 
-  void (* context) (Context *chat);
+  void (* context) (Context *context);
 } ContextClass;
 
 GType context_get_type(void);
