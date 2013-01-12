@@ -31,8 +31,8 @@ typedef struct DrawingArea {
 
   TetrisPlayer *player;
   guint timeout_tag;
-  cairo_t *cairo;
-  gboolean changed;
+  cairo_t *cairo, *cairo_next_piece;
+  gboolean changed, changed_next_piece;
   int cell_size;
 } DrawingArea;
 

@@ -2,7 +2,6 @@
 
 static void drawing_area_class_init(DrawingAreaClass *klass);
 static void drawing_area_init(DrawingArea *drawing_area);
-static void drawing_area_realize(DrawingArea *drawing_area, gpointer data);
 static gboolean drawing_area_configure(GtkWidget *widget,
                                        GdkEvent *event,
                                        gpointer data);
@@ -11,6 +10,14 @@ static gboolean drawing_area_expose(GtkWidget *widget,
                                     gpointer data);
 static gboolean drawing_area_update(gpointer data);
 static gboolean drawing_area_draw(DrawingArea *drawing_area);
+static gboolean drawing_area_configure_next_piece(GtkWidget *widget,
+                                                  GdkEvent *event,
+                                                  gpointer data);
+static gboolean drawing_area_expose_next_piece(GtkWidget *widget,
+                                               GdkEventExpose *event,
+                                               gpointer data);
+static gboolean drawing_area_update_next_piece(gpointer data);
+static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
@@ -62,25 +69,20 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->name_label = gtk_label_new("");
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
   drawing_area->cairo = NULL;
+  drawing_area->cairo_next_piece = NULL;
   drawing_area->changed = TRUE;
+  drawing_area->changed_next_piece = TRUE;
   drawing_area->cell_size = 0;
 
-  g_signal_connect_after(G_OBJECT(drawing_area->field), "realize",
-                         G_CALLBACK(drawing_area_realize), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->field), "configure-event",
                    G_CALLBACK(drawing_area_configure), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->field), "expose-event",
                    G_CALLBACK(drawing_area_expose), drawing_area);
 
-  /* TODO: initialize the next piece widget */
-#if 0
-  g_signal_connect_after(G_OBJECT(drawing_area->next_piece), "realize",
-                         G_CALLBACK(drawing_area_realize), drawing_area->next_piece);
   g_signal_connect(G_OBJECT(drawing_area->next_piece), "configure-event",
-                   G_CALLBACK(drawing_area_configure), drawing_area->next_piece);
+                   G_CALLBACK(drawing_area_configure_next_piece), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->next_piece), "expose-event",
-                   G_CALLBACK(drawing_area_expose), drawing_area->next_piece);
-#endif
+                   G_CALLBACK(drawing_area_expose_next_piece), drawing_area);
 
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
@@ -147,10 +149,6 @@ TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area)
 void drawing_area_set_changed(DrawingArea *drawing_area)
 {
   drawing_area->changed = TRUE;
-}
-
-void drawing_area_realize(DrawingArea *drawing_area, gpointer data)
-{
 }
 
 gboolean drawing_area_configure(GtkWidget *widget,
@@ -254,4 +252,74 @@ void drawing_area_free(DrawingArea *drawing_area)
   tetris_player_remove(drawing_area->player);
   cairo_destroy(drawing_area->cairo);
   gtk_widget_destroy(GTK_WIDGET(drawing_area));
+}
+
+gboolean drawing_area_configure_next_piece(GtkWidget *widget,
+                                           GdkEvent *event,
+                                           gpointer data)
+{
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_next_piece(drawing_area);
+}
+
+gboolean drawing_area_expose_next_piece(GtkWidget *widget,
+                                        GdkEventExpose *event,
+                                        gpointer data)
+{
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_next_piece(drawing_area);
+}
+
+gboolean drawing_area_update_next_piece(gpointer data)
+{
+  /* TODO: define a callback for this function */
+  DrawingArea *drawing_area = (DrawingArea *) data;
+
+  if (drawing_area->changed_next_piece) {
+    drawing_area->changed_next_piece = FALSE;
+    return drawing_area_draw_next_piece(drawing_area);
+  }
+  return TRUE;
+}
+
+/* TODO: this shouldn't be hardcoded. It depends on the pieces defined
+   in the server's piece.lua */
+#define NEXT_PIECE_WIDTH 5
+#define NEXT_PIECE_HEIGHT 5
+#define NEXT_PIECE_SHIFT_X 2
+#define NEXT_PIECE_SHIFT_Y 1
+gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
+{
+  TetrisPlayer *player;
+  TetrisCellInfo *info;
+  cairo_t *cairo;
+  int x, y;
+  GSList *elem;
+
+  if (!gtk_widget_get_realized(drawing_area->field))
+    return FALSE;
+
+  player = drawing_area->player;
+  cairo = drawing_area->cairo_next_piece;
+  if (cairo == NULL)
+    cairo = gdk_cairo_create(drawing_area->next_piece->window);
+
+  /* default color */
+  gdk_cairo_set_source_color(cairo, &colors[default_cell]);
+
+  for (x = 0; x < NEXT_PIECE_WIDTH; x++)
+    for (y = 0; y < NEXT_PIECE_HEIGHT; y++)
+      drawing_area_cairo_draw_cell(drawing_area,
+                                   cairo, x, y,
+                                   0);
+
+  for (elem = tetris_player_get_next_piece(player); elem != NULL;
+       elem = elem->next) {
+    info = elem->data;
+    drawing_area_cairo_draw_cell(drawing_area, cairo,
+                                 info->x+NEXT_PIECE_SHIFT_X,
+                                 info->y+NEXT_PIECE_SHIFT_Y, info->cell);
+  }
+
+  return TRUE;
 }
