@@ -1,15 +1,9 @@
 #include "context.h"
 
-enum {
-  KEY_PRESS,
-  LAST_SIGNAL
-};
-
 static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
 static gint context_compare(gpointer drawing_area, gpointer player);
 
-static guint context_signals[LAST_SIGNAL] = { 0 };
 static GStaticMutex draw_mutex = G_STATIC_MUTEX_INIT;
 
 GType context_get_type(void)
@@ -63,9 +57,11 @@ GtkWidget *context_new(void)
 
 void context_add_player(Context *context, TetrisPlayer *player)
 {
-  DrawingArea *drawing_area;
+  GtkWidget *drawing_area;
 
-  drawing_area = drawing_area_new();
+  drawing_area = drawing_area_new(player);
+  context->drawing_areas = g_slist_prepend(context->drawing_areas,
+                                           (gpointer) drawing_area);
   gtk_container_add(GTK_CONTAINER(context), drawing_area);
   gtk_widget_show(drawing_area);
 }
@@ -84,10 +80,10 @@ void context_remove_player(Context *context, TetrisPlayer *player)
                              (GCompareFunc) context_compare);
   if (elem == NULL)
     g_return_if_reached();
-  drawing_area = (DrawingArea *) elem->data;
+  drawing_area = (GtkWidget *) elem->data;
   context->drawing_areas = g_slist_remove_link(context->drawing_areas,
                                                elem);
-  drawing_area_free(drawing_area);
+  drawing_area_free(DRAWING_AREA(drawing_area));
 
   g_static_mutex_unlock(&draw_mutex);
 }
@@ -96,14 +92,14 @@ void context_remove_all_players(Context *context)
 {
   g_static_mutex_lock(&draw_mutex);
   g_slist_free_full(context->drawing_areas,
-                    (GDestroyNotify) context_drawing_area_free);
+                    (GDestroyNotify) drawing_area_free);
   context->drawing_areas = NULL;
   g_static_mutex_unlock(&draw_mutex);
 }
 
 void context_field_changed(Context *context, TetrisPlayer *player)
 {
-  DrawingArea *drawing_area;
+  GtkWidget *drawing_area;
   GSList *elem;
 
   elem = g_slist_find_custom(context->drawing_areas,
@@ -111,6 +107,6 @@ void context_field_changed(Context *context, TetrisPlayer *player)
                              (GCompareFunc) context_compare);
   if (elem == NULL)
     g_return_if_reached();
-  drawing_area = (DrawingArea *) elem->data;
-  drawing_area_set_changed(TRUE);
+  drawing_area = elem->data;
+  drawing_area_set_changed(DRAWING_AREA(drawing_area));
 }

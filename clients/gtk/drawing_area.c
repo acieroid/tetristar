@@ -1,8 +1,17 @@
 #include "drawing_area.h"
 
-static void drawing_area_class_init(DrawingArea *klass);
+static void drawing_area_class_init(DrawingAreaClass *klass);
 static void drawing_area_init(DrawingArea *drawing_area);
 static void drawing_area_realize(DrawingArea *drawing_area, gpointer data);
+static gboolean drawing_area_configure(DrawingArea *drawing_area,
+                                       GdkEvent *event,
+                                       gpointer data);
+static gboolean drawing_area_expose(DrawingArea *drawing_area,
+                                    GdkEventExpose *event,
+                                    gpointer data);
+static gboolean drawing_area_update(gpointer data);
+static gboolean drawing_area_draw(DrawingArea *drawing_area);
+static void drawing_area_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell);
 
 #define N_COLORS 8
 static int default_cell = 1;
@@ -43,8 +52,6 @@ void drawing_area_class_init(DrawingAreaClass *klass)
 
 void drawing_area_init(DrawingArea *drawing_area)
 {
-  GtkWidget *drawing_area;
-
   drawing_area->field = gtk_drawing_area_new();
   drawing_area->next_piece = gtk_drawing_area_new();
 
@@ -72,7 +79,7 @@ void drawing_area_init(DrawingArea *drawing_area)
 
 GtkWidget *drawing_area_new(TetrisPlayer *player)
 {
-  DrawingArea *drawing_area = DRAWING_AREA(g_object_new(DRAWING_AREA, NULL));
+  DrawingArea *drawing_area = DRAWING_AREA(g_object_new(DRAWING_AREA_TYPE, NULL));
   drawing_area->player = player;
   return GTK_WIDGET(drawing_area);
 }
@@ -80,6 +87,11 @@ GtkWidget *drawing_area_new(TetrisPlayer *player)
 TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area)
 {
   return drawing_area->player;
+}
+
+void drawing_area_set_changed(DrawingArea *drawing_area)
+{
+  drawing_area->changed = TRUE;
 }
 
 void drawing_area_realize(DrawingArea *drawing_area, gpointer data)
@@ -130,8 +142,6 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   if (!gtk_widget_get_realized(drawing_area->field))
     return FALSE;
 
-  g_static_mutex_lock(&draw_mutex);
-
   player = drawing_area->player;
   cairo = drawing_area->cairo;
   if (cairo == NULL)
@@ -166,7 +176,6 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     cairo_show_text(cairo, "Not playing");
   }
 
-  g_static_mutex_unlock(&draw_mutex);
   return TRUE;
 }
 
@@ -183,8 +192,8 @@ void drawing_area_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
 
 void drawing_area_free(DrawingArea *drawing_area)
 {
-  g_source_remove(drawing_area->timeout_tagtag);
+  g_source_remove(drawing_area->timeout_tag);
   tetris_player_remove(drawing_area->player);
   cairo_destroy(drawing_area->cairo);
-  gtk_widget_destroy(drawing_area);
+  gtk_widget_destroy(GTK_WIDGET(drawing_area));
 }

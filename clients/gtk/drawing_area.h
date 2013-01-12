@@ -44,6 +44,7 @@ typedef struct DrawingAreaClass {
 
 GType drawing_area_get_type(void);
 GtkWidget *drawing_area_new(TetrisPlayer *player);
+void drawing_area_free(DrawingArea *drawing_area);
 
 /**
  * Return the player associated with this drawing area
@@ -54,7 +55,7 @@ TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area);
  * Mark the player's field as "changed", which will have as effect that
  * the field will be refreshed on the display
  */
-void drawing_area_field_changed(DrawingArea *drawing_area);
+void drawing_area_set_changed(DrawingArea *drawing_area);
 
 G_END_DECLS
 
