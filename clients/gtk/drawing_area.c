@@ -3,10 +3,10 @@
 static void drawing_area_class_init(DrawingAreaClass *klass);
 static void drawing_area_init(DrawingArea *drawing_area);
 static void drawing_area_realize(DrawingArea *drawing_area, gpointer data);
-static gboolean drawing_area_configure(DrawingArea *drawing_area,
+static gboolean drawing_area_configure(GtkWidget *widget,
                                        GdkEvent *event,
                                        gpointer data);
-static gboolean drawing_area_expose(DrawingArea *drawing_area,
+static gboolean drawing_area_expose(GtkWidget *widget,
                                     GdkEventExpose *event,
                                     gpointer data);
 static gboolean drawing_area_update(gpointer data);
@@ -62,18 +62,21 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
 
   g_signal_connect_after(G_OBJECT(drawing_area->field), "realize",
-                         G_CALLBACK(drawing_area_realize), drawing_area->field);
+                         G_CALLBACK(drawing_area_realize), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->field), "configure-event",
-                   G_CALLBACK(drawing_area_configure), drawing_area->field);
+                   G_CALLBACK(drawing_area_configure), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->field), "expose-event",
-                   G_CALLBACK(drawing_area_expose), drawing_area->field);
+                   G_CALLBACK(drawing_area_expose), drawing_area);
 
+  /* TODO: initialize the next piece widget */
+#if 0
   g_signal_connect_after(G_OBJECT(drawing_area->next_piece), "realize",
                          G_CALLBACK(drawing_area_realize), drawing_area->next_piece);
   g_signal_connect(G_OBJECT(drawing_area->next_piece), "configure-event",
                    G_CALLBACK(drawing_area_configure), drawing_area->next_piece);
   g_signal_connect(G_OBJECT(drawing_area->next_piece), "expose-event",
                    G_CALLBACK(drawing_area_expose), drawing_area->next_piece);
+#endif
 
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
@@ -140,22 +143,23 @@ void drawing_area_realize(DrawingArea *drawing_area, gpointer data)
 {
 }
 
-gboolean drawing_area_configure(DrawingArea *drawing_area,
+gboolean drawing_area_configure(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer data)
 {
   GtkAllocation alloc;
-  GtkWidget *draw = (GtkWidget *) data;
+  DrawingArea *drawing_area = (DrawingArea *) data;
 
-  gtk_widget_get_allocation(draw, &alloc);
+  gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = alloc.height/22;
   return drawing_area_draw(drawing_area);
 }
 
-gboolean drawing_area_expose(DrawingArea *drawing_area,
+gboolean drawing_area_expose(GtkWidget *widget,
                              GdkEventExpose *event,
                              gpointer data)
 {
+  DrawingArea *drawing_area = (DrawingArea *) data;
   return drawing_area_draw(drawing_area);
 }
 
