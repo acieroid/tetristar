@@ -110,3 +110,8 @@ void context_field_changed(Context *context, TetrisPlayer *player)
   drawing_area = elem->data;
   drawing_area_set_changed(DRAWING_AREA(drawing_area));
 }
+
+void context_grab_focus(Context *context)
+{
+  gtk_widget_grab_focus(GTK_WIDGET(context));
+}

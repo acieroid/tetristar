@@ -16,6 +16,7 @@ static void play_clicked(GtkWidget *widget, gpointer data);
 static void pause_clicked(GtkWidget *widget, gpointer data);
 static void stop_clicked(GtkWidget *widget, gpointer data);
 static void quit(GtkWidget *widget, gpointer data);
+static void focus_context(GtkWidget *widget, GtkDirectionType dir, gpointer data);
 
 static struct {
   int keyval;
@@ -76,6 +77,9 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(unlock_button), window);
   g_signal_connect(G_OBJECT(window->network), "cant-connect",
                    G_CALLBACK(error_message), "Cannot connect to the server");
+
+  g_signal_connect(G_OBJECT(window->window), "focus",
+                   G_CALLBACK(focus_context), window);
 
   window->chat = chat_new();
   for (i = 0; commands[i].command != NULL; i++) {
@@ -320,4 +324,10 @@ void quit(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   gtk_widget_destroy(GTK_WIDGET(window));
+}
+
+void focus_context(GtkWidget *widget, GtkDirectionType dir, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  context_grab_focus(CONTEXT(window->context));
 }

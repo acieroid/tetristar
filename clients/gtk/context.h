@@ -45,6 +45,11 @@ void context_remove_all_players(Context *context);
  */
 void context_field_changed(Context *context, TetrisPlayer *player);
 
+/**
+ * Grab the focus
+ */
+void context_grab_focus(Context *context);
+
 G_END_DECLS
 
 #endif /* CONTEXT_H */
