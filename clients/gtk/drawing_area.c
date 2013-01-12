@@ -11,11 +11,12 @@ static gboolean drawing_area_expose(GtkWidget *widget,
                                     gpointer data);
 static gboolean drawing_area_update(gpointer data);
 static gboolean drawing_area_draw(DrawingArea *drawing_area);
-static void drawing_area_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell);
+static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
+                                         cairo_t *cairo, int x, int y,
+                                         TetrisCell cell);
 
 #define N_COLORS 8
 static int default_cell = 1;
-static int cell_size = 10;
 static const char *colors_names[N_COLORS] = {
   "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
 };
@@ -84,6 +85,8 @@ void drawing_area_init(DrawingArea *drawing_area)
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
 
+  gtk_box_set_homogeneous(GTK_BOX(drawing_area), TRUE);
+
   gtk_box_pack_start(GTK_BOX(drawing_area->info_hbox),
                      drawing_area->number_label,
                      FALSE, FALSE, 0);
@@ -112,9 +115,7 @@ void drawing_area_init(DrawingArea *drawing_area)
                    drawing_area->right_vbox,
                    TRUE, TRUE, 0);
 
-  gtk_widget_show_all(drawing_area->left_vbox);
-  gtk_widget_show_all(drawing_area->right_vbox);
-
+  gtk_widget_show_all(GTK_WIDGET(drawing_area));
 }
 
 GtkWidget *drawing_area_new(TetrisPlayer *player)
@@ -208,15 +209,17 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++)
     for (y = 0; y < tetris_matrix_get_height(matrix); y++)
-      drawing_area_cairo_draw_cell(cairo, x, y,
-                              tetris_matrix_get_cell(matrix, x, y));
+      drawing_area_cairo_draw_cell(drawing_area,
+                                   cairo, x, y,
+                                   tetris_matrix_get_cell(matrix, x, y));
 
   x = tetris_player_get_piece_position(player)[0];
   y = tetris_player_get_piece_position(player)[1];
   for (elem = tetris_player_get_piece(player); elem != NULL;
        elem = elem->next) {
     info = elem->data;
-    drawing_area_cairo_draw_cell(cairo, x + info->x, y + info->y, info->cell);
+    drawing_area_cairo_draw_cell(drawing_area,
+                                 cairo, x + info->x, y + info->y, info->cell);
   }
 
   if (!tetris_player_is_playing(player)) {
@@ -225,22 +228,22 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     cairo_set_font_size(cairo, 15);
     cairo_text_extents(cairo, notplaying, &extents);
     cairo_translate(cairo,
-                    tetris_matrix_get_width(matrix)/2 * cell_size -
+                    tetris_matrix_get_width(matrix)/2 * drawing_area->cell_size -
                     extents.width/2,
-                    tetris_matrix_get_height(matrix)/2 * cell_size);
+                    tetris_matrix_get_height(matrix)/2 * drawing_area->cell_size);
     cairo_show_text(cairo, "Not playing");
   }
 
   return TRUE;
 }
 
-void drawing_area_cairo_draw_cell(cairo_t *cairo, int x, int y, TetrisCell cell)
+void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int x, int y, TetrisCell cell)
 {
   cairo_save(cairo);
   if (cell < N_COLORS)
     gdk_cairo_set_source_color(cairo, &colors[cell]);
-  cairo_translate(cairo, x*cell_size, y*cell_size);
-  cairo_rectangle(cairo, 0, 0, cell_size, cell_size);
+  cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
+  cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
   cairo_fill(cairo);
   cairo_restore(cairo);
 }

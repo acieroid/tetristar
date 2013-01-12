@@ -1,4 +1,5 @@
 Server:
+  - Send next piece to the client
   - Bonuses - Need clients improvements first
   - Improve rotation (compare to other tetrises first)
     - Direction of rotation
@@ -7,6 +8,7 @@ Server:
   - Verify lua input
 
 Client 
+  - Draw next piece
   - Graphic modification
   - Shadow
   - Key repeat
@@ -17,7 +19,6 @@ Misc:
 BUGS:
   - Sometimes the connection is closed without any reason
   - Some problems with the signals in the clients (with disconnect & quit)
-  - Layout problems in the client
 
 Optional:
   - Detect and reward T-spins
