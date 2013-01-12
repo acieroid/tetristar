@@ -30,6 +30,10 @@ typedef struct DrawingArea {
   GtkWidget *field, *next_piece;
 
   TetrisPlayer *player;
+  guint timeout_tag;
+  cairo_t *cairo;
+  gboolean changed;
+  int cell_size;
 } DrawingArea;
 
 typedef struct DrawingAreaClass {
@@ -40,6 +44,11 @@ typedef struct DrawingAreaClass {
 
 GType drawing_area_get_type(void);
 GtkWidget *drawing_area_new(TetrisPlayer *player);
+
+/**
+ * Return the player associated with this drawing area
+ */
+TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area);
 
 /**
  * Mark the player's field as "changed", which will have as effect that

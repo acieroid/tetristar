@@ -10,6 +10,7 @@
 #include <gtk/gtk.h>
 #include <cairo.h>
 #include <libtetris.h>
+#include "drawing_area.h"
 
 G_BEGIN_DECLS
 
