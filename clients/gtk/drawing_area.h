@@ -47,6 +47,11 @@ GtkWidget *drawing_area_new(TetrisPlayer *player);
 void drawing_area_free(DrawingArea *drawing_area);
 
 /**
+ * Set the player for this drawing area
+ */
+void drawing_area_set_player(DrawingArea *drawing_area, TetrisPlayer *player);
+
+/**
  * Return the player associated with this drawing area
  */
 TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area);

@@ -54,6 +54,12 @@ void drawing_area_init(DrawingArea *drawing_area)
 {
   drawing_area->field = gtk_drawing_area_new();
   drawing_area->next_piece = gtk_drawing_area_new();
+  drawing_area->left_vbox = gtk_vbox_new(FALSE, 0);
+  drawing_area->right_vbox = gtk_vbox_new(FALSE, 0);
+  drawing_area->info_hbox = gtk_hbox_new(FALSE, 0);
+  drawing_area->number_label = gtk_label_new("");
+  drawing_area->name_label = gtk_label_new("");
+  drawing_area->next_piece_label = gtk_label_new("Next piece:");
 
   g_signal_connect_after(G_OBJECT(drawing_area->field), "realize",
                          G_CALLBACK(drawing_area_realize), drawing_area->field);
@@ -70,8 +76,30 @@ void drawing_area_init(DrawingArea *drawing_area)
                    G_CALLBACK(drawing_area_expose), drawing_area->next_piece);
 
   /* we try to refresh each 100ms */
-  drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, NULL);
+  drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
 
+  gtk_container_add(GTK_CONTAINER(drawing_area->info_hbox),
+                    drawing_area->number_label);
+  gtk_container_add(GTK_CONTAINER(drawing_area->info_hbox),
+                    drawing_area->name_label);
+
+  gtk_container_add(GTK_CONTAINER(drawing_area->left_vbox),
+                    drawing_area->info_hbox);
+  gtk_container_add(GTK_CONTAINER(drawing_area->left_vbox),
+                    drawing_area->field);
+
+  gtk_container_add(GTK_CONTAINER(drawing_area->right_vbox),
+                    drawing_area->next_piece_label);
+  gtk_container_add(GTK_CONTAINER(drawing_area->right_vbox),
+                    drawing_area->next_piece);
+
+  gtk_container_add(GTK_CONTAINER(drawing_area),
+                    drawing_area->left_vbox);
+  gtk_container_add(GTK_CONTAINER(drawing_area),
+                    drawing_area->right_vbox);
+
+  gtk_widget_show_all(drawing_area->left_vbox);
+  gtk_widget_show_all(drawing_area->right_vbox);
   drawing_area->cairo = NULL;
   drawing_area->changed = TRUE;
   drawing_area->cell_size = 0;
@@ -80,8 +108,22 @@ void drawing_area_init(DrawingArea *drawing_area)
 GtkWidget *drawing_area_new(TetrisPlayer *player)
 {
   DrawingArea *drawing_area = DRAWING_AREA(g_object_new(DRAWING_AREA_TYPE, NULL));
-  drawing_area->player = player;
+  drawing_area_set_player(drawing_area, player);
   return GTK_WIDGET(drawing_area);
+}
+
+void drawing_area_set_player(DrawingArea *drawing_area, TetrisPlayer *player)
+{
+  gchar *number_str;
+
+  drawing_area->player = player;
+
+  number_str = g_strdup_printf("%d", drawing_area->player->id);
+  gtk_label_set_markup(GTK_LABEL(drawing_area->number_label), number_str);
+  g_free(number_str);
+
+  gtk_label_set_markup(GTK_LABEL(drawing_area->name_label),
+                       drawing_area->player->nick);
 }
 
 TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area)
