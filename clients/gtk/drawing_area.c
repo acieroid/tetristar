@@ -60,6 +60,9 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->number_label = gtk_label_new("");
   drawing_area->name_label = gtk_label_new("");
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
+  drawing_area->cairo = NULL;
+  drawing_area->changed = TRUE;
+  drawing_area->cell_size = 0;
 
   g_signal_connect_after(G_OBJECT(drawing_area->field), "realize",
                          G_CALLBACK(drawing_area_realize), drawing_area);
@@ -81,31 +84,37 @@ void drawing_area_init(DrawingArea *drawing_area)
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
 
-  gtk_container_add(GTK_CONTAINER(drawing_area->info_hbox),
-                    drawing_area->number_label);
-  gtk_container_add(GTK_CONTAINER(drawing_area->info_hbox),
-                    drawing_area->name_label);
+  gtk_box_pack_start(GTK_BOX(drawing_area->info_hbox),
+                     drawing_area->number_label,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(drawing_area->info_hbox),
+                   drawing_area->name_label,
+                   TRUE, TRUE, 0);
 
-  gtk_container_add(GTK_CONTAINER(drawing_area->left_vbox),
-                    drawing_area->info_hbox);
-  gtk_container_add(GTK_CONTAINER(drawing_area->left_vbox),
-                    drawing_area->field);
+  gtk_box_pack_start(GTK_BOX(drawing_area->left_vbox),
+                     drawing_area->info_hbox,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_end(GTK_BOX(drawing_area->left_vbox),
+                   drawing_area->field,
+                   TRUE, TRUE, 0);
 
-  gtk_container_add(GTK_CONTAINER(drawing_area->right_vbox),
-                    drawing_area->next_piece_label);
-  gtk_container_add(GTK_CONTAINER(drawing_area->right_vbox),
-                    drawing_area->next_piece);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->next_piece_label,
+                     TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->next_piece,
+                     TRUE, TRUE, 0);
 
-  gtk_container_add(GTK_CONTAINER(drawing_area),
-                    drawing_area->left_vbox);
-  gtk_container_add(GTK_CONTAINER(drawing_area),
-                    drawing_area->right_vbox);
+  gtk_box_pack_start(GTK_BOX(drawing_area),
+                     drawing_area->left_vbox,
+                     TRUE, TRUE, 0);
+  gtk_box_pack_end(GTK_BOX(drawing_area),
+                   drawing_area->right_vbox,
+                   TRUE, TRUE, 0);
 
   gtk_widget_show_all(drawing_area->left_vbox);
   gtk_widget_show_all(drawing_area->right_vbox);
-  drawing_area->cairo = NULL;
-  drawing_area->changed = TRUE;
-  drawing_area->cell_size = 0;
+
 }
 
 GtkWidget *drawing_area_new(TetrisPlayer *player)
