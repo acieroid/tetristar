@@ -7,8 +7,6 @@ Server:
   - Verify lua input
 
 Client 
-  - Improve layout
-    - Next piece
   - Graphic modification
   - Shadow
   - Key repeat
@@ -19,6 +17,7 @@ Misc:
 BUGS:
   - Sometimes the connection is closed without any reason
   - Some problems with the signals in the clients (with disconnect & quit)
+  - Layout problems in the client
 
 Optional:
   - Detect and reward T-spins
@@ -28,4 +27,4 @@ Optional:
   - String formatting for tetris.server.send*
   - Teams
   - Spectators
-  - Remember nickname, server name
+  - Remember nickname, server name in the client
