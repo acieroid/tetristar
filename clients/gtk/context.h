@@ -46,6 +46,11 @@ void context_remove_all_players(Context *context);
 void context_field_changed(Context *context, TetrisPlayer *player);
 
 /**
+ * Mark a player's next piece as changed.
+ */
+void context_next_piece_changed(Context *context, TetrisPlayer *player);
+
+/**
  * Grab the focus
  */
 void context_grab_focus(Context *context);

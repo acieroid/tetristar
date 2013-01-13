@@ -16,7 +16,6 @@ static gboolean drawing_area_configure_next_piece(GtkWidget *widget,
 static gboolean drawing_area_expose_next_piece(GtkWidget *widget,
                                                GdkEventExpose *event,
                                                gpointer data);
-static gboolean drawing_area_update_next_piece(gpointer data);
 static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
@@ -151,6 +150,11 @@ void drawing_area_set_changed(DrawingArea *drawing_area)
   drawing_area->changed = TRUE;
 }
 
+void drawing_area_set_next_piece_changed(DrawingArea *drawing_area)
+{
+  drawing_area->changed_next_piece = TRUE;
+}
+
 gboolean drawing_area_configure(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer data)
@@ -174,12 +178,19 @@ gboolean drawing_area_expose(GtkWidget *widget,
 gboolean drawing_area_update(gpointer data)
 {
   DrawingArea *drawing_area = (DrawingArea *) data;
+  gboolean res = TRUE;
 
   if (drawing_area->changed) {
     drawing_area->changed = FALSE;
-    return drawing_area_draw(drawing_area);
+    res = res && drawing_area_draw(drawing_area);
   }
-  return TRUE;
+
+  if (drawing_area->changed_next_piece) {
+    drawing_area->changed_next_piece = FALSE;
+    res = res && drawing_area_draw_next_piece(drawing_area);
+  }
+
+  return res;
 }
 
 gboolean drawing_area_draw(DrawingArea *drawing_area)
@@ -268,18 +279,6 @@ gboolean drawing_area_expose_next_piece(GtkWidget *widget,
 {
   DrawingArea *drawing_area = (DrawingArea *) data;
   return drawing_area_draw_next_piece(drawing_area);
-}
-
-gboolean drawing_area_update_next_piece(gpointer data)
-{
-  /* TODO: define a callback for this function */
-  DrawingArea *drawing_area = (DrawingArea *) data;
-
-  if (drawing_area->changed_next_piece) {
-    drawing_area->changed_next_piece = FALSE;
-    return drawing_area_draw_next_piece(drawing_area);
-  }
-  return TRUE;
 }
 
 /* TODO: this shouldn't be hardcoded. It depends on the pieces defined

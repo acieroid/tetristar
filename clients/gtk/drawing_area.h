@@ -62,6 +62,11 @@ TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area);
  */
 void drawing_area_set_changed(DrawingArea *drawing_area);
 
+/**
+ * Mark the player's next piece as "changed".
+ */
+void drawing_area_set_next_piece_changed(DrawingArea *drawing_area);
+
 G_END_DECLS
 
 #endif /* DRAWING_AREA_H */

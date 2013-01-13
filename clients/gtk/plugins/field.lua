@@ -19,6 +19,14 @@ function field.piece(id, command, args)
    tetris.client.context_field_changed(user_id)
 end
 
+function field.nextpiece(id, command, args)
+  -- NEXTPIECE ID FIELDSPEC
+   local user_id, fieldspec = utils.split(args, " ",
+                                          tonumber, utils.parse_fieldspec)
+   tetris.player.set_next_piece(user_id, fieldspec)
+   tetris.client.context_next_piece_changed(user_id)
+end
+
 function field.piecepos(id, command, args)
    -- PIECEPOS ID X,Y
    local user_id, rest = utils.split(args, " ",
@@ -31,4 +39,5 @@ end
 
 tetris.plugin.register("RECV", field.field, "FIELD")
 tetris.plugin.register("RECV", field.piece, "PIECE")
+tetris.plugin.register("RECV", field.nextpiece, "NEXTPIECE")
 tetris.plugin.register("RECV", field.piecepos, "PIECEPOS")
