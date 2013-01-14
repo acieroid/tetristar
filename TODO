@@ -4,7 +4,6 @@ Server:
 Client 
   - Images for tiles
   - Shadow
-  - Key repeat
 
 Misc:
   - Write some documentation

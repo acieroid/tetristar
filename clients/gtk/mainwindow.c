@@ -11,6 +11,10 @@ static void error_message(GtkWidget *widget, gpointer data);
 static gboolean on_keypress(GtkWidget *widget,
                             GdkEventKey *event,
                             gpointer data);
+static gboolean on_keyrelease(GtkWidget *widget,
+                              GdkEventKey *event,
+                              gpointer data);
+static gboolean down_timeout(gpointer data);
 static void disconnect_clicked(GtkWidget *widget, gpointer data);
 static void play_clicked(GtkWidget *widget, gpointer data);
 static void pause_clicked(GtkWidget *widget, gpointer data);
@@ -24,11 +28,17 @@ static struct {
 } keybinds[] = {
   { GDK_KEY_Left, "MOVE LEFT" },
   { GDK_KEY_Right, "MOVE RIGHT" },
-  { GDK_KEY_Down, "MOVE DOWN" },
   { GDK_KEY_Up, "ROTATE RIGHT" },
   { GDK_KEY_space, "DROP" },
   { GDK_KEY_VoidSymbol, NULL }
 };
+
+
+/* the 'down' action should be treated separately since it requires
+   autorepeat */
+static const int KEY_DOWN = GDK_KEY_Down;
+static const gchar *KEY_DOWN_CMD = "MOVE DOWN";
+static const int KEY_DOWN_DELAY = 100;
 
 static struct {
   const gchar *signal;
@@ -102,8 +112,11 @@ MainWindow *mainwindow_new(void)
                    G_CALLBACK(unknown_command), NULL);
 
   window->context = context_new();
+  window->down_pressed = FALSE;
   g_signal_connect(G_OBJECT(window->context), "key-press-event",
                    G_CALLBACK(on_keypress), window);
+  g_signal_connect(G_OBJECT(window->context), "key-release-event",
+                   G_CALLBACK(on_keyrelease), window);
   window->connected_pane = gtk_vpaned_new();
   gtk_paned_pack1(GTK_PANED(window->connected_pane), window->context, TRUE, FALSE);
   gtk_paned_pack2(GTK_PANED(window->connected_pane), window->chat, FALSE, FALSE);
@@ -284,6 +297,11 @@ gboolean on_keypress(GtkWidget *widget,
       chat_set_focus(CHAT(window->chat));
       return TRUE;
     }
+    if (event->keyval == KEY_DOWN && !window->down_pressed) {
+      window->down_pressed = TRUE;
+      network_send(window->network, (gchar *) KEY_DOWN_CMD);
+      g_timeout_add(KEY_DOWN_DELAY, down_timeout, window);
+    }
     for (i = 0; keybinds[i].command != NULL; i++) {
       if (event->keyval == keybinds[i].keyval) {
         network_send(window->network, (gchar *) keybinds[i].command);
@@ -292,6 +310,27 @@ gboolean on_keypress(GtkWidget *widget,
     }
   }
   return FALSE;
+}
+
+gboolean on_keyrelease(GtkWidget *widget,
+                       GdkEventKey *event,
+                       gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  if (event->keyval == KEY_DOWN && window->down_pressed) {
+    window->down_pressed = FALSE;
+  }
+  return TRUE;
+}
+
+gboolean down_timeout(gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  if (window->down_pressed) {
+    network_send(window->network, (gchar *) KEY_DOWN_CMD);
+    return TRUE;
+  }
+  return FALSE; /* the timeout should be removed */
 }
 
 void disconnect_clicked(GtkWidget *widget, gpointer data)

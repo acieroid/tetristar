@@ -21,7 +21,7 @@ typedef struct MainWindow {
   GtkToolItem *button_disconnect, *button_play, *button_pause, *button_stop;
 
   Network *network;
-  int connected;
+  int connected, down_pressed;
 } MainWindow;
 
 MainWindow *mainwindow_new(void);
