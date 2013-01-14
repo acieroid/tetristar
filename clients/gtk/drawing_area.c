@@ -155,6 +155,7 @@ void drawing_area_set_next_piece_changed(DrawingArea *drawing_area)
   drawing_area->changed_next_piece = TRUE;
 }
 
+#define min(a, b) ((a) < (b) ? (a) : (b))
 gboolean drawing_area_configure(GtkWidget *widget,
                                 GdkEvent *event,
                                 gpointer data)
@@ -163,7 +164,7 @@ gboolean drawing_area_configure(GtkWidget *widget,
   DrawingArea *drawing_area = (DrawingArea *) data;
 
   gtk_widget_get_allocation(widget, &alloc);
-  drawing_area->cell_size = alloc.height/22;
+  drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
   return drawing_area_draw(drawing_area);
 }
 
