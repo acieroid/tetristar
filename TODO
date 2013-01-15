@@ -11,6 +11,7 @@ Misc:
 BUGS:
   - Sometimes the connection is closed without any reason
   - Some problems with the signals in the client (with disconnect & quit)
+  - No more timeout in the server?
 
 Optional (simple):
   - Improve rotation (compare to other tetrises first)

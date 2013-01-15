@@ -296,9 +296,7 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
 {
   cairo_save(cairo);
   if (cell < N_CELLS) {
-    /* TODO */
-    /* cairo_set_source_surface(cairo, images[cell], 0, 0); */
-    gdk_cairo_set_source_color(cairo, &colors[cell]);
+    cairo_set_source_surface(cairo, images[cell], x*drawing_area->cell_size, y*drawing_area->cell_size);
   }
   cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
   cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
