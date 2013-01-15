@@ -14,7 +14,7 @@
 #include <libtetris.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h> 
+#include <unistd.h>
 
 G_BEGIN_DECLS
 
@@ -35,7 +35,6 @@ typedef struct DrawingArea {
 
   TetrisPlayer *player;
   guint timeout_tag;
-  cairo_t *cairo, *cairo_next_piece;
   gboolean changed, changed_next_piece;
   int cell_size;
 } DrawingArea;

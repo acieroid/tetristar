@@ -32,6 +32,11 @@ static const gchar *IMAGES_NAMES[N_CELLS] = {
 static cairo_surface_t *images[N_CELLS] = { NULL };
 static GdkColor white = {};
 
+static const char *colors_names[N_CELLS] = {
+  "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
+};
+static GdkColor colors[N_CELLS] = { {} };
+
 GType drawing_area_get_type(void)
 {
   static GType drawing_area_type = 0;
@@ -71,12 +76,17 @@ cairo_surface_t *load_image(gchar *file)
   if (status != CAIRO_STATUS_SUCCESS) {
     g_error("Cannot load image '%s': %s", file, cairo_status_to_string(status));
   }
+  cairo_surface_write_to_png(surf, "/tmp/foo.png");
   return surf;
 }
 
 void drawing_area_class_init(DrawingAreaClass *klass)
 {
   int i;
+  if (colors != NULL)
+    for (i = 0; i < N_CELLS; i++)
+      gdk_color_parse(colors_names[i], &colors[i]);
+
   if (images != NULL) {
     for (i = 0; i < N_CELLS; i++) {
       gchar *file = find_file(IMAGES_NAMES[i]);
@@ -97,8 +107,6 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->number_label = gtk_label_new("");
   drawing_area->name_label = gtk_label_new("");
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
-  drawing_area->cairo = NULL;
-  drawing_area->cairo_next_piece = NULL;
   drawing_area->changed = TRUE;
   drawing_area->changed_next_piece = TRUE;
   drawing_area->cell_size = 0;
@@ -194,8 +202,8 @@ gboolean drawing_area_configure(GtkWidget *widget,
   DrawingArea *drawing_area = (DrawingArea *) data;
 
   gtk_widget_get_allocation(widget, &alloc);
-  /* drawing_area->cell_size = min(alloc.height/22, alloc.width/10); */
-  drawing_area->cell_size = IMAGE_SIZE;
+  drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
+  /* drawing_area->cell_size = IMAGE_SIZE; */
   return drawing_area_draw(drawing_area);
 }
 
@@ -241,19 +249,14 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     return FALSE;
 
   player = drawing_area->player;
-  if (drawing_area->cairo == NULL) {
-    drawing_area->cairo = gdk_cairo_create(drawing_area->field->window);
-    status = cairo_status(drawing_area->cairo);
-    if (status != CAIRO_STATUS_SUCCESS) {
-      g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
-      g_return_val_if_reached(FALSE);
-    }
+  /* It seems to be necesarry to create the cairo context every time we want to draw */
+  cairo = gdk_cairo_create(drawing_area->field->window);
+  status = cairo_status(cairo);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+    g_return_val_if_reached(FALSE);
   }
-  cairo = drawing_area->cairo;
   matrix = tetris_player_get_matrix(player);
-
-  /* default image */
-  cairo_set_source_surface(cairo, images[DEFAULT_CELL], 0, 0);
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
@@ -285,6 +288,7 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     cairo_restore(cairo);
   }
 
+  cairo_destroy(cairo);
   return TRUE;
 }
 
@@ -292,7 +296,9 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
 {
   cairo_save(cairo);
   if (cell < N_CELLS) {
-    cairo_set_source_surface(cairo, images[cell], 0, 0);
+    /* TODO */
+    /* cairo_set_source_surface(cairo, images[cell], 0, 0); */
+    gdk_cairo_set_source_color(cairo, &colors[cell]);
   }
   cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
   cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
@@ -304,7 +310,6 @@ void drawing_area_free(DrawingArea *drawing_area)
 {
   g_source_remove(drawing_area->timeout_tag);
   tetris_player_remove(drawing_area->player);
-  cairo_destroy(drawing_area->cairo);
   gtk_widget_destroy(GTK_WIDGET(drawing_area));
 }
 
@@ -343,16 +348,12 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
     return FALSE;
 
   player = drawing_area->player;
-  if (drawing_area->cairo_next_piece == NULL) {
-    drawing_area->cairo_next_piece = gdk_cairo_create(drawing_area->next_piece->window);
-    status = cairo_status(drawing_area->cairo_next_piece);
-    if (status != CAIRO_STATUS_SUCCESS) {
-      g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
-      g_return_val_if_reached(FALSE);
-    }
+  cairo = gdk_cairo_create(drawing_area->next_piece->window);
+  status = cairo_status(cairo);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+    g_return_val_if_reached(FALSE);
   }
-    
-  cairo = drawing_area->cairo_next_piece;
 
   /* default image */
   cairo_set_source_surface(cairo, images[DEFAULT_CELL], 0, 0);
@@ -373,5 +374,6 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
                                  info->y+NEXT_PIECE_SHIFT_Y, info->cell);
   }
 
+  cairo_destroy(cairo);
   return TRUE;
 }
