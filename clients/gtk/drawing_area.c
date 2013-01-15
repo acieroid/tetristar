@@ -32,11 +32,6 @@ static const gchar *IMAGES_NAMES[N_CELLS] = {
 static cairo_surface_t *images[N_CELLS] = { NULL };
 static GdkColor white = {};
 
-static const char *colors_names[N_CELLS] = {
-  "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
-};
-static GdkColor colors[N_CELLS] = { {} };
-
 GType drawing_area_get_type(void)
 {
   static GType drawing_area_type = 0;
@@ -83,10 +78,6 @@ cairo_surface_t *load_image(gchar *file)
 void drawing_area_class_init(DrawingAreaClass *klass)
 {
   int i;
-  if (colors != NULL)
-    for (i = 0; i < N_CELLS; i++)
-      gdk_color_parse(colors_names[i], &colors[i]);
-
   if (images != NULL) {
     for (i = 0; i < N_CELLS; i++) {
       gchar *file = find_file(IMAGES_NAMES[i]);
