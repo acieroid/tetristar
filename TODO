@@ -2,7 +2,7 @@ Server:
   - Bonuses
 
 Client 
-  - SVG images
+  - SVG images: fix graphic glitch
   - Shadow
 
 Misc:
@@ -23,6 +23,8 @@ Optional (simple):
   - Verify lua input in both server and client
 
 Optional (harder):
+  - Improve drawing performance: mainly, avoid creating a cairo
+    context each time a drawing is made
   - Detect and reward T-spins
   - Find a cool way to reward combos
   - String formatting for tetris.server.send*

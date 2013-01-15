@@ -223,7 +223,7 @@ gboolean drawing_area_configure(GtkWidget *widget,
 #else
   gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
-  /* TODO: set the dpi of the svg handles */
+  /* TODO: set the dpi of the svg handles ? */
 #endif
 
   return drawing_area_draw(drawing_area);
@@ -317,21 +317,20 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
 void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int x, int y, TetrisCell cell)
 {
   cairo_save(cairo);
-  if (cell < N_CELLS) {
-#ifdef USE_PNG
-    cairo_set_source_surface(cairo, images[cell],
-                             x*drawing_area->cell_size, y*drawing_area->cell_size);
-#endif
-  }
   cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
   cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
+
 #ifdef USE_PNG
+  if (cell < N_CELLS) {
+    cairo_set_source_surface(cairo, images[cell],
+                             x*drawing_area->cell_size, y*drawing_area->cell_size);
+  }
   cairo_fill(cairo);
 #else
   rsvg_handle_render_cairo(images[cell], cairo);
 #endif
+
   cairo_restore(cairo);
-  
 }
 
 void drawing_area_free(DrawingArea *drawing_area)
