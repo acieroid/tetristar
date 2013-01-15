@@ -20,7 +20,7 @@ static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
-n
+
 #define N_CELLS 8
 static const int DEFAULT_CELL = 1;
 static const int IMAGE_SIZE = 20;
