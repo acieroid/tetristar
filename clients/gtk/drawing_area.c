@@ -20,13 +20,16 @@ static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
-
-#define N_COLORS 8
-static int default_cell = 1;
-static const char *colors_names[N_COLORS] = {
-  "black", "magenta", "orange", "blue", "cyan", "green", "red", "yellow"
+n
+#define N_CELLS 8
+static const int DEFAULT_CELL = 1;
+static const int IMAGE_SIZE = 20;
+static const gchar *DATA_DIR = "../../data/";
+static const gchar *IMAGES_NAMES[N_CELLS] = {
+  "black.png", "magenta.png", "orange.png", "blue.png", "cyan.png",
+  "green.png", "red.png", "yellow.png"
 };
-static GdkColor colors[N_COLORS] = { {} };
+static cairo_surface_t *images[N_CELLS] = { NULL };
 static GdkColor white = {};
 
 GType drawing_area_get_type(void)
@@ -48,12 +51,39 @@ GType drawing_area_get_type(void)
   return drawing_area_type;
 }
 
+/* TODO: handle the data somewhere more appropriate */
+gchar *find_file(const gchar *filename)
+{
+  gchar *file = g_strdup_printf("%s/%s", DATA_DIR, filename);
+  struct stat buf; /* unused */
+  int err = stat(file, &buf); /* TODO: be more portable */
+  if (err != 0) {
+    g_error("File does not exists: %s", filename);
+  }
+  return file;
+}
+
+cairo_surface_t *load_image(gchar *file)
+{
+  cairo_status_t status;
+  cairo_surface_t *surf = cairo_image_surface_create_from_png(file);
+  status = cairo_surface_status(surf);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    g_error("Cannot load image '%s': %s", file, cairo_status_to_string(status));
+  }
+  return surf;
+}
+
 void drawing_area_class_init(DrawingAreaClass *klass)
 {
   int i;
-  if (colors != NULL)
-    for (i = 0; i < N_COLORS; i++)
-      gdk_color_parse(colors_names[i], &colors[i]);
+  if (images != NULL) {
+    for (i = 0; i < N_CELLS; i++) {
+      gchar *file = find_file(IMAGES_NAMES[i]);
+      images[i] = load_image(file);
+      g_free(file);
+    }
+  }
   gdk_color_parse("white", &white);
 }
 
@@ -164,7 +194,8 @@ gboolean drawing_area_configure(GtkWidget *widget,
   DrawingArea *drawing_area = (DrawingArea *) data;
 
   gtk_widget_get_allocation(widget, &alloc);
-  drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
+  /* drawing_area->cell_size = min(alloc.height/22, alloc.width/10); */
+  drawing_area->cell_size = IMAGE_SIZE;
   return drawing_area_draw(drawing_area);
 }
 
@@ -202,26 +233,35 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   GSList *elem;
   cairo_t *cairo;
   int x, y;
-  char *notplaying = "Not playing";
   cairo_text_extents_t extents;
+  cairo_status_t status;
+  char *notplaying = "Not playing";
 
   if (!gtk_widget_get_realized(drawing_area->field))
     return FALSE;
 
   player = drawing_area->player;
+  if (drawing_area->cairo == NULL) {
+    drawing_area->cairo = gdk_cairo_create(drawing_area->field->window);
+    status = cairo_status(drawing_area->cairo);
+    if (status != CAIRO_STATUS_SUCCESS) {
+      g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+      g_return_val_if_reached(FALSE);
+    }
+  }
   cairo = drawing_area->cairo;
-  if (cairo == NULL)
-    cairo = gdk_cairo_create(drawing_area->field->window);
   matrix = tetris_player_get_matrix(player);
 
-  /* default color */
-  gdk_cairo_set_source_color(cairo, &colors[default_cell]);
+  /* default image */
+  cairo_set_source_surface(cairo, images[DEFAULT_CELL], 0, 0);
 
-  for (x = 0; x < tetris_matrix_get_width(matrix); x++)
-    for (y = 0; y < tetris_matrix_get_height(matrix); y++)
+  for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
+    for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
       drawing_area_cairo_draw_cell(drawing_area,
                                    cairo, x, y,
                                    tetris_matrix_get_cell(matrix, x, y));
+    }
+  }
 
   x = tetris_player_get_piece_position(player)[0];
   y = tetris_player_get_piece_position(player)[1];
@@ -242,6 +282,7 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
                     extents.width/2,
                     tetris_matrix_get_height(matrix)/2 * drawing_area->cell_size);
     cairo_show_text(cairo, "Not playing");
+    cairo_restore(cairo);
   }
 
   return TRUE;
@@ -250,8 +291,9 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
 void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int x, int y, TetrisCell cell)
 {
   cairo_save(cairo);
-  if (cell < N_COLORS)
-    gdk_cairo_set_source_color(cairo, &colors[cell]);
+  if (cell < N_CELLS) {
+    cairo_set_source_surface(cairo, images[cell], 0, 0);
+  }
   cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
   cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
   cairo_fill(cairo);
@@ -293,6 +335,7 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
   TetrisPlayer *player;
   TetrisCellInfo *info;
   cairo_t *cairo;
+  cairo_status_t status;
   int x, y;
   GSList *elem;
 
@@ -300,18 +343,27 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
     return FALSE;
 
   player = drawing_area->player;
+  if (drawing_area->cairo_next_piece == NULL) {
+    drawing_area->cairo_next_piece = gdk_cairo_create(drawing_area->next_piece->window);
+    status = cairo_status(drawing_area->cairo_next_piece);
+    if (status != CAIRO_STATUS_SUCCESS) {
+      g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+      g_return_val_if_reached(FALSE);
+    }
+  }
+    
   cairo = drawing_area->cairo_next_piece;
-  if (cairo == NULL)
-    cairo = gdk_cairo_create(drawing_area->next_piece->window);
 
-  /* default color */
-  gdk_cairo_set_source_color(cairo, &colors[default_cell]);
+  /* default image */
+  cairo_set_source_surface(cairo, images[DEFAULT_CELL], 0, 0);
 
-  for (x = 0; x < NEXT_PIECE_WIDTH; x++)
-    for (y = 0; y < NEXT_PIECE_HEIGHT; y++)
+  for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
+    for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
       drawing_area_cairo_draw_cell(drawing_area,
                                    cairo, x, y,
                                    0);
+    }
+  }
 
   for (elem = tetris_player_get_next_piece(player); elem != NULL;
        elem = elem->next) {

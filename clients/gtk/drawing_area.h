@@ -10,7 +10,11 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 #include <cairo.h>
+#include <cairo-svg.h>
 #include <libtetris.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h> 
 
 G_BEGIN_DECLS
 
