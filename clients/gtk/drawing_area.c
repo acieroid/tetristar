@@ -25,11 +25,22 @@ static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
 static const int DEFAULT_CELL = 1;
 static const int IMAGE_SIZE = 20;
 static const gchar *DATA_DIR = "../../data/";
+
+#ifdef USE_PNG
+# define EXT ".png"
+#else
+# define EXT ".svg"
+#endif
+
 static const gchar *IMAGES_NAMES[N_CELLS] = {
-  "black.png", "magenta.png", "orange.png", "blue.png", "cyan.png",
-  "green.png", "red.png", "yellow.png"
+  "black" EXT, "magenta" EXT, "orange" EXT, "blue" EXT, "cyan" EXT,
+  "green" EXT, "red" EXT, "yellow" EXT
 };
+#ifdef USE_PNG
 static cairo_surface_t *images[N_CELLS] = { NULL };
+#else
+static RsvgHandle *images[N_CELLS] = { NULL };
+#endif
 static GdkColor white = {};
 
 GType drawing_area_get_type(void)
@@ -63,6 +74,7 @@ gchar *find_file(const gchar *filename)
   return file;
 }
 
+#ifdef USE_PNG
 cairo_surface_t *load_image(gchar *file)
 {
   cairo_status_t status;
@@ -71,9 +83,23 @@ cairo_surface_t *load_image(gchar *file)
   if (status != CAIRO_STATUS_SUCCESS) {
     g_error("Cannot load image '%s': %s", file, cairo_status_to_string(status));
   }
-  cairo_surface_write_to_png(surf, "/tmp/foo.png");
   return surf;
 }
+#else
+RsvgHandle *load_image(gchar *file)
+{
+  RsvgHandle *handle;
+  GError *error = g_malloc(sizeof(*error));
+
+  handle = rsvg_handle_new_from_file(file, &error);
+  if (handle == NULL) {
+    g_error("Cannot load image '%s': %s", file, error->message);
+  }
+
+  g_free(error);
+  return handle;
+}
+#endif
 
 void drawing_area_class_init(DrawingAreaClass *klass)
 {
@@ -192,9 +218,14 @@ gboolean drawing_area_configure(GtkWidget *widget,
   GtkAllocation alloc;
   DrawingArea *drawing_area = (DrawingArea *) data;
 
+#ifdef USE_PNG
+  drawing_area->cell_size = IMAGE_SIZE;
+#else
   gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
-  /* drawing_area->cell_size = IMAGE_SIZE; */
+  /* TODO: set the dpi of the svg handles */
+#endif
+
   return drawing_area_draw(drawing_area);
 }
 
@@ -287,12 +318,20 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
 {
   cairo_save(cairo);
   if (cell < N_CELLS) {
-    cairo_set_source_surface(cairo, images[cell], x*drawing_area->cell_size, y*drawing_area->cell_size);
+#ifdef USE_PNG
+    cairo_set_source_surface(cairo, images[cell],
+                             x*drawing_area->cell_size, y*drawing_area->cell_size);
+#endif
   }
   cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
   cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
+#ifdef USE_PNG
   cairo_fill(cairo);
+#else
+  rsvg_handle_render_cairo(images[cell], cairo);
+#endif
   cairo_restore(cairo);
+  
 }
 
 void drawing_area_free(DrawingArea *drawing_area)
@@ -344,14 +383,9 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
     g_return_val_if_reached(FALSE);
   }
 
-  /* default image */
-  cairo_set_source_surface(cairo, images[DEFAULT_CELL], 0, 0);
-
   for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
     for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
-      drawing_area_cairo_draw_cell(drawing_area,
-                                   cairo, x, y,
-                                   0);
+      drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
     }
   }
 

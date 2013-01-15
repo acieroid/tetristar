@@ -6,15 +6,16 @@
 #ifndef DRAWING_AREA_H
 #define DRAWING_AREA_H
 
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <glib.h>
 #include <glib-object.h>
 #include <gtk/gtk.h>
 #include <cairo.h>
 #include <cairo-svg.h>
+#include <librsvg/rsvg.h>
 #include <libtetris.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 G_BEGIN_DECLS
 

@@ -22,8 +22,9 @@ GTHREAD = 'gthread-2.0'
 GTK = 'gtk+-2.0'
 CAIRO = 'cairo'
 CHECK = 'check'
+RSVG = 'librsvg-2.0'
 
-Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK', 'BUILD_IN_TMP')
+Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK', 'RSVG', 'BUILD_IN_TMP')
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')
