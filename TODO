@@ -20,6 +20,7 @@ Optional (simple):
   - Remember nickname, server name in the client
   - Add error messages in the protocol
   - Verify lua input in both server and client
+  - Move some lua code from the client and server to libtetris
 
 Optional (harder):
   - Improve drawing performance: mainly, avoid creating a cairo
