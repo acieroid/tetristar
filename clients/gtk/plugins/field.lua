@@ -9,6 +9,7 @@ function field.field(id, command, args)
    end
    tetris.matrix.commit(user_id)
    tetris.client.context_field_changed(user_id)
+   field.update_shadow(user_id)
 end
 
 function field.piece(id, command, args)

@@ -3,14 +3,14 @@ Server:
 
 Client 
   - SVG images: fix graphic glitch
-  - Shadow
 
 Misc:
   - Write some documentation
 
 BUGS:
   - Sometimes the connection is closed without any reason
-  - Some problems with the signals in the client (with disconnect & quit)
+  - Some problems with the signals in the client (with disconnect &
+    quit)
 
 Optional (simple):
   - Improve rotation (compare to other tetrises first)
