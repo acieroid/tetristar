@@ -51,6 +51,11 @@ void context_field_changed(Context *context, TetrisPlayer *player);
 void context_next_piece_changed(Context *context, TetrisPlayer *player);
 
 /**
+ * Set the shadow of a player's piece
+ */
+void context_set_shadow(Context *context, TetrisPlayer *player, GSList *shadow);
+
+/**
  * Grab the focus
  */
 void context_grab_focus(Context *context);

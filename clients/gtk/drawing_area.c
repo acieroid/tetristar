@@ -20,6 +20,8 @@ static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
+static void drawing_area_cairo_draw_shadow(DrawingArea *drawing_area,
+                                           cairo_t *cairo, int x, int y);
 
 #define N_CELLS 8
 static const int DEFAULT_CELL = 1;
@@ -36,10 +38,13 @@ static const gchar *IMAGES_NAMES[N_CELLS] = {
   "black" EXT, "magenta" EXT, "orange" EXT, "blue" EXT, "cyan" EXT,
   "green" EXT, "red" EXT, "yellow" EXT
 };
+static const gchar *SHADOW_NAME = "shadow" EXT;
 #ifdef USE_PNG
 static cairo_surface_t *images[N_CELLS] = { NULL };
+static cairo_surface_t *shadow_image = NULL;
 #else
 static RsvgHandle *images[N_CELLS] = { NULL };
+static RsvgHandle *shadow_image = NULL;
 #endif
 static GdkColor white = {};
 
@@ -104,13 +109,20 @@ RsvgHandle *load_image(gchar *file)
 void drawing_area_class_init(DrawingAreaClass *klass)
 {
   int i;
+  gchar *file;
+
   if (images != NULL) {
     for (i = 0; i < N_CELLS; i++) {
-      gchar *file = find_file(IMAGES_NAMES[i]);
+      file = find_file(IMAGES_NAMES[i]);
       images[i] = load_image(file);
       g_free(file);
     }
   }
+
+  file = find_file(SHADOW_NAME);
+  shadow_image = load_image(file);
+  g_free(file);
+
   gdk_color_parse("white", &white);
 }
 
@@ -127,6 +139,7 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->changed = TRUE;
   drawing_area->changed_next_piece = TRUE;
   drawing_area->cell_size = 0;
+  drawing_area->shadow = NULL;
 
   g_signal_connect(G_OBJECT(drawing_area->field), "configure-event",
                    G_CALLBACK(drawing_area_configure), drawing_area);
@@ -223,7 +236,6 @@ gboolean drawing_area_configure(GtkWidget *widget,
 #else
   gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
-  /* TODO: set the dpi of the svg handles ? */
 #endif
 
   return drawing_area_draw(drawing_area);
@@ -282,8 +294,7 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
 
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
-      drawing_area_cairo_draw_cell(drawing_area,
-                                   cairo, x, y,
+      drawing_area_cairo_draw_cell(drawing_area, cairo, x, y,
                                    tetris_matrix_get_cell(matrix, x, y));
     }
   }
@@ -293,8 +304,14 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   for (elem = tetris_player_get_piece(player); elem != NULL;
        elem = elem->next) {
     info = elem->data;
-    drawing_area_cairo_draw_cell(drawing_area,
-                                 cairo, x + info->x, y + info->y, info->cell);
+    drawing_area_cairo_draw_cell(drawing_area, cairo,
+                                 x + info->x, y + info->y, info->cell);
+  }
+
+  for (elem = drawing_area->shadow; elem != NULL; elem = elem->next) {
+    info = elem->data;
+    drawing_area_cairo_draw_shadow(drawing_area, cairo,
+                                   x + info->x, y + info->y);
   }
 
   if (!tetris_player_is_playing(player)) {
@@ -333,9 +350,31 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
   cairo_restore(cairo);
 }
 
+void drawing_area_cairo_draw_shadow(DrawingArea *drawing_area, cairo_t *cairo, int x, int y)
+{
+  cairo_save(cairo);
+  cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
+  cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
+
+#ifdef USE_PNG
+  if (cell < N_CELLS) {
+    cairo_set_source_surface(cairo, shadow_image,
+                             x*drawing_area->cell_size, y*drawing_area->cell_size);
+  }
+  cairo_fill(cairo);
+#else
+  rsvg_handle_render_cairo(shadow_image, cairo);
+#endif
+
+  cairo_restore(cairo);
+}
+
+
 void drawing_area_free(DrawingArea *drawing_area)
 {
   g_source_remove(drawing_area->timeout_tag);
+  g_slist_free_full(drawing_area->shadow,
+                    (GDestroyNotify) tetris_cell_info_free);
   tetris_player_remove(drawing_area->player);
   gtk_widget_destroy(GTK_WIDGET(drawing_area));
 }
@@ -398,4 +437,14 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
 
   cairo_destroy(cairo);
   return TRUE;
+}
+
+void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow)
+{
+  if (drawing_area->shadow != NULL) {
+    g_slist_free_full(drawing_area->shadow,
+                      (GDestroyNotify) tetris_cell_info_free);
+  }
+
+  drawing_area->shadow = shadow;
 }

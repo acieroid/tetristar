@@ -35,6 +35,7 @@ typedef struct DrawingArea {
   GtkWidget *field, *next_piece;
 
   TetrisPlayer *player;
+  GSList *shadow;
   guint timeout_tag;
   gboolean changed, changed_next_piece;
   int cell_size;
@@ -70,6 +71,11 @@ void drawing_area_set_changed(DrawingArea *drawing_area);
  * Mark the player's next piece as "changed".
  */
 void drawing_area_set_next_piece_changed(DrawingArea *drawing_area);
+
+/**
+ * Set the shadow of this drawing area
+ */
+void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow);
 
 G_END_DECLS
 

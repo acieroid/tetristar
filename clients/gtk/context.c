@@ -128,6 +128,22 @@ void context_next_piece_changed(Context *context, TetrisPlayer *player)
   drawing_area_set_next_piece_changed(DRAWING_AREA(drawing_area));
 }
 
+void context_set_shadow(Context *context, TetrisPlayer *player, GSList *shadow)
+{
+  GtkWidget *drawing_area;
+  GSList *elem;
+
+  elem = g_slist_find_custom(context->drawing_areas,
+                             (gpointer) player,
+                             (GCompareFunc) context_compare);
+
+  if (elem == NULL)
+    g_return_if_reached();
+
+  drawing_area = elem->data;
+  drawing_area_set_shadow(DRAWING_AREA(drawing_area), shadow);
+}
+
 void context_grab_focus(Context *context)
 {
   gtk_widget_grab_focus(GTK_WIDGET(context));
