@@ -311,7 +311,7 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   for (elem = drawing_area->shadow; elem != NULL; elem = elem->next) {
     info = elem->data;
     drawing_area_cairo_draw_shadow(drawing_area, cairo,
-                                   x + info->x, y + info->y);
+                                   info->x, info->y);
   }
 
   if (!tetris_player_is_playing(player)) {

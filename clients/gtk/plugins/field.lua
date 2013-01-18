@@ -17,7 +17,7 @@ function field.piece(id, command, args)
                                           tonumber, utils.parse_fieldspec)
    tetris.player.set_piece(user_id, fieldspec)
    tetris.client.context_field_changed(user_id)
-   field.update_shadow(id)
+   field.update_shadow(user_id)
 end
 
 function field.nextpiece(id, command, args)
@@ -36,13 +36,25 @@ function field.piecepos(id, command, args)
                             tonumber, tonumber)
    tetris.player.set_piece_position(user_id, {x, y})
    tetris.client.context_field_changed(user_id)
-   field.update_shadow(id)
+   field.update_shadow(user_id)
 end
 
+function field.is_player_piece_on_cell(id, cell)
+   local p = tetris.player.get_piece(id)
+   p = piece.shift(p, tetris.player.get_piece_position(id))
+   for j, pcell in pairs(tetris.player.get_piece(id)) do
+      if (pcell[1] == cell[1] and pcell[2] == cell[2]) then
+         return true
+      end
+   end
+   return false
+end
 
 function field.is_valid(id, p)
    for i, cell in pairs(p) do
-      if (tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0) then
+      if (tetris.matrix.get_cell(id, cell[1], cell[2]) ~= 0 and
+          -- acceptable if it is on the player's piece
+           not field.is_player_piece_on_cell(id, cell)) then
          return false
       end
    end
@@ -55,8 +67,9 @@ function field.update_shadow(id)
    local p = tetris.player.get_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
    while field.is_valid(id, p) do
-      p = piece.move(p, piece.position_from_direction("DOWN"))
+      p = piece.move(p, "DOWN")
    end
+   p = piece.move(p, "UP")
    tetris.client.context_set_shadow(id, p)
 end
 
