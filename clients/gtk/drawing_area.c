@@ -231,12 +231,8 @@ gboolean drawing_area_configure(GtkWidget *widget,
   GtkAllocation alloc;
   DrawingArea *drawing_area = (DrawingArea *) data;
 
-#ifdef USE_PNG
-  drawing_area->cell_size = IMAGE_SIZE;
-#else
   gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
-#endif
 
   return drawing_area_draw(drawing_area);
 }
@@ -277,6 +273,7 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   int x, y;
   cairo_text_extents_t extents;
   cairo_status_t status;
+  cairo_matrix_t zoom;
   char *notplaying = "Not playing";
 
   if (!gtk_widget_get_realized(drawing_area->field))
@@ -290,8 +287,15 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
     g_return_val_if_reached(FALSE);
   }
-  matrix = tetris_player_get_matrix(player);
 
+  /* scale the drawing */
+  cairo_matrix_init_scale(&zoom,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE);
+  cairo_transform(cairo, &zoom);
+
+
+  matrix = tetris_player_get_matrix(player);
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
       drawing_area_cairo_draw_cell(drawing_area, cairo, x, y,
@@ -320,9 +324,9 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     cairo_set_font_size(cairo, 15);
     cairo_text_extents(cairo, notplaying, &extents);
     cairo_translate(cairo,
-                    tetris_matrix_get_width(matrix)/2 * drawing_area->cell_size -
+                    tetris_matrix_get_width(matrix)/2 * IMAGE_SIZE -
                     extents.width/2,
-                    tetris_matrix_get_height(matrix)/2 * drawing_area->cell_size);
+                    tetris_matrix_get_height(matrix)/2 * IMAGE_SIZE);
     cairo_show_text(cairo, "Not playing");
     cairo_restore(cairo);
   }
@@ -334,13 +338,13 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
 void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int x, int y, TetrisCell cell)
 {
   cairo_save(cairo);
-  cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
-  cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
-
+  cairo_translate(cairo, x*IMAGE_SIZE, y*IMAGE_SIZE);
 #ifdef USE_PNG
+  cairo_rectangle(cairo, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+
   if (cell < N_CELLS) {
     cairo_set_source_surface(cairo, images[cell],
-                             x*drawing_area->cell_size, y*drawing_area->cell_size);
+                             x*IMAGE_SIZE, y*IMAGE_SIZE);
   }
   cairo_fill(cairo);
 #else
@@ -353,13 +357,13 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
 void drawing_area_cairo_draw_shadow(DrawingArea *drawing_area, cairo_t *cairo, int x, int y)
 {
   cairo_save(cairo);
-  cairo_translate(cairo, x*drawing_area->cell_size, y*drawing_area->cell_size);
-  cairo_rectangle(cairo, 0, 0, drawing_area->cell_size, drawing_area->cell_size);
-
+  cairo_translate(cairo, x*IMAGE_SIZE, y*IMAGE_SIZE);
 #ifdef USE_PNG
+  cairo_rectangle(cairo, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
+
   if (cell < N_CELLS) {
     cairo_set_source_surface(cairo, shadow_image,
-                             x*drawing_area->cell_size, y*drawing_area->cell_size);
+                             x*IMAGE_SIZE, y*IMAGE_SIZE);
   }
   cairo_fill(cairo);
 #else
