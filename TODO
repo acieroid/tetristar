@@ -1,9 +1,24 @@
 Server:
   - Bonuses
+  - String formatting for tetris.server.send*
+  - Improve rotation (compare to other tetrises first)
+    - Direction of rotation
+    - Repeating layouts: S only have two rotations in tetris, but 4 in
+      tetristar (two shifted by one case)
+  - Add error messages in the protocol
+  - Verify lua input
 
 Client:
+  - Improve client layout
+  - Remember nickname, server name in the client
+  - Improve drawing performance:
+    - Only draw what changed in the matrix
+    - Draw the other part when necessary (GdkEventExpose.region)
 
-Misc:
+Libtetris:
+  - Move some lua code from the client and server to libtetris
+
+Doc:
   - Write some documentation
 
 BUGS:
@@ -11,24 +26,9 @@ BUGS:
   - Some problems with the signals in the client (with disconnect &
     quit)
 
-Optional (simple):
-  - Improve rotation (compare to other tetrises first)
-    - Direction of rotation
-    - Repeating layouts: S only have two rotations in tetris, but 4 in
-      tetristar (two shifted by one case)
-  - Improve client layout
-  - Remember nickname, server name in the client
-  - Add error messages in the protocol
-  - Verify lua input in both server and client
-  - Move some lua code from the client and server to libtetris
-
-Optional (harder):
-  - Improve drawing performance:
-    - Only draw what changed in the matrix
-    - Draw the other part when necessary (GdkEventExpose.region)
+Random ideas:
   - Detect and reward T-spins
   - Find a cool way to reward combos
-  - String formatting for tetris.server.send*
   - Teams
   - Spectators
   - Dynamically load plugin
