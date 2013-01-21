@@ -42,7 +42,7 @@ end
 
 -- Print the field of a player
 function field.print(id)
-   print("Player " .. id .. " field:")
+   print(string.format("Player %d field:", i))
    local cell
    for line = 0, tetris.matrix.get_height(id)-1 do
       for column = 0, tetris.matrix.get_width(id)-1 do
@@ -113,7 +113,9 @@ function field.lines_cleared(id, n)
             game.send_field(player_id)
          end
       end
-      tetris.server.send_to_all("SERVMSG " .. tetris.player.get_nick(id) .. " sent " .. n-1 .. " lines to everyone")
+      tetris.server.send_to_all(
+         string.format("SERVMSG %s sent %d lines to everyone",
+                       tetris.player.get_nick(id), n-1))
    end
 
    -- Statistics

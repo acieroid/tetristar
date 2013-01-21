@@ -24,7 +24,8 @@ function winlist.send(n)
 
    table.sort(sorted, winlist.compare)
    for i, v in ipairs(sorted) do
-      tetris.server.send_to_all("SERVMSG WinList: [" .. i .. "] " .. 
-                                   v.nick .. " with " .. v.wins .. " wins")
+      tetris.server.send_to_all(
+         string.format("SERVMSG WinList: [%d] %s with %d wins",
+                       i, v.nick, v.wins))
    end
 end

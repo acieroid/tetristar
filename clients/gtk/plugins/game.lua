@@ -16,14 +16,16 @@ function game.won(id, command, args)
    -- WON ID
    local user_id = tonumber(args)
    local nick = tetris.player.get_nick(user_id)
-   tetris.client.chat_add_text(" * " .. nick .. " has won\n")
+   tetris.client.chat_add_text(
+      string.format(" * %s has won\n", nick))
 end
 
 function game.lost(id, command, args)
    -- LOST ID
    local user_id = tonumber(args)
    local nick = tetris.player.get_nick(user_id)
-   tetris.client.chat_add_text(" * " .. nick .. " has lost\n")
+   tetris.client.chat_add_text(
+      string.format(" * %s has lost\n", nick))
 end
 
 tetris.plugin.register("RECV", game.state, "STATE")

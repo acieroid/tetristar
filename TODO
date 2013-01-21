@@ -1,12 +1,12 @@
 Server:
   - Bonuses
-  - String formatting for tetris.server.send*
   - Improve rotation (compare to other tetrises first)
     - Direction of rotation
     - Repeating layouts: S only have two rotations in tetris, but 4 in
       tetristar (two shifted by one case)
   - Add error messages in the protocol
   - Verify lua input
+  - Higher timeout before hitting the grown when the down arrow is pressed
 
 Client:
   - Improve client layout

@@ -9,7 +9,7 @@ function admin.password(id, command, args)
   
    if password == tetris.server.get_password() then
       tetris.player.set_admin(id, true)
-      tetris.server.send_to_all("ADMIN " .. id)
+      tetris.server.send_to_all(string.format("ADMIN %d", id))
       tetris.server.send(id, "SERVMSG You are now administrator");
    else
       tetris.server.send(id, "SERVMSG Wrong password");

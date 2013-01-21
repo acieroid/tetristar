@@ -5,7 +5,8 @@ function chat.newplayer(id, command, args)
    local user_id, nick = utils.split(args, " ", tonumber, utils.identity)
    tetris.player.add(user_id)
    tetris.player.set_nick(user_id, nick)
-   tetris.client.chat_add_text(" * " .. nick .. " is connected\n")
+   tetris.client.chat_add_text(
+      string.format(" * %s is connected\n", nick))
    tetris.client.context_add_player(user_id)
 end
 
@@ -13,7 +14,8 @@ function chat.admin(id, command, args)
    -- ADMIN ID
    local user_id = tonumber(args)
    local nick = tetris.player.get_nick(user_id)
-   tetris.client.chat_add_text(" * " .. nick .. " is now an administrator\n")
+   tetris.client.chat_add_text(
+      string.format(" * %s is now an administrator\n", nick))
    tetris.player.set_admin(user_id, true)
 end
 
@@ -30,19 +32,22 @@ function chat.say(id, command, args)
    local user_id, text = utils.split(args, " ",
                                      tonumber, utils.identity)
    local nick = tetris.player.get_nick(user_id)
-   tetris.client.chat_add_text("<" .. nick .. "> " .. text .. "\n")
+   tetris.client.chat_add_text(
+      string.format("<%s> %s\n", nick, text))
 end
 
 function chat.servmsg(id, command, args)
    -- SERVMSG TEXT
-   tetris.client.chat_add_text(">>> server message: " .. args .. "\n")
+   tetris.client.chat_add_text(
+      string.format(">>> server message: %s\n", args))
 end
 
 function chat.bye(id, command, args)
    -- BYE ID
    local user_id = tonumber(args)
    local nick = tetris.player.get_nick(user_id)
-   tetris.client.chat_add_text(" * " .. nick .. " has left\n")
+   tetris.client.chat_add_text(
+      string.format(" * %s has left\n", nick))
    tetris.client.context_remove_player(user_id)
    tetris.player.remove(user_id)
 end

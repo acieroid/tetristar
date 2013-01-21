@@ -11,7 +11,8 @@ function game.to_fieldspec(field)
       local x = cell[1]
       local y = cell[2]
       local type = cell[3]
-      fieldspec = fieldspec .. ":" .. x .. "," .. y .. "," .. type
+      fieldspec = string.format("%s:%d,%d,%d",
+                                fieldspec, x,  y, type)
    end
    fieldspec = string.sub(fieldspec, 2) -- drop the first colon
    return fieldspec
@@ -28,7 +29,8 @@ function game.send_field(id)
    -- Get the modifications
    local fieldspec = game.to_fieldspec(diff)
    -- Send the modifications
-   tetris.server.send_to_all("FIELD " .. id .. " " .. fieldspec)
+   tetris.server.send_to_all(
+      string.format("FIELD %d %s", id, fieldspec))
    -- Apply the modifications
    tetris.matrix.commit(id)
    -- Reset the timer of this player
@@ -40,14 +42,16 @@ function game.send_piece(id)
    local p = tetris.player.get_piece(id)
    local fieldspec = game.to_fieldspec(p)
    -- TODO do not send the PIECE command if the piece hasn't changed
-   tetris.server.send_to_all("PIECE " .. id .. " " .. fieldspec)
+   tetris.server.send_to_all(
+      string.format("PIECE %d %s", id, fieldspec))
 
    local pos = tetris.player.get_piece_position(id)
-   tetris.server.send_to_all("PIECEPOS " .. id .. " " .. 
-                             pos[1] .. "," .. pos[2])
+   tetris.server.send_to_all(
+      string.format("PIECEPOS %d %d,%d", id, pos[1], pos[2]))
    p = tetris.player.get_next_piece(id)
    fieldspec = game.to_fieldspec(p)
-   tetris.server.send_to_all("NEXTPIECE " .. id .. " " .. fieldspec)
+   tetris.server.send_to_all(
+      string.format("NEXTPIECE %d %s", id, fieldspec))
 end
 
 function game.start(id, command, args)
@@ -55,7 +59,8 @@ function game.start(id, command, args)
       -- each player is now playing and gets a clean field and a new piece
       for i, player_id in pairs(tetris.player.all()) do
          tetris.player.set_playing(player_id, true)
-         tetris.server.send_to_all("STATE " .. player_id .. " PLAYING")
+         tetris.server.send_to_all(
+            string.format("STATE %d PLAYING", player_id))
          field.clean(player_id)
          game.send_field(player_id)
          field.new_piece(player_id)
@@ -83,7 +88,8 @@ function game.stop()
       if tetris.player.is_playing(player_id) then
          stats.player_finished(player_id)
          tetris.player.set_playing(player_id, false)
-         tetris.server.send_to_all("STATE " .. player_id .. " NOTPLAYING")
+         tetris.server.send_to_all(
+            string.format("STATE %d NOTPLAYING", player_id))
       end
    end
    stats.send()
@@ -196,8 +202,10 @@ function game.lost(id)
    if tetris.player.is_playing(id) then
       stats.player_finished(id)
       tetris.player.set_playing(id, false)
-      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-      tetris.server.send_to_all("LOST " .. id)
+      tetris.server.send_to_all(
+         string.format("STATE %d NOTPLAYING", id))
+      tetris.server.send_to_all(
+         string.format("LOST %d", id))
       field.check_who_wins()
    end
 end
@@ -207,8 +215,10 @@ function game.win(id)
    if tetris.player.is_playing(id) then
       stats.player_finished(id)
       tetris.player.set_playing(id, false)
-      tetris.server.send_to_all("STATE " .. id .. " NOTPLAYING")
-      tetris.server.send_to_all("WON " .. id)
+      tetris.server.send_to_all(
+         string.format("STATE %d NOTPLAYING", id))
+      tetris.server.send_to_all(
+         string.format("WON %d", id))
       winlist.add(id)
    end
 end
