@@ -96,8 +96,13 @@ function game.stop()
 end
 
 function game.move(id, command, args)
+   game.move_player_piece(id, args, false)
+end
+
+-- Move a player piece down. If drop is set to true, will drop the
+-- piece if it can't be moved (down) anymore
+function game.move_player_piece(id, direction, drop)
    if tetris.player.is_playing(id) then
-      local direction = args
       if not (direction == "LEFT" or direction == "RIGHT" 
               or direction == "DOWN") then
          -- Unknown direction, we don't do anything
@@ -111,7 +116,7 @@ function game.move(id, command, args)
          if direction == "DOWN" then
             game.reset_timer(id)
          end
-      elseif direction == "DOWN" then
+      elseif direction == "DOWN" and drop then
          -- If the players move it down and he can't, the piece is
          -- dropped, and field.drop gives the player a new piece
          field.drop(id)
@@ -190,7 +195,7 @@ function game.update(delta)
       for i, id in pairs(tetris.player.all()) do
          game.update_timer(id, delta)
          if tetris.player.is_playing(id) and game.timed_out(id) then
-            game.move(id, "MOVE", "DOWN")
+            game.move_player_piece(id, "DOWN", true)
             game.reset_timer(id)
          end
       end
