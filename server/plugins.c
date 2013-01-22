@@ -51,7 +51,7 @@ int l_send(lua_State *l)
   if (client != NULL) {
     network_send(client, str);
   } else {
-    g_warning("tetris.server.send: Client %d does not exists", id);
+    g_warning("tetris.server.send: Player %d does not exists", id);
   }
 
   g_free(str);
@@ -82,7 +82,7 @@ int l_disconnect(lua_State *l)
   if (client != NULL) {
     enet_peer_disconnect(client, 0);
   } else {
-    g_warning("tetris.server.disconnect: Client %d does not exists", id);
+    g_warning("tetris.server.disconnect: Player %d does not exists", id);
   }
 
   return 0;

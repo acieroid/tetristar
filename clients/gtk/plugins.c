@@ -84,7 +84,12 @@ int l_context_remove_player(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  context_remove_player(CONTEXT(main_window->context), player);
+  if (player != NULL) {
+    context_remove_player(CONTEXT(main_window->context), player);
+  } else {
+    g_warning("tetris.client.context_remove_player: Player %d does not exists", id);
+  }
+
   return 0;
 }
 
@@ -97,7 +102,12 @@ int l_context_field_changed(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  context_field_changed(CONTEXT(main_window->context), player);
+  if (player != NULL) {
+    context_field_changed(CONTEXT(main_window->context), player);
+  } else {
+    g_warning("tetris.client.context_field_changed: Player %d does not exists", id);
+  }
+
   return 0;
 }
 
@@ -110,7 +120,12 @@ int l_context_next_piece_changed(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  context_next_piece_changed(CONTEXT(main_window->context), player);
+  if (player != NULL) {
+    context_next_piece_changed(CONTEXT(main_window->context), player);
+  } else {
+    g_warning("tetris.client.next_piece_changed: Player %d does not exists", id);
+  }
+
   return 0;
 }
 
@@ -127,7 +142,12 @@ int l_context_set_shadow(lua_State *l)
   luaL_checktype(l, 2, LUA_TTABLE);
   shadow = tetris_lua_get_fieldspec(l, 2);
 
-  context_set_shadow(CONTEXT(main_window->context), player, shadow);
+  if (player != NULL) {
+    context_set_shadow(CONTEXT(main_window->context), player, shadow);
+  } else {
+    g_warning("tetris.client.context_set_shadow: Player %d does not exists, id");
+  }
+
   return 0;
 }
 
@@ -144,6 +164,11 @@ int l_display_error(lua_State *l)
 
 int l_disconnect(lua_State *l)
 {
-  network_send(main_window->network, "BYE");
+  if (network_is_connected(main_window->network)) {
+    network_send(main_window->network, "BYE");
+  } else {
+    g_warning("tetris.client.disconnect: Already disconnected");
+  }
+
   return 0;
 }
