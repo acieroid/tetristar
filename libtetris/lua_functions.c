@@ -151,7 +151,7 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
 #else
     if (lua_objlen(l, -1) != 3) {
 #endif
-      g_warning("Invalid cell");
+      g_warning("tetris_lua_get_fieldspec: Invalid cell");
       return res;
     }
     lua_rawgeti(l, -1, 1);
@@ -162,7 +162,7 @@ GSList *tetris_lua_get_fieldspec(lua_State *l, int index)
     lua_pop(l, 1);
     lua_rawgeti(l, -1, 3);
     if (lua_tonumber(l, -1) < 0) {
-      g_warning("Invalid negative cell type");
+      g_warning("tetris_lua_get_fieldspec: Invalid negative cell type");
       return res;
     }
     cell = lua_tonumber(l, -1);
@@ -218,7 +218,13 @@ int l_players_get_nick(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  lua_pushstring(l, tetris_player_get_nick(player));
+  if (player != NULL) {
+    lua_pushstring(l, tetris_player_get_nick(player));
+  } else {
+    g_warning("tetris.players.get_nick: Player %d does not exists", id);
+    lua_pushstring(l, "");
+  }
+
   CHECK_STACK_END(l, 1);
   return 1;
 }
@@ -236,7 +242,12 @@ int l_players_set_nick(lua_State *l)
   nick = g_strdup(lua_tostring(l, 2));
 
   player = tetris_player_find(id);
-  tetris_player_set_nick(player, nick);
+  if (player != NULL) {
+    tetris_player_set_nick(player, nick);
+  } else {
+    g_warning("tetris.players.set_nick: Player %d does not exists", id);
+  }
+
   g_free(nick);
   CHECK_STACK_END(l, 0);
   return 0;
@@ -252,7 +263,13 @@ int l_players_is_admin(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  lua_pushboolean(l, tetris_player_is_admin(player));
+  if (player != NULL) {
+    lua_pushboolean(l, tetris_player_is_admin(player));
+  } else {
+    g_warning("tetris.players.is_admin: Player %d does not exists", id);
+    lua_pushboolean(l, 0);
+  }
+
   CHECK_STACK_END(l, 1);
   return 1;
 }
@@ -268,7 +285,12 @@ int l_players_set_admin(lua_State *l)
   player = tetris_player_find(id);
 
   luaL_checktype(l, 2, LUA_TBOOLEAN);
-  tetris_player_set_admin(player, lua_toboolean(l, 2));
+
+  if (player != NULL) {
+    tetris_player_set_admin(player, lua_toboolean(l, 2));
+  } else {
+    g_warning("tetris.players.set_admin: Player %d does not exists", id);
+  }
 
   CHECK_STACK_END(l, 0);
   return 0;
@@ -284,7 +306,12 @@ int l_players_is_playing(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  lua_pushboolean(l, tetris_player_is_playing(player));
+  if (player != NULL) {
+    lua_pushboolean(l, tetris_player_is_playing(player));
+  } else {
+    g_warning("tetris.players.is_playing: Player %d does not exists", id);
+    lua_pushboolean(l, 0);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1;
@@ -301,7 +328,11 @@ int l_players_set_playing(lua_State *l)
   player = tetris_player_find(id);
 
   luaL_checktype(l, 2, LUA_TBOOLEAN);
-  tetris_player_set_playing(player, lua_toboolean(l, 2));
+  if (player != NULL) {
+    tetris_player_set_playing(player, lua_toboolean(l, 2));
+  } else {
+    g_warning("tetris.players.set_playing: Player %d does not exists", id);
+  }
 
   CHECK_STACK_END(l, 0);
   return 0;
@@ -318,7 +349,13 @@ int l_players_get_piece(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  piece = tetris_player_get_piece(player);
+
+  if (player != NULL) {
+    piece = tetris_player_get_piece(player);
+  } else {
+    g_warning("tetris.players.get_piece: Player %d does not exists", id);
+    piece = NULL;
+  }
 
   /* return the piece in a table */
   tetris_lua_push_fieldspec(l, piece);
@@ -340,7 +377,13 @@ int l_players_set_piece(lua_State *l)
   piece = tetris_lua_get_fieldspec(l, 2);
 
   player = tetris_player_find(id);
-  tetris_player_set_piece(player, piece);
+
+  if (player != NULL) {
+    tetris_player_set_piece(player, piece);
+  } else {
+    g_warning("tetris.players.set_piece: Player %d does not exists", id);
+  }
+
   CHECK_STACK_END(l, 0);
   return 0;
 }
@@ -355,14 +398,25 @@ int l_players_get_piece_position(lua_State *l)
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
-  position = tetris_player_get_piece_position(player);
 
-  /* return the position as { x, y } */
-  lua_newtable(l);
-  lua_pushnumber(l, position[0]);
-  lua_rawseti(l, -2, 1);
-  lua_pushnumber(l, position[1]);
-  lua_rawseti(l, -2, 2);
+  if (player != NULL) {
+    position = tetris_player_get_piece_position(player);
+
+    /* return the position as { x, y } */
+    lua_newtable(l);
+    lua_pushnumber(l, position[0]);
+    lua_rawseti(l, -2, 1);
+    lua_pushnumber(l, position[1]);
+    lua_rawseti(l, -2, 2);
+  } else {
+    g_warning("tetris.players.get_piece_position: Player %d does not exists", id);
+    /* returns {0, 0} */
+    lua_newtable(l);
+    lua_pushnumber(l, 0);
+    lua_rawseti(l, -2, 1);
+    lua_pushnumber(l, 0);
+    lua_rawseti(l, -2, 2);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1;
@@ -388,8 +442,12 @@ int l_players_set_piece_position(lua_State *l)
   position[1] = lua_tonumber(l, -1);
   lua_pop(l, 1);
 
-  /* and set the player's piece position */
-  tetris_player_set_piece_position(player, position);
+  if (player != NULL) {
+    /* and set the player's piece position */
+    tetris_player_set_piece_position(player, position);
+  } else {
+    g_warning("tetris.players.set_piece_position: Player %d does not exists", id);
+  }
 
   CHECK_STACK_END(l, 0);
   return 0;
@@ -406,7 +464,13 @@ int l_players_get_next_piece(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  piece = tetris_player_get_next_piece(player);
+
+  if (player != NULL) {
+    piece = tetris_player_get_next_piece(player);
+  } else {
+    g_warning("tetris.players.get_next_piece: Player %d does not exists", id);
+    piece = NULL;
+  }
 
   tetris_lua_push_fieldspec(l, piece);
   CHECK_STACK_END(l, 1);
@@ -427,7 +491,13 @@ int l_players_set_next_piece(lua_State *l)
   piece = tetris_lua_get_fieldspec(l, 2);
 
   player = tetris_player_find(id);
-  tetris_player_set_next_piece(player, piece);
+
+  if (player != NULL) {
+    tetris_player_set_next_piece(player, piece);
+  } else {
+    g_warning("tetris.players.set_next_piece: Player %d does not exists", id);
+  }
+
   CHECK_STACK_END(l, 0);
   return 0;
 }
@@ -447,8 +517,12 @@ int l_players_add_points(lua_State *l)
   luaL_checktype(l, 2, LUA_TNUMBER);
   points = lua_tonumber(l, 2);
 
-  /* add the points */
-  tetris_player_add_points(player, points);
+  if (player != NULL) {
+    /* add the points */
+    tetris_player_add_points(player, points);
+  } else {
+    g_warning("tetris.players.add_points: Player %d does not exists", id);
+  }
 
   CHECK_STACK_END(l, 0);
   return 0;
@@ -465,8 +539,12 @@ int l_players_reset_points(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  /* reset the points */
-  tetris_player_reset_points(player);
+  if (player != NULL) {
+    /* reset the points */
+    tetris_player_reset_points(player);
+  } else {
+    g_warning("tetris.players.reset_points: Player %d does not exists", id);
+  }
 
   CHECK_STACK_END(l, 0);
   return 0;
@@ -483,8 +561,13 @@ int l_players_get_points(lua_State *l)
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
-  /* return the points of the player */
-  lua_pushnumber(l, tetris_player_get_points(player));
+  if (player != NULL) {
+    /* return the points of the player */
+    lua_pushnumber(l, tetris_player_get_points(player));
+  } else {
+    g_warning("tetris.players.get_points: Player %d does not exists", id);
+    lua_pushnumber(l, 0);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1;
@@ -500,7 +583,13 @@ int l_players_remove(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  tetris_player_remove(player);
+
+  if (player != NULL) {
+    tetris_player_remove(player);
+  } else {
+    g_warning("tetris.players.remove: Player %d does not exists", id);
+  }
+
   CHECK_STACK_END(l, 0);
   return 0;
 }
@@ -515,6 +604,7 @@ int l_players_nick_valid(lua_State *l)
 
   lua_pushboolean(l, tetris_nick_is_valid(nick));
   g_free(nick);
+
   CHECK_STACK_END(l, 1);
   return 1; /* return a boolean */
 }
@@ -529,6 +619,7 @@ int l_players_nick_available(lua_State *l)
 
   lua_pushboolean(l, tetris_nick_is_available(nick));
   g_free(nick);
+
   CHECK_STACK_END(l, 1);
   return 1; /* return a boolean */
 }
@@ -542,6 +633,7 @@ int l_players_exists(lua_State *l)
   id = lua_tonumber(l, 1);
 
   lua_pushboolean(l, tetris_player_find(id) != NULL);
+
   CHECK_STACK_END(l, 1);
   return 1; /* return a boolean */
 }
@@ -553,6 +645,7 @@ int l_players_number(lua_State *l)
 
   n = g_slist_length(tetris_player_all(l));
   lua_pushnumber(l, n);
+
   CHECK_STACK_END(l, 1);
   return 1; /* return a number */
 }
@@ -575,14 +668,19 @@ int l_matrix_set_cell(lua_State *l)
 
   luaL_checktype(l, 4, LUA_TNUMBER);
   if (lua_tonumber(l, 4) < 0) {
-    g_warning("Invalid negative cell type");
+    g_warning("tetris.matrix.set_cell: Invalid negative cell type");
     return 0;
   }
   cell = (TetrisCell) lua_tonumber(l, 4);
 
   player = tetris_player_find(id);
-  tetris_matrix_set_cell(tetris_player_get_matrix(player),
-                         x, y, cell);
+  if (player != NULL) {
+    tetris_matrix_set_cell(tetris_player_get_matrix(player),
+                           x, y, cell);
+  } else {
+    g_warning("tetris.matrix.set_cell: Player %d does not exists", id);
+  }
+
   CHECK_STACK_END(l, 0);
   return 0;
 }
@@ -604,8 +702,13 @@ int l_matrix_get_cell(lua_State *l)
   y = lua_tonumber(l, 3);
 
   player = tetris_player_find(id);
-  cell = tetris_matrix_get_cell(tetris_player_get_matrix(player),
-                                x, y);
+  if (player != NULL) {
+    cell = tetris_matrix_get_cell(tetris_player_get_matrix(player),
+                                  x, y);
+  } else {
+    g_warning("tetris.matrix.get_cell: Player %d does not exists", id);
+    cell = (TetrisCell) 0;
+  }
   lua_pushnumber(l, (int) cell);
 
   CHECK_STACK_END(l, 1);
@@ -629,8 +732,13 @@ int l_matrix_get_uncommited_cell(lua_State *l)
   y = lua_tonumber(l, 3);
 
   player = tetris_player_find(id);
-  cell = tetris_matrix_get_uncommited_cell(tetris_player_get_matrix(player),
-                                           x, y);
+  if (player != NULL) {
+    cell = tetris_matrix_get_uncommited_cell(tetris_player_get_matrix(player),
+                                             x, y);
+  } else {
+    g_warning("tetris.matrix.get_uncommited_cell: Player %d does not exists", id);
+    cell = (TetrisCell) 0;
+  }
   lua_pushnumber(l, (int) cell);
 
   CHECK_STACK_END(l, 1);
@@ -648,8 +756,13 @@ int l_matrix_get_width(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  matrix = tetris_player_get_matrix(player);
-  lua_pushnumber(l, tetris_matrix_get_width(matrix));
+  if (player != NULL) {
+    matrix = tetris_player_get_matrix(player);
+    lua_pushnumber(l, tetris_matrix_get_width(matrix));
+  } else {
+    g_warning("tetris.matrix.get_width: Player %d does not exists", id);
+    lua_pushnumber(l, 0);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1;
@@ -666,8 +779,13 @@ int l_matrix_get_height(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  matrix = tetris_player_get_matrix(player);
-  lua_pushnumber(l, tetris_matrix_get_height(matrix));
+  if (player != NULL) {
+    matrix = tetris_player_get_matrix(player);
+    lua_pushnumber(l, tetris_matrix_get_height(matrix));
+  } else {
+    g_warning("tetris.matrix.get_height: Player %d does not exists", id);
+    lua_pushnumber(l, 0);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1;
@@ -684,14 +802,20 @@ int l_matrix_get_cells(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  cells = tetris_matrix_get_cells(tetris_player_get_matrix(player));
+  if (player != NULL) {
+    cells = tetris_matrix_get_cells(tetris_player_get_matrix(player));
 
-  /* return a table containing all the filled cells */
-  tetris_lua_push_fieldspec(l, cells);
+    /* return a table containing all the filled cells */
+    tetris_lua_push_fieldspec(l, cells);
 
-  /* free the list of cells */
-  g_slist_free_full(cells,
-                    (GDestroyNotify) tetris_cell_info_free);
+    /* free the list of cells */
+    g_slist_free_full(cells,
+                      (GDestroyNotify) tetris_cell_info_free);
+  } else {
+    g_warning("tetris.matrix.get_cells: Player %d does not exists", id);
+    cells = NULL;
+    tetris_lua_push_fieldspec(l, cells);
+  }
 
   CHECK_STACK_END(l, 1);
   return 1; /* return a table */
@@ -708,14 +832,20 @@ int l_matrix_diff(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  diff = tetris_matrix_diff(tetris_player_get_matrix(player));
+  if (player != NULL) {
+    diff = tetris_matrix_diff(tetris_player_get_matrix(player));
 
-  /* return a new table which contains the infos */
-  tetris_lua_push_fieldspec(l, diff);
+    /* return a new table which contains the infos */
+    tetris_lua_push_fieldspec(l, diff);
 
-  /* free the changes list */
-  g_slist_free_full(diff,
-                    (GDestroyNotify) tetris_cell_info_free);
+    /* free the changes list */
+    g_slist_free_full(diff,
+                      (GDestroyNotify) tetris_cell_info_free);
+  } else {
+    g_warning("tetris.matrix.diff: Player %d does not exists", id);
+    diff = NULL;
+    tetris_lua_push_fieldspec(l, diff);
+  }
   
   CHECK_STACK_END(l, 1);
   return 1; /* return a table */
@@ -731,7 +861,12 @@ int l_matrix_commit(lua_State *l)
   id = lua_tonumber(l, 1);
 
   player = tetris_player_find(id);
-  tetris_matrix_commit(tetris_player_get_matrix(player));
+  if (player != NULL) {
+    tetris_matrix_commit(tetris_player_get_matrix(player));
+  } else {
+    g_warning("tetris.matrix.commit: Player %d does not exists", id);
+  }
+
   CHECK_STACK_END(l, 0);
   return 0;
 }
