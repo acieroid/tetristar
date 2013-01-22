@@ -39,13 +39,21 @@ int l_send(lua_State *l)
 {
   int id;
   gchar *str = NULL;
+  Client *client = NULL;
+
   luaL_checktype(l, 1, LUA_TNUMBER);
   luaL_checktype(l, 2, LUA_TSTRING);
 
   id = lua_tonumber(l, 1);
   str = g_strdup(lua_tostring(l, 2));
+  client = network_find_client(id);
 
-  network_send(network_find_client(id), str);
+  if (client != NULL) {
+    network_send(client, str);
+  } else {
+    g_warning("tetris.server.send: Client %d does not exists", id);
+  }
+
   g_free(str);
   return 0;
 }
@@ -53,9 +61,11 @@ int l_send(lua_State *l)
 int l_send_to_all(lua_State *l)
 {
   gchar *str = NULL;
+
   luaL_checktype(l, 1, LUA_TSTRING);
   str = g_strdup(lua_tostring(l, 1));
   network_send_to_all(str);
+
   g_free(str);
   return 0;
 }
@@ -63,10 +73,18 @@ int l_send_to_all(lua_State *l)
 int l_disconnect(lua_State *l)
 {
   int id;
+  Client *client = NULL;
+
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
+  client = network_find_client(id);
 
-  enet_peer_disconnect(network_find_client(id), 0);
+  if (client != NULL) {
+    enet_peer_disconnect(client, 0);
+  } else {
+    g_warning("tetris.server.disconnect: Client %d does not exists", id);
+  }
+
   return 0;
 }
 
