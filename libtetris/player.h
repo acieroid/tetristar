@@ -21,6 +21,7 @@ typedef struct TetrisPlayer {
   TetrisMatrix *matrix;
   GSList *piece, *next_piece;
   int piece_position[2];
+  GSList *bonuses;
   int points;
 } TetrisPlayer;
 
@@ -104,6 +105,21 @@ gboolean tetris_player_is_playing(TetrisPlayer *player);
  * Set the player's playing status
  */
 void tetris_player_set_playing(TetrisPlayer *player, gboolean status);
+
+/**
+ * Add a bonus to a player
+ */
+void tetris_player_add_bonus(TetrisPlayer *player, TetrisCell bonus);
+
+/**
+ * Remove a bonus from a player
+ */
+void tetris_player_remove_bonus(TetrisPlayer *player, TetrisCell bonus);
+
+/**
+ * Get the list of bonuses of a player
+ */
+GSList *tetris_player_get_bonuses(TetrisPlayer *player);
 
 /**
  * Add points to the player

@@ -11,9 +11,10 @@ TetrisPlayer *tetris_player_new(int id)
   /* TODO: take dimensions as parameters somewhere */
   player->matrix = tetris_matrix_new(10, 22);
   player->piece = NULL;
+  player->next_piece = NULL;
   player->piece_position[0] = 5;
   player->piece_position[1] = 0;
-  player->next_piece = NULL;
+  player->bonuses = NULL;
   player->points = 0;
   return player;
 }
@@ -108,6 +109,21 @@ gboolean tetris_player_is_playing(TetrisPlayer *player)
 void tetris_player_set_playing(TetrisPlayer *player, gboolean status)
 {
   player->playing = status;
+}
+
+void tetris_player_add_bonus(TetrisPlayer *player, TetrisCell bonus)
+{
+  player->bonuses = g_slist_prepend(player->bonuses, (gpointer) bonus);
+}
+
+void tetris_player_remove_bonus(TetrisPlayer *player, TetrisCell bonus)
+{
+  player->bonuses = g_slist_remove(player->bonuses, (gpointer) bonus);
+}
+
+GSList *tetris_player_get_bonuses(TetrisPlayer *player)
+{
+  return player->bonuses;
 }
 
 void tetris_player_add_points(TetrisPlayer *player, int points)
