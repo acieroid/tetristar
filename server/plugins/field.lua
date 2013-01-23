@@ -46,43 +46,51 @@ function field.print(id)
    local cell
    for line = 0, tetris.matrix.get_height(id)-1 do
       for column = 0, tetris.matrix.get_width(id)-1 do
-         cell = tetris.matrix.get_cell(id, column, line)
-         if cell == 0 then
-            io.write(" ")
-         else
-            io.write(cell)
-         end
-      end
-      io.write("\n")
-   end
-end
+          cell = tetris.matrix.get_cell(id, column, line)
+          if cell == 0 then
+             io.write(" ")
+          else
+             io.write(cell)
+          end
+       end
+       io.write("\n")
+    end
+ end
 
--- Look if there are full lines and if so, clear them
-function field.clear_lines(id)
-   local nlines = 0
-   local line_complete = false
-   for line = 0, tetris.matrix.get_height(id)-1 do
-      -- Find a complete line
-      line_complete = true
-      for column = 0, tetris.matrix.get_width(id)-1 do
-         if tetris.matrix.get_uncommited_cell(id, column, line) == 0 then
-            line_complete = false
-            break
-         end
-      end
+ -- Look if there are full lines and if so, clear them
+ function field.clear_lines(id)
+    local nlines = 0
+    local line_complete = false
+    for line = 0, tetris.matrix.get_height(id)-1 do
+       -- Find a complete line
+       line_complete = true
+       for column = 0, tetris.matrix.get_width(id)-1 do
+          if tetris.matrix.get_uncommited_cell(id, column, line) == 0 then
+             line_complete = false
+             break
+          end
+       end
 
-      if line_complete then
-         nlines = nlines+1
-         -- Move every upper line down
-         for upper_line = line-1, 0, -1 do
-            for column = 0, tetris.matrix.get_width(id)-1 do
-               local cell = tetris.matrix.get_uncommited_cell(id, column, upper_line)
-               tetris.matrix.set_cell(id, column, upper_line+1, cell)
-            end
-         end
-      end
-   end
-   field.lines_cleared(id, nlines)
+       if line_complete then
+          nlines = nlines+1
+          -- Receive the bonuses contained in the cleared line
+          for column = 0, tetris.matrix.get_width(id)-1 do
+             local cell = tetris.matrix.get_uncommited_cell(id, column, line)
+             if tetris.bonus.is_bonus(cell) then
+                tetris.bonus.receive_bonus(id, cell)
+             end
+          end
+
+          -- Move every upper line down
+          for upper_line = line-1, 0, -1 do
+             for column = 0, tetris.matrix.get_width(id)-1 do
+                local cell = tetris.matrix.get_uncommited_cell(id, column, upper_line)
+                tetris.matrix.set_cell(id, column, upper_line+1, cell)
+             end
+          end
+       end
+    end
+    field.lines_cleared(id, nlines)
 end
 
 -- Called when a player cleared n lines
@@ -118,6 +126,8 @@ function field.lines_cleared(id, n)
                        tetris.player.get_nick(id), n-1))
    end
 
+   -- Bonuses
+   bonus.lines_cleared(id, n)
    -- Statistics
    stats.lines_cleared(id, n)
 end
