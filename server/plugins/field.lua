@@ -76,8 +76,8 @@ function field.print(id)
           -- Receive the bonuses contained in the cleared line
           for column = 0, tetris.matrix.get_width(id)-1 do
              local cell = tetris.matrix.get_uncommited_cell(id, column, line)
-             if tetris.bonus.is_bonus(cell) then
-                tetris.bonus.receive_bonus(id, cell)
+             if bonus.is_bonus(cell) then
+                bonus.receive_bonus(id, cell)
              end
           end
 

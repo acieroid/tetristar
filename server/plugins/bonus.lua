@@ -28,11 +28,12 @@ function bonus.possible_positions(id)
          cell = tetris.matrix.get_cell(id, column, line)
          -- The only possible positions are where a cell is set and is
          -- not a bonus
-         if cell != 0 and cell < bonus.first_bonus then
+         if cell ~= 0 and cell < bonus.first_bonus then
             table.insert(positions, {column, line})
          end
       end
    end
+   return positions
 end
 
 -- Add random bonuses to a player's matrix
@@ -43,7 +44,7 @@ function bonus.add_bonuses(id)
       -- add the bonus to a random position
       positions = bonus.possible_positions(id)
       pos = positions[math.random(#positions)]
-      tetris.matrix.set_cell(id, pos[0], pos[1], b)
+      tetris.matrix.set_cell(id, pos[1], pos[2], b)
    end
 end
 
@@ -54,7 +55,7 @@ end
 
 -- Called when a player receives a bonus
 function bonus.receive_bonus(id, bonus)
-   tetris.players.add_bonus(id, bonus)
+   tetris.player.add_bonus(id, bonus)
 end
 
 -- A bonus that does nothing
