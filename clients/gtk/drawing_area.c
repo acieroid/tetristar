@@ -23,7 +23,7 @@ static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
 static void drawing_area_cairo_draw_shadow(DrawingArea *drawing_area,
                                            cairo_t *cairo, int x, int y);
 
-#define N_CELLS 8
+#define N_CELLS 17
 static const int DEFAULT_CELL = 1;
 static const int IMAGE_SIZE = 20;
 static const gchar *DATA_DIR = "../../data/";
@@ -36,7 +36,10 @@ static const gchar *DATA_DIR = "../../data/";
 
 static const gchar *IMAGES_NAMES[N_CELLS] = {
   "black" EXT, "magenta" EXT, "orange" EXT, "blue" EXT, "cyan" EXT,
-  "green" EXT, "red" EXT, "yellow" EXT
+  "green" EXT, "red" EXT, "yellow" EXT,
+  "bonus-a" EXT, "bonus-c" EXT, "bonus-n" EXT, "bonus-r" EXT,
+  "bonus-s" EXT, "bonus-b" EXT, "bonus-g" EXT, "bonus-q" EXT,
+  "bonus-o" EXT
 };
 static const gchar *SHADOW_NAME = "shadow" EXT;
 #ifdef USE_PNG
