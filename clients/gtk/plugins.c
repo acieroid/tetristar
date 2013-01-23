@@ -145,7 +145,7 @@ int l_context_set_shadow(lua_State *l)
   if (player != NULL) {
     context_set_shadow(CONTEXT(main_window->context), player, shadow);
   } else {
-    g_warning("tetris.client.context_set_shadow: Player %d does not exists, id");
+    g_warning("tetris.client.context_set_shadow: Player %d does not exists, id", id);
   }
 
   return 0;
