@@ -119,7 +119,7 @@ void tetris_player_remove_bonus(TetrisPlayer *player, TetrisCell bonus);
 /**
  * Check if a player has a certain bonus
  */
-gboolean tetris_player_has_bonus(TetrisPlayer *player, TetrisCell bonus)
+gboolean tetris_player_has_bonus(TetrisPlayer *player, TetrisCell bonus);
 
 /**
  * Get the list of bonuses of a player. The elements of the list
