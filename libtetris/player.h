@@ -117,7 +117,13 @@ void tetris_player_add_bonus(TetrisPlayer *player, TetrisCell bonus);
 void tetris_player_remove_bonus(TetrisPlayer *player, TetrisCell bonus);
 
 /**
- * Get the list of bonuses of a player
+ * Check if a player has a certain bonus
+ */
+gboolean tetris_player_has_bonus(TetrisPlayer *player, TetrisCell bonus)
+
+/**
+ * Get the list of bonuses of a player. The elements of the list
+ * should be converted back to uints with GPOINTER_TO_UINT
  */
 GSList *tetris_player_get_bonuses(TetrisPlayer *player);
 

@@ -113,12 +113,17 @@ void tetris_player_set_playing(TetrisPlayer *player, gboolean status)
 
 void tetris_player_add_bonus(TetrisPlayer *player, TetrisCell bonus)
 {
-  player->bonuses = g_slist_prepend(player->bonuses, (gpointer) bonus);
+  player->bonuses = g_slist_prepend(player->bonuses, GUINT_TO_POINTER(bonus));
 }
 
 void tetris_player_remove_bonus(TetrisPlayer *player, TetrisCell bonus)
 {
-  player->bonuses = g_slist_remove(player->bonuses, (gpointer) bonus);
+  player->bonuses = g_slist_remove(player->bonuses, GUINT_TO_POINTER(bonus));
+}
+
+gboolean tetris_player_has_bonus(TetrisPlayer *player, TetrisCell bonus)
+{
+  return g_slist_find(player->bonuses, GUINT_TO_POINTER(bonus)) != NULL;
 }
 
 GSList *tetris_player_get_bonuses(TetrisPlayer *player)
