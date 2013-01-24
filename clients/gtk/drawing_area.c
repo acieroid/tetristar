@@ -150,6 +150,7 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->bonuses_label = gtk_label_new("Bonuses:");
   drawing_area->changed = TRUE;
   drawing_area->changed_next_piece = TRUE;
+  drawing_area->changed_bonuses = TRUE;
   drawing_area->cell_size = 0;
   drawing_area->shadow = NULL;
 
@@ -493,6 +494,7 @@ gboolean drawing_area_expose_bonuses(GtkWidget *widget,
 }
 
 #define BONUS_WIDTH 5
+#define BONUS_LINES 2
 gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
 {
   TetrisPlayer *player;
@@ -521,17 +523,17 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   cairo_transform(cairo, &zoom);
 
   /* TODO: limit the number of bonuses displayed? */
-  x = 0;
-  y = 0;
-  for (elem = tetris_player_get_bonuses(player); elem != NULL;
-       elem = elem->next) {
-    bonus = GPOINTER_TO_UINT(elem->data);
-    drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, bonus);
+  elem = tetris_player_get_bonuses(player);
+  for (y = 0; y < BONUS_LINES; y++) {
+    for (x = 0; x < BONUS_WIDTH; x++) {
+      if (elem != NULL) {
+        bonus = GPOINTER_TO_UINT(elem->data);
+        elem = elem->next;
+      } else {
+        bonus = (TetrisCell) 0;
+      }
 
-    x += 1;
-    if (x >= BONUS_WIDTH) {
-      x = 0;
-      y += 1;
+      drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, bonus);
     }
   }
 
