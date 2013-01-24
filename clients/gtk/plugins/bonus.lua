@@ -23,11 +23,18 @@ function bonus.use(id, command, args)
    local b, rest = utils.split(args, " ", tonumber, utils.identity)
    local source, target = utils.split(rest, " ", tonumber, tonumber)
 
-   tetris.client.chat_add_text(
-      string.format(" * %s used '%s' on %s",
-                    tetris.player.get_nick(source),
-                    bonus.names[b],
-                    tetris.player.get_nick(target)))
+   if target == 0 then
+      tetris.client.chat_add_text(
+         string.format(" * %s dropped '%s'",
+                       tetris.player.get_nick(source),
+                       bonus.names[b])
+   else
+      tetris.client.chat_add_text(
+         string.format(" * %s used '%s' on %s",
+                       tetris.player.get_nick(source),
+                       bonus.names[b],
+                       tetris.player.get_nick(target)))
+   end
    tetris.player.remove_bonus(source, b)
 end
 
