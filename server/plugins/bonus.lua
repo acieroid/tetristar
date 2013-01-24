@@ -56,6 +56,8 @@ end
 -- Called when a player receives a bonus
 function bonus.receive_bonus(id, bonus)
    tetris.player.add_bonus(id, bonus)
+   tetris.server.send(id,
+                      string.format("BONUSRCV %d %d", id, bonus))
 end
 
 -- A bonus that does nothing
@@ -77,9 +79,11 @@ bonus.actions = {
 -- Called when a player uses a bonus   
 function bonus.use_bonus(id, command, args)
    local bonus, target = utils.split(args, " ", tonumber, tonumber)
-   if bonus.is_bonus(bonus) then
+   if bonus.is_bonus(bonus) and tetris.player.has_bonus(id, bonus) then
       tetris.players.remove_bonus(id, bonus)
       bonus.actions[bonus - bonus.first_bonus](id, target)
+      tetris.server.send_to_all(
+         string.format("BONUS %d %d %d", bonus, id, target))
    end
 end
 

@@ -20,6 +20,7 @@
 |            |                   | LOST ID                  |                                                                                                             |
 |            |                   | STATE ID PLAYING         |                                                                                                             |
 |            |                   | STATE ID NOTPLAYING      | When a client connects to the server when a game is on, he has that state                                   |
+|            |                   | BONUSRCV ID TYPE         | When a client receives a bonus                                                                              |
 |            | BONUS TYPE TARGET | BONUS TYPE SOURCE TARGET | Usage of a bonus, TYPE is the type of the bonus (an integer) and TARGET is the target player for this bonus |
 * Description of the field (FIELDSPEC)
 The FIELDSPEC part of the FIELD command describe /changes/ to the
