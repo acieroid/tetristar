@@ -527,10 +527,11 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
        elem = elem->next) {
     bonus = GPOINTER_TO_UINT(elem->data);
     drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, bonus);
-    x += IMAGE_SIZE;
-    if (x >= BONUS_WIDTH*IMAGE_SIZE) {
+
+    x += 1;
+    if (x >= BONUS_WIDTH) {
       x = 0;
-      y += IMAGE_SIZE;
+      y += 1;
     }
   }
 
