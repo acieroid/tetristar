@@ -1,7 +1,7 @@
 #include "util.h"
 
 static int *ids = NULL;
-static int max_id = 0;
+static int max_id = 1;
 
 void tetris_id_init(int n)
 {
