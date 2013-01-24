@@ -8,7 +8,7 @@ for i = 0, 9 do
 end
 
 -- Maximum number of bonuses a player can receive when he clears a line
-bonus.max_bonuses = 3
+bonus.max_bonuses = 2
 
 -- Check if a cell is a bonus
 function bonus.is_bonus(cell)
@@ -37,8 +37,9 @@ function bonus.possible_positions(id)
 end
 
 -- Add random bonuses to a player's matrix
-function bonus.add_bonuses(id)
-   n = math.random(bonus.max_bonuses) -- number of bonuses to add
+function bonus.add_bonuses(id, n)
+   -- This line can be uncommented to have a different behaviour from tetrinet
+   -- n = math.random(bonus.max_bonuses) -- number of bonuses to add
    for i = 0, n do
       b = bonus.random_bonus()
       -- add the bonus to a random position
@@ -50,7 +51,7 @@ end
 
 -- Called when some lines are cleared by a player
 function bonus.lines_cleared(id, n)
-   bonus.add_bonuses(id)
+   bonus.add_bonuses(id, n)
 end
 
 -- Called when a player receives a bonus
