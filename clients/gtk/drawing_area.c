@@ -17,6 +17,13 @@ static gboolean drawing_area_expose_next_piece(GtkWidget *widget,
                                                GdkEventExpose *event,
                                                gpointer data);
 static gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area);
+static gboolean drawing_area_configure_bonuses(GtkWidget *widget,
+                                               GdkEvent *event,
+                                               gpointer data);
+static gboolean drawing_area_expose_bonuses(GtkWidget *widget,
+                                            GdkEventExpose *event,
+                                            gpointer data);
+static gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
@@ -133,12 +140,14 @@ void drawing_area_init(DrawingArea *drawing_area)
 {
   drawing_area->field = gtk_drawing_area_new();
   drawing_area->next_piece = gtk_drawing_area_new();
+  drawing_area->bonuses = gtk_drawing_area_new();
   drawing_area->left_vbox = gtk_vbox_new(FALSE, 0);
   drawing_area->right_vbox = gtk_vbox_new(FALSE, 0);
   drawing_area->info_hbox = gtk_hbox_new(FALSE, 0);
   drawing_area->number_label = gtk_label_new("");
   drawing_area->name_label = gtk_label_new("");
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
+  drawing_area->bonuses_label = gtk_label_new("Bonuses:");
   drawing_area->changed = TRUE;
   drawing_area->changed_next_piece = TRUE;
   drawing_area->cell_size = 0;
@@ -154,6 +163,11 @@ void drawing_area_init(DrawingArea *drawing_area)
   g_signal_connect(G_OBJECT(drawing_area->next_piece), "expose-event",
                    G_CALLBACK(drawing_area_expose_next_piece), drawing_area);
 
+  g_signal_connect(G_OBJECT(drawing_area->bonuses), "configure-event",
+                   G_CALLBACK(drawing_area_configure_bonuses), drawing_area);
+  g_signal_connect(G_OBJECT(drawing_area->next_piece), "expose-event",
+                   G_CALLBACK(drawing_area_expose_bonuses), drawing_area);
+
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
 
@@ -162,30 +176,36 @@ void drawing_area_init(DrawingArea *drawing_area)
   gtk_box_pack_start(GTK_BOX(drawing_area->info_hbox),
                      drawing_area->number_label,
                      FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(drawing_area->info_hbox),
-                   drawing_area->name_label,
-                   TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->info_hbox),
+                     drawing_area->name_label,
+                     TRUE, TRUE, 0);
 
   gtk_box_pack_start(GTK_BOX(drawing_area->left_vbox),
                      drawing_area->info_hbox,
                      FALSE, FALSE, 0);
-  gtk_box_pack_end(GTK_BOX(drawing_area->left_vbox),
-                   drawing_area->field,
-                   TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->left_vbox),
+                     drawing_area->field,
+                     TRUE, TRUE, 0);
 
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece_label,
-                     TRUE, TRUE, 0);
+                     TRUE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece,
-                     TRUE, TRUE, 0);
+                     TRUE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->bonuses_label,
+                     TRUE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->bonuses,
+                     TRUE, FALSE, 0);
 
   gtk_box_pack_start(GTK_BOX(drawing_area),
                      drawing_area->left_vbox,
                      TRUE, TRUE, 0);
-  gtk_box_pack_end(GTK_BOX(drawing_area),
-                   drawing_area->right_vbox,
-                   TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area),
+                     drawing_area->right_vbox,
+                     TRUE, TRUE, 0);
 
   gtk_widget_show_all(GTK_WIDGET(drawing_area));
 }
@@ -446,6 +466,61 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
   return TRUE;
 }
 
+gboolean drawing_area_configure_bonuses(GtkWidget *widget,
+                                        GdkEvent *event,
+                                        gpointer data)
+{
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_bonuses(drawing_area);
+}
+
+gboolean drawing_area_expose_bonuses(GtkWidget *widget,
+                                     GdkEventExpose *event,
+                                     gpointer data)
+{
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_bonuses(drawing_area);
+}
+
+#define BONUS_WIDTH 5
+gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
+{
+  TetrisPlayer *player;
+  TetrisCell bonus;
+  cairo_t *cairo;
+  cairo_status_t status;
+  GSList *elem;
+  int x, y;
+
+  if (!gtk_widget_get_realized(drawing_area->bonuses)) {
+    return FALSE;
+  }
+
+  player = drawing_area->player;
+  cairo = gdk_cairo_create(drawing_area->bonuses->window);
+  status = cairo_status(cairo);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+    g_return_val_if_reached(FALSE);
+  }
+
+  /* TODO: limit the number of bonuses displayed? */
+  x = 0;
+  y = 0;
+  for (elem = tetris_player_get_bonuses(player); elem != NULL;
+       elem = elem->next) {
+    bonus = GPOINTER_TO_UINT(elem->data);
+    drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, bonus);
+    x += IMAGE_SIZE;
+    if (x >= BONUS_WIDTH*IMAGE_SIZE) {
+      x = 0;
+      y += IMAGE_SIZE;
+    }
+  }
+
+  cairo_destroy(cairo);
+  return TRUE;
+}
 void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow)
 {
   if (drawing_area->shadow != NULL) {

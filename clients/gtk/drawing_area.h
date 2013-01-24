@@ -31,8 +31,8 @@ typedef struct DrawingArea {
   GtkWidget *left_vbox, *right_vbox;
   GtkWidget *info_hbox;
   GtkWidget *number_label, *name_label;
-  GtkWidget *next_piece_label;
-  GtkWidget *field, *next_piece;
+  GtkWidget *next_piece_label, *bonuses_label;
+  GtkWidget *field, *next_piece, *bonuses;
 
   TetrisPlayer *player;
   GSList *shadow;
