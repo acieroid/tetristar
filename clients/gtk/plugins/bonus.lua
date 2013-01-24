@@ -36,6 +36,7 @@ function bonus.use(id, command, args)
                        tetris.player.get_nick(target)))
    end
    tetris.player.remove_bonus(source, b)
+   tetris.client.context_bonuses_changed(source)
 end
 
 tetris.plugin.register("RECV", bonus.receive, "BONUSRCV")
