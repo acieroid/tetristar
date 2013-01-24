@@ -80,12 +80,15 @@ bonus.actions = {
 
 -- Called when a player uses a bonus   
 function bonus.use_bonus(id, command, args)
-   local bonus, target = utils.split(args, " ", tonumber, tonumber)
-   if bonus.is_bonus(bonus) and tetris.player.has_bonus(id, bonus) then
-      tetris.players.remove_bonus(id, bonus)
-      bonus.actions[bonus - bonus.first_bonus](id, target)
-      tetris.server.send_to_all(
-         string.format("BONUS %d %d %d", bonus, id, target))
+   local target = tonumber(args)
+   local bonus = tetris.player.first_bonus(id)
+   if bonus != 0 then
+      tetris.players.drop_bonus(id)
+      if target != 0 then
+         bonus.actions[bonus - bonus.first_bonus](id, target)
+         tetris.server.send_to_all(
+            string.format("BONUS %d %d %d", bonus, id, target))
+      end
    end
 end
 

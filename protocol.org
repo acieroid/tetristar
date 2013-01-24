@@ -1,27 +1,27 @@
 * Table of commands
-| Type       | Client            | Server                   | Notes                                                                                                       |
-|------------+-------------------+--------------------------+-------------------------------------------------------------------------------------------------------------|
-| connection | HELLO NICK        | NEWPLAYER ID NICK        | The server might change the nick, the client *should* accept the nick given by the server                   |
-|            |                   | NICKTAKEN                | The nick is already taken                                                                                   |
-|            | BYE               | BYE ID                   |                                                                                                             |
-|------------+-------------------+--------------------------+-------------------------------------------------------------------------------------------------------------|
-| im         | SAY TEXT          | SAY ID TEXT              |                                                                                                             |
-|------------+-------------------+--------------------------+-------------------------------------------------------------------------------------------------------------|
-| admin      | PASSWORD PASS     | ADMIN ID                 |                                                                                                             |
-|------------+-------------------+--------------------------+-------------------------------------------------------------------------------------------------------------|
-| game       | START             | START                    |                                                                                                             |
-|            |                   | PIECE ID FIELDSPEC       | When the player receives a new piece                                                                        |
-|            |                   | PIECEPOS ID X,Y          | When the piece's position changed                                                                           |
-|            |                   | NEXTPIECE ID FIELDSPEC   | The next piece the player will receive                                                                      |
-|            | MOVE DIRECTION    | FIELD ID FIELDSPEC       | DIRECTION is LEFT, RIGHT or DOWN                                                                            |
-|            | ROTATE DIRECTION  | FIELD ID FIELDSPEC       | DIRECTION is LEFT or RIGHT                                                                                  |
-|            | DROP              | FIELD ID FIELDSPEC       |                                                                                                             |
-|            |                   | WON ID                   | Note that multiple players can win                                                                          |
-|            |                   | LOST ID                  |                                                                                                             |
-|            |                   | STATE ID PLAYING         |                                                                                                             |
-|            |                   | STATE ID NOTPLAYING      | When a client connects to the server when a game is on, he has that state                                   |
-|            |                   | BONUSRCV ID TYPE         | When a client receives a bonus                                                                              |
-|            | BONUS TYPE TARGET | BONUS TYPE SOURCE TARGET | Usage of a bonus, TYPE is the type of the bonus (an integer) and TARGET is the target player for this bonus |
+| Type       | Client           | Server                   | Notes                                                                                                                            |
+|------------+------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------|
+| connection | HELLO NICK       | NEWPLAYER ID NICK        | The server might change the nick, the client *should* accept the nick given by the server                                        |
+|            |                  | NICKTAKEN                | The nick is already taken                                                                                                        |
+|            | BYE              | BYE ID                   |                                                                                                                                  |
+|------------+------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------|
+| im         | SAY TEXT         | SAY ID TEXT              |                                                                                                                                  |
+|------------+------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------|
+| admin      | PASSWORD PASS    | ADMIN ID                 |                                                                                                                                  |
+|------------+------------------+--------------------------+----------------------------------------------------------------------------------------------------------------------------------|
+| game       | START            | START                    |                                                                                                                                  |
+|            |                  | PIECE ID FIELDSPEC       | When the player receives a new piece                                                                                             |
+|            |                  | PIECEPOS ID X,Y          | When the piece's position changed                                                                                                |
+|            |                  | NEXTPIECE ID FIELDSPEC   | The next piece the player will receive                                                                                           |
+|            | MOVE DIRECTION   | FIELD ID FIELDSPEC       | DIRECTION is LEFT, RIGHT or DOWN                                                                                                 |
+|            | ROTATE DIRECTION | FIELD ID FIELDSPEC       | DIRECTION is LEFT or RIGHT                                                                                                       |
+|            | DROP             | FIELD ID FIELDSPEC       |                                                                                                                                  |
+|            |                  | WON ID                   | Note that multiple players can win                                                                                               |
+|            |                  | LOST ID                  |                                                                                                                                  |
+|            |                  | STATE ID PLAYING         |                                                                                                                                  |
+|            |                  | STATE ID NOTPLAYING      | When a client connects to the server when a game is on, he has that state                                                        |
+|            |                  | BONUSRCV ID TYPE         | When a client receives a bonus                                                                                                   |
+|            | BONUS TARGET     | BONUS TYPE SOURCE TARGET | Usage of a bonus (the first in the bonus list), TARGET is the target player for this bonus. If TARGET is 0, the bonus is dropped |
 * Description of the field (FIELDSPEC)
 The FIELDSPEC part of the FIELD command describe /changes/ to the
 field. An example of a FIELD command might be:
