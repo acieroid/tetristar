@@ -1,5 +1,16 @@
 bonus = {}
 
+bonus.names = {
+   [8]='Add line',
+   [9]='Clear line',
+   [10]='Nuke',
+   [11]='Random clear',
+   [12]='Switch fields',
+   [13]='Clear specials',
+   [14]='Blockquake',
+   [15]='Block bomb'
+}
+
 function bonus.receive(id, command, args)
    -- BONUSRCV ID TYPE
    local user_id, bonus = utils.split(args, " ", tonumber, tonumber)
@@ -9,15 +20,15 @@ end
 
 function bonus.use(id, command, args)
    -- BONUS TYPE SOURCE TARGET
-   local bonus, rest = utils.split(args, " ", tonumber, utils.identity)
+   local b, rest = utils.split(args, " ", tonumber, utils.identity)
    local source, target = utils.split(rest, " ", tonumber, tonumber)
 
    tetris.client.chat_add_text(
       string.format(" * %s used '%s' on %s",
                     tetris.player.get_nick(source),
-                    bonus.get_bonus_name(bonus),
+                    bonus.names[b],
                     tetris.player.get_nick(target)))
-   tetris.player.remove_bonus(source, bonus)
+   tetris.player.remove_bonus(source, b)
 end
 
 tetris.plugin.register("RECV", bonus.receive, "BONUSRCV")
