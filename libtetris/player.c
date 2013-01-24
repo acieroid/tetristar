@@ -133,12 +133,18 @@ GSList *tetris_player_get_bonuses(TetrisPlayer *player)
 
 TetrisCell tetris_player_get_first_bonus(TetrisPlayer *player)
 {
-  return GPOINTER_TO_UINT(player->bonuses->data);
+  if (player->bonuses != NULL) {
+    return GPOINTER_TO_UINT(player->bonuses->data);
+  } else {
+    return (TetrisCell) 0;
+  }
 }
 
 void tetris_player_drop_bonus(TetrisPlayer *player)
 {
-  player->bonuses = player->bonuses->next;
+  if (player->bonuses != NULL) {
+    player->bonuses = player->bonuses->next;
+  }
 }
 
 void tetris_player_add_points(TetrisPlayer *player, int points)
