@@ -22,6 +22,8 @@ static void stop_clicked(GtkWidget *widget, gpointer data);
 static void quit(GtkWidget *widget, gpointer data);
 static void focus_context(GtkWidget *widget, GtkDirectionType dir, gpointer data);
 
+/* TODO: use a better way to represent keybinds (they can do more than
+   just sending simple commands) */
 static struct {
   int keyval;
   const gchar *command;
@@ -30,9 +32,19 @@ static struct {
   { GDK_KEY_Right, "MOVE RIGHT" },
   { GDK_KEY_Up, "ROTATE RIGHT" },
   { GDK_KEY_space, "DROP" },
+  { GDK_KEY_1, "BONUS 1" },
+  { GDK_KEY_2, "BONUS 2" },
+  { GDK_KEY_3, "BONUS 3" },
+  { GDK_KEY_4, "BONUS 4" },
+  { GDK_KEY_5, "BONUS 5" },
+  { GDK_KEY_6, "BONUS 6" },
+  { GDK_KEY_7, "BONUS 7" },
+  { GDK_KEY_8, "BONUS 8" },
+  { GDK_KEY_9, "BONUS 9" },
+  { GDK_KEY_0, "BONUS 10" },
+  { GDK_KEY_d, "BONUS 0" }, /* drop bonus */
   { GDK_KEY_VoidSymbol, NULL }
 };
-
 
 /* the 'down' action should be treated separately since it requires
    autorepeat */
@@ -296,8 +308,7 @@ gboolean on_keypress(GtkWidget *widget,
     if (event->keyval == GDK_KEY_Tab) {
       chat_set_focus(CHAT(window->chat));
       return TRUE;
-    }
-    if (event->keyval == KEY_DOWN && !window->down_pressed) {
+    } else if (event->keyval == KEY_DOWN && !window->down_pressed) {
       window->down_pressed = TRUE;
       network_send(window->network, (gchar *) KEY_DOWN_CMD);
       g_timeout_add(KEY_DOWN_DELAY, down_timeout, window);
