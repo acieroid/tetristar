@@ -4,8 +4,7 @@ function bonus.receive(id, command, args)
    -- BONUSRCV ID TYPE
    local user_id, bonus = utils.split(args, " ", tonumber, tonumber)
    tetris.player.add_bonus(user_id, bonus)
-   -- tetris.client.context_bonus_changed(id)
-   print("Received bonus: " .. bonus)
+   tetris.client.context_bonuses_changed(id)
 end
 
 function bonus.use(id, command, args)

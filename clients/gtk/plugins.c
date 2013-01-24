@@ -9,6 +9,7 @@ static int l_context_add_player(lua_State *l);
 static int l_context_remove_player(lua_State *l);
 static int l_context_field_changed(lua_State *l);
 static int l_context_next_piece_changed(lua_State *l);
+static int l_context_bonuses_changed(lua_State *l);
 static int l_context_set_shadow(lua_State *l);
 static int l_display_error(lua_State *l);
 static int l_disconnect(lua_State *l);
@@ -20,6 +21,7 @@ static PluginFunction l_functions[] = {
   { "context_remove_player", l_context_remove_player },
   { "context_field_changed", l_context_field_changed },
   { "context_next_piece_changed", l_context_next_piece_changed },
+  { "context_bonuses_changed", l_context_bonuses_changed },
   { "context_set_shadow", l_context_set_shadow },
   { "display_error", l_display_error },
   { "disconnect", l_disconnect },
@@ -124,6 +126,25 @@ int l_context_next_piece_changed(lua_State *l)
     context_next_piece_changed(CONTEXT(main_window->context), player);
   } else {
     g_warning("tetris.client.next_piece_changed: Player %d does not exists", id);
+  }
+
+  return 0;
+}
+
+
+int l_context_bonuses_changed(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+  player = tetris_player_find(id);
+
+  if (player != NULL) {
+    context_bonuses_changed(CONTEXT(main_window->context), player);
+  } else {
+    g_warning("tetris.client.bonuses_changed: Player %d does not exists", id);
   }
 
   return 0;
