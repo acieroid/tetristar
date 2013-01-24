@@ -57,6 +57,7 @@ end
 -- Called when a player receives a bonus
 function bonus.receive_bonus(id, bonus)
    tetris.player.add_bonus(id, bonus)
+   -- The bonus information is sent only to the bonus owner
    tetris.server.send(id,
                       string.format("BONUSRCV %d %d", id, bonus))
 end
