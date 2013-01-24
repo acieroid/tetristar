@@ -283,6 +283,11 @@ gboolean drawing_area_update(gpointer data)
     res = res && drawing_area_draw_next_piece(drawing_area);
   }
 
+  if (drawing_area->changed_bonuses) {
+    drawing_area->changed_bonuses = FALSE;
+    res = res && drawing_area_draw_bonuses(drawing_area);
+  }
+
   return res;
 }
 
@@ -521,6 +526,12 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   cairo_destroy(cairo);
   return TRUE;
 }
+
+void drawing_area_set_bonuses_changed(DrawingArea *drawing_area)
+{
+  drawing_area->changed_bonuses = TRUE;
+}
+
 void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow)
 {
   if (drawing_area->shadow != NULL) {

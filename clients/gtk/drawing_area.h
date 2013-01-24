@@ -37,7 +37,7 @@ typedef struct DrawingArea {
   TetrisPlayer *player;
   GSList *shadow;
   guint timeout_tag;
-  gboolean changed, changed_next_piece;
+  gboolean changed, changed_next_piece, changed_bonuses;
   int cell_size;
 } DrawingArea;
 
@@ -71,6 +71,11 @@ void drawing_area_set_changed(DrawingArea *drawing_area);
  * Mark the player's next piece as "changed".
  */
 void drawing_area_set_next_piece_changed(DrawingArea *drawing_area);
+
+/**
+ * Mark the player's bonuses as changed
+ */
+void drawing_area_set_bonuses_changed(DrawingArea *drawing_area);
 
 /**
  * Set the shadow of this drawing area
