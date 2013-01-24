@@ -128,6 +128,16 @@ gboolean tetris_player_has_bonus(TetrisPlayer *player, TetrisCell bonus);
 GSList *tetris_player_get_bonuses(TetrisPlayer *player);
 
 /**
+ * Return the first bonus of a player
+ */
+TetrisCell tetris_player_get_first_bonus(TetrisPlayer *player);
+
+/**
+ * Drop the first bonus of a player
+ */
+void tetris_player_drop_bonus(TetrisPlayer *player);
+
+/**
  * Add points to the player
  */
 void tetris_player_add_points(TetrisPlayer *player, int points);

@@ -131,6 +131,16 @@ GSList *tetris_player_get_bonuses(TetrisPlayer *player)
   return player->bonuses;
 }
 
+TetrisCell tetris_player_get_first_bonus(TetrisPlayer *player)
+{
+  return GPOINTER_TO_UINT(player->bonuses->data);
+}
+
+void tetris_player_drop_bonus(TetrisPlayer *player)
+{
+  player->bonuses = player->bonuses->next;
+}
+
 void tetris_player_add_points(TetrisPlayer *player, int points)
 {
   player->points += points;
