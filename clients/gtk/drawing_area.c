@@ -189,16 +189,16 @@ void drawing_area_init(DrawingArea *drawing_area)
 
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece_label,
-                     TRUE, FALSE, 0);
+                     TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece,
-                     TRUE, FALSE, 0);
+                     TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->bonuses_label,
-                     TRUE, FALSE, 0);
+                     TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->bonuses,
-                     TRUE, FALSE, 0);
+                     TRUE, TRUE, 0);
 
   gtk_box_pack_start(GTK_BOX(drawing_area),
                      drawing_area->left_vbox,
@@ -322,7 +322,6 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
                           ((double) drawing_area->cell_size)/IMAGE_SIZE);
   cairo_transform(cairo, &zoom);
 
-
   matrix = tetris_player_get_matrix(player);
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
@@ -439,6 +438,7 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
   TetrisCellInfo *info;
   cairo_t *cairo;
   cairo_status_t status;
+  cairo_matrix_t zoom;
   int x, y;
   GSList *elem;
 
@@ -452,6 +452,11 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
     g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
     g_return_val_if_reached(FALSE);
   }
+
+  cairo_matrix_init_scale(&zoom,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE);
+  cairo_transform(cairo, &zoom);
 
   for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
     for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
@@ -494,6 +499,7 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   TetrisCell bonus;
   cairo_t *cairo;
   cairo_status_t status;
+  cairo_matrix_t zoom;
   GSList *elem;
   int x, y;
 
@@ -508,6 +514,11 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
     g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
     g_return_val_if_reached(FALSE);
   }
+
+  cairo_matrix_init_scale(&zoom,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                          ((double) drawing_area->cell_size)/IMAGE_SIZE);
+  cairo_transform(cairo, &zoom);
 
   /* TODO: limit the number of bonuses displayed? */
   x = 0;
