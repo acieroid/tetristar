@@ -27,7 +27,7 @@ function bonus.use(id, command, args)
       tetris.client.chat_add_text(
          string.format(" * %s dropped '%s'",
                        tetris.player.get_nick(source),
-                       bonus.names[b])
+                       bonus.names[b]))
    else
       tetris.client.chat_add_text(
          string.format(" * %s used '%s' on %s",
