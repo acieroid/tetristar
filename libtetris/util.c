@@ -1,7 +1,7 @@
 #include "util.h"
 
 static int *ids = NULL;
-static int max_id = 1;
+static int max_id = 0;
 
 void tetris_id_init(int n)
 {
@@ -30,7 +30,7 @@ int tetris_id_new()
   for (i = 0; i < max_id; i++) {
     if (ids[i] == 0) {
       ids[i] = 1;
-      return i;
+      return i+1;
     }
   }
 
@@ -41,7 +41,7 @@ int tetris_id_new()
 void tetris_id_free(int id)
 {
   g_return_if_fail(ids != NULL);
-  ids[id] = 0;
+  ids[id-1] = 0;
 }
 
 void tetris_extract_command(const gchar *str,
