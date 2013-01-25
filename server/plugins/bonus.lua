@@ -25,7 +25,7 @@ function bonus.possible_positions(id)
    positions = {}
    for line = 0, tetris.matrix.get_height(id)-1 do
       for column = 0, tetris.matrix.get_width(id)-1 do
-         cell = tetris.matrix.get_cell(id, column, line)
+         cell = tetris.matrix.get_uncommited_cell(id, column, line)
          -- The only possible positions are where a cell is set and is
          -- not a bonus
          if cell ~= 0 and cell < bonus.first_bonus then
@@ -40,7 +40,7 @@ end
 function bonus.add_bonuses(id, n)
    -- This line can be uncommented to have a different behaviour from tetrinet
    -- n = math.random(bonus.max_bonuses) -- number of bonuses to add
-   for i = 0, n do
+   for i = 0, n-1 do
       b = bonus.random_bonus()
       -- add the bonus to a random position
       positions = bonus.possible_positions(id)
