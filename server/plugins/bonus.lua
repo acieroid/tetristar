@@ -66,9 +66,15 @@ end
 function bonus.dummy_bonus(from, to)
 end
 
+-- Add line bonus
+function bonus.add_line(from, to)
+   field.add_lines(to, 1)
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
-   bonus.dummy_bonus, -- a
+   bonus.add_line, -- a
    bonus.dummy_bonus, -- c
    bonus.dummy_bonus, -- n
    bonus.dummy_bonus, -- r
@@ -82,7 +88,6 @@ bonus.actions = {
 function bonus.use_bonus(id, command, args)
    local target = tonumber(args)
    local b = tetris.player.first_bonus(id)
-   print(tetris.player.exists(id))
    if b ~= 0 and tetris.player.exists(target) then
       tetris.player.drop_bonus(id)
       if target ~= 0 then
