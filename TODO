@@ -1,9 +1,12 @@
 Server:
   - Bonuses
+    - Add bonus "distribution" (eg. 5% nukes, 20% add, 20% clear, ...)
+    - Implement all tetrinet's bonuses
   - Improve rotation (compare to other tetrises first)
     - Direction of rotation
     - Repeating layouts: S only have two rotations in tetris, but 4 in
       tetristar (two shifted by one case)
+  - "Keep" a piece on the side (c in tetrisfriends)
 
 Client:
   - Improve client layout
@@ -12,7 +15,7 @@ Client:
   - Improve drawing performance:
     - Only draw what changed in the matrix
     - Draw the other part when necessary (GdkEventExpose.region)
-  - Add colors to the chat
+  - Add colors to the chat (see http://www.bravegnu.org/gtktext/x113.html)
 
 Libtetris:
   - Move some lua code from the client and server to libtetris
