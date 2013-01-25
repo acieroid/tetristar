@@ -82,7 +82,8 @@ bonus.actions = {
 function bonus.use_bonus(id, command, args)
    local target = tonumber(args)
    local b = tetris.player.first_bonus(id)
-   if b ~= 0 and tetris.player.exists(id) then
+   print(tetris.player.exists(id))
+   if b ~= 0 and tetris.player.exists(target) then
       tetris.player.drop_bonus(id)
       if target ~= 0 then
          bonus.actions[b - bonus.first_bonus](id, target)
