@@ -72,10 +72,22 @@ function bonus.add_line(from, to)
    game.send_field(to)
 end
 
+-- Clear line bonus
+function bonus.clear_line(from, to)
+   -- Move every line down
+   for line = tetris.matrix.get_height(to)-2, 0, -1 do
+      for column = 0, tetris.matrix.get_width(to)-1 do
+         local cell = tetris.matrix.get_uncommited_cell(to, column, line)
+         tetris.matrix.set_cell(to, column, line+1, cell)
+      end
+   end
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
-   bonus.add_line, -- a
-   bonus.dummy_bonus, -- c
+   bonus.add_line,    -- a
+   bonus.clear_line,  -- c
    bonus.dummy_bonus, -- n
    bonus.dummy_bonus, -- r
    bonus.dummy_bonus, -- s
