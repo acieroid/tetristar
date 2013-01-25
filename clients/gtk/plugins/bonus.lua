@@ -25,12 +25,12 @@ function bonus.use(id, command, args)
 
    if target == 0 then
       tetris.client.chat_add_text(
-         string.format(" * %s dropped '%s'",
+         string.format(" * %s dropped '%s'\n",
                        tetris.player.get_nick(source),
                        bonus.names[b]))
    else
       tetris.client.chat_add_text(
-         string.format(" * %s used '%s' on %s",
+         string.format(" * %s used '%s' on %s\n",
                        tetris.player.get_nick(source),
                        bonus.names[b],
                        tetris.player.get_nick(target)))
