@@ -134,7 +134,7 @@ end
 
 -- Add n lines on the bottom of a player's field
 function field.add_lines(id, n)
-   for line = 0, n do
+   for line = 0, n-1 do
       field.add_line(id)
    end
 end
