@@ -48,6 +48,10 @@ function game.send_piece(id)
    local pos = tetris.player.get_piece_position(id)
    tetris.server.send_to_all(
       string.format("PIECEPOS %d %d,%d", id, pos[1], pos[2]))
+end
+
+-- Send the next piece of a player
+function game.send_next_piece(id)
    p = tetris.player.get_next_piece(id)
    fieldspec = game.to_fieldspec(p)
    tetris.server.send_to_all(
@@ -65,6 +69,7 @@ function game.start(id, command, args)
          game.send_field(player_id)
          field.new_piece(player_id)
          game.send_piece(player_id)
+         game.send_next_piece(player_id)
          stats.player_started(player_id)
       end
       -- start the game
@@ -116,18 +121,19 @@ function game.move_player_piece(id, direction, drop)
          if direction == "DOWN" then
             game.reset_timer(id)
          end
+         if tetris.player.is_playing(id) then
+            -- Don't send a new piece if lost
+            game.send_piece(id)
+         end
       elseif direction == "DOWN" and drop then
          -- If the players move it down and he can't, the piece is
          -- dropped, and field.drop gives the player a new piece
          field.drop(id)
-      end
+         game.send_next_piece()
 
-      if tetris.player.is_playing(id) then
-         -- Don't send a new piece if lost
-         game.send_piece(id)
+         -- Finally send the field modifications
+         game.send_field(id)
       end
-      -- Finally send the field modifications
-      game.send_field(id)
    end
 end
 
@@ -160,6 +166,7 @@ function game.drop(id, command, args)
 
       if tetris.player.is_playing(id) then
          game.send_piece(id)
+         game.send_next_piece(id)
       end
       game.send_field(id)
    end
