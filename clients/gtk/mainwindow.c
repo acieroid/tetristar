@@ -236,7 +236,7 @@ void unknown_command(Chat *chat, const gchar *command, gpointer data)
     *space = '\0';
   }
 
-  chat_add_text(chat, ">>> Unknown command: %s\n", command);
+  chat_add_colored_text(chat, "error", ">>> Unknown command: %s\n", command);
 }
 
 void connected_layout(GtkWidget *widget, gpointer data)

@@ -49,9 +49,9 @@ GtkWidget *chat_new(void);
 void chat_set_focus(Chat *chat);
 
 /**
- * Add some text to the chat
+ * Add some text to the chat and apply it a certain tag (good, bad, info, error)
  */
-void chat_add_text(Chat *chat, const gchar *format, ...);
+void chat_add_colored_text(Chat *chat, const gchar *tagname, const gchar *format, ...);
 
 /**
  * Clear all the data from the chat

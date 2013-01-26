@@ -4,7 +4,7 @@ static lua_State *lua_state;
 static MainWindow *main_window;
 
 static int l_send(lua_State *l);
-static int l_chat_add_text(lua_State *l);
+static int l_chat_add_colored_text(lua_State *l);
 static int l_context_add_player(lua_State *l);
 static int l_context_remove_player(lua_State *l);
 static int l_context_field_changed(lua_State *l);
@@ -16,7 +16,7 @@ static int l_disconnect(lua_State *l);
 
 static PluginFunction l_functions[] = {
   { "send", l_send },
-  { "chat_add_text", l_chat_add_text },
+  { "chat_add_colored_text", l_chat_add_colored_text },
   { "context_add_player", l_context_add_player },
   { "context_remove_player", l_context_remove_player },
   { "context_field_changed", l_context_field_changed },
@@ -52,14 +52,20 @@ int l_send(lua_State *l)
   return 0;
 }
 
-int l_chat_add_text(lua_State *l)
+int l_chat_add_colored_text(lua_State *l)
 {
+  gchar *tag;
   gchar *str;
 
   luaL_checktype(l, 1, LUA_TSTRING);
-  str = g_strdup(lua_tostring(l, 1));
+  tag = g_strdup(lua_tostring(l, 1));
 
-  chat_add_text(CHAT(main_window->chat), str);
+  luaL_checktype(l, 2, LUA_TSTRING);
+  str = g_strdup(lua_tostring(l, 2));
+
+  chat_add_colored_text(CHAT(main_window->chat), tag, str);
+
+  g_free(tag);
   g_free(str);
   return 0;
 }

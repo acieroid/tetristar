@@ -242,7 +242,7 @@ void chat_set_focus(Chat *chat)
   gtk_widget_grab_focus(chat->entry);
 }
 
-void chat_add_text(Chat *chat, const gchar *format, ...)
+void chat_add_colored_text(Chat *chat, const gchar *tagname, const gchar *format, ...)
 {
   va_list ap;
   gchar *text;
@@ -255,7 +255,7 @@ void chat_add_text(Chat *chat, const gchar *format, ...)
 
   buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat->text_view));
   gtk_text_buffer_get_end_iter(buffer, &end);
-  gtk_text_buffer_insert(buffer, &end, text, -1);
+  gtk_text_buffer_insert_with_tags_by_name(buffer, &end, text, -1, tagname, NULL);
 
   g_free(text);
 }
