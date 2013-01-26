@@ -533,7 +533,6 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
                           ((double) drawing_area->cell_size)/IMAGE_SIZE);
   cairo_transform(cairo, &zoom);
 
-  /* TODO: limit the number of bonuses displayed? */
   elem = tetris_player_get_bonuses(player);
   for (y = 0; y < BONUS_LINES; y++) {
     for (x = 0; x < width; x++) {
