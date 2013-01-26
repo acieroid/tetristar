@@ -111,9 +111,11 @@ void chat_init(Chat *chat)
   gtk_table_attach(GTK_TABLE(chat), chat->entry, 0, 1, 1, 2,
                    GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
 
-  chat->good = gtk_text_buffer_create_tag(buff, "good", "foreground", "#FF3333");
-  chat->bad = gtk_text_buffer_create_tag(buff, "bad", "foreground", "#33FF33");
-  chat->info = gtk_text_buffer_create_tag(buff, "info", "foreground", "#333399");
+  gtk_text_buffer_create_tag(buff, "normal", NULL);
+  gtk_text_buffer_create_tag(buff, "good", "foreground", "#00AA00", NULL);
+  gtk_text_buffer_create_tag(buff, "bad", "foreground", "#AA0000", NULL);
+  gtk_text_buffer_create_tag(buff, "info", "foreground", "#333399", NULL);
+  gtk_text_buffer_create_tag(buff, "error", "foreground", "#AA0000", NULL);
 
   chat->history = NULL;
   chat->history_current = NULL;
