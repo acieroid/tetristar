@@ -439,11 +439,13 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
   TetrisCellInfo *info;
   cairo_t *cairo;
   cairo_status_t status;
-  cairo_matrix_t zoom;
+  cairo_matrix_t matrix;
   int x, y;
   GSList *elem;
+  GtkAllocation alloc;
 
-  if (!gtk_widget_get_realized(drawing_area->field))
+  if (!gtk_widget_get_realized(drawing_area->field) ||
+      drawing_area->cell_size == 0)
     return FALSE;
 
   player = drawing_area->player;
@@ -454,10 +456,15 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
     g_return_val_if_reached(FALSE);
   }
 
-  cairo_matrix_init_scale(&zoom,
+  gtk_widget_get_allocation(drawing_area->bonuses, &alloc);
+  cairo_matrix_init_translate(&matrix,
+                              alloc.width/2 -
+                              (NEXT_PIECE_WIDTH*drawing_area->cell_size)/2,
+                              0);
+  cairo_matrix_scale(&matrix,
                           ((double) drawing_area->cell_size)/IMAGE_SIZE,
                           ((double) drawing_area->cell_size)/IMAGE_SIZE);
-  cairo_transform(cairo, &zoom);
+  cairo_transform(cairo, &matrix);
 
   for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
     for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
