@@ -121,15 +121,18 @@ function game.move_player_piece(id, direction, drop)
          if direction == "DOWN" then
             game.reset_timer(id)
          end
-         if tetris.player.is_playing(id) then
-            -- Don't send a new piece if lost
-            game.send_piece(id)
-         end
+
+         game.send_piece(id)
       elseif direction == "DOWN" and drop then
          -- If the players move it down and he can't, the piece is
          -- dropped, and field.drop gives the player a new piece
          field.drop(id)
-         game.send_next_piece()
+
+         if tetris.player.is_playing(id) then
+            -- Don't send a new piece if lost
+            game.send_piece(id)
+            game.send_next_piece(id)
+         end
 
          -- Finally send the field modifications
          game.send_field(id)
