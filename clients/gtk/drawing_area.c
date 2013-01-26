@@ -493,7 +493,6 @@ gboolean drawing_area_expose_bonuses(GtkWidget *widget,
   return drawing_area_draw_bonuses(drawing_area);
 }
 
-#define BONUS_WIDTH 5
 #define BONUS_LINES 2
 gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
 {
@@ -503,11 +502,16 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   cairo_status_t status;
   cairo_matrix_t zoom;
   GSList *elem;
-  int x, y;
+  GtkAllocation alloc;
+  int x, y, width;
 
-  if (!gtk_widget_get_realized(drawing_area->bonuses)) {
+  if (!gtk_widget_get_realized(drawing_area->bonuses) ||
+      drawing_area->cell_size == 0) {
     return FALSE;
   }
+
+  gtk_widget_get_allocation(drawing_area->bonuses, &alloc);
+  width = alloc.width/drawing_area->cell_size;
 
   player = drawing_area->player;
   cairo = gdk_cairo_create(drawing_area->bonuses->window);
@@ -525,7 +529,7 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   /* TODO: limit the number of bonuses displayed? */
   elem = tetris_player_get_bonuses(player);
   for (y = 0; y < BONUS_LINES; y++) {
-    for (x = 0; x < BONUS_WIDTH; x++) {
+    for (x = 0; x < width; x++) {
       if (elem != NULL) {
         bonus = GPOINTER_TO_UINT(elem->data);
         elem = elem->next;
