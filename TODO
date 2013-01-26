@@ -9,7 +9,6 @@ Server:
   - "Keep" a piece on the side (c in tetrisfriends)
 
 Client:
-  - Improve client layout
   - Remember nickname, server name in the client
   - Widget to connect as admin
   - Improve drawing performance:
