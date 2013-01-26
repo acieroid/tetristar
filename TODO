@@ -15,7 +15,6 @@ Client:
   - Improve drawing performance:
     - Only draw what changed in the matrix
     - Draw the other part when necessary (GdkEventExpose.region)
-  - Add colors to the chat (see http://www.bravegnu.org/gtktext/x113.html)
 
 Libtetris:
   - Move some lua code from the client and server to libtetris
