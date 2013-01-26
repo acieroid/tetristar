@@ -27,6 +27,9 @@ typedef struct Chat {
   GtkWidget *text_view;
   GtkWidget *entry;
 
+  /* Colors */
+  GtkTextTag *good, *bad, *info;
+
   /* History management */
   GList *history, *history_current;
   gboolean in_history;

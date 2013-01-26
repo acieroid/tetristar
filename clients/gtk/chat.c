@@ -82,11 +82,14 @@ void chat_class_init(ChatClass *klass)
 
 void chat_init(Chat *chat)
 {
+  GtkTextBuffer *buff;
 
   gtk_table_resize(GTK_TABLE(chat), 3, 3);
 
   chat->text_view = gtk_text_view_new();
   gtk_widget_set_can_focus(chat->text_view, FALSE);
+
+  buff = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat->text_view));
 
   gtk_text_view_set_editable(GTK_TEXT_VIEW(chat->text_view), FALSE);
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(chat->text_view), FALSE);
@@ -107,6 +110,10 @@ void chat_init(Chat *chat)
   gtk_widget_add_events (chat->entry, GDK_KEY_PRESS_MASK);
   gtk_table_attach(GTK_TABLE(chat), chat->entry, 0, 1, 1, 2,
                    GTK_FILL | GTK_EXPAND, GTK_FILL, 0, 0);
+
+  chat->good = gtk_text_buffer_create_tag(buff, "good", "foreground", "#FF3333");
+  chat->bad = gtk_text_buffer_create_tag(buff, "bad", "foreground", "#33FF33");
+  chat->info = gtk_text_buffer_create_tag(buff, "info", "foreground", "#333399");
 
   chat->history = NULL;
   chat->history_current = NULL;
