@@ -166,7 +166,7 @@ void drawing_area_init(DrawingArea *drawing_area)
 
   g_signal_connect(G_OBJECT(drawing_area->bonuses), "configure-event",
                    G_CALLBACK(drawing_area_configure_bonuses), drawing_area);
-  g_signal_connect(G_OBJECT(drawing_area->next_piece), "expose-event",
+  g_signal_connect(G_OBJECT(drawing_area->bonuses), "expose-event",
                    G_CALLBACK(drawing_area_expose_bonuses), drawing_area);
 
   /* we try to refresh each 100ms */
