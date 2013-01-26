@@ -302,7 +302,8 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   int x, y;
   cairo_text_extents_t extents;
   cairo_status_t status;
-  cairo_matrix_t zoom;
+  cairo_matrix_t transformation;
+  GtkAllocation alloc;
   char *notplaying = "Not playing";
 
   if (!gtk_widget_get_realized(drawing_area->field))
@@ -318,10 +319,15 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   }
 
   /* scale the drawing */
-  cairo_matrix_init_scale(&zoom,
-                          ((double) drawing_area->cell_size)/IMAGE_SIZE,
-                          ((double) drawing_area->cell_size)/IMAGE_SIZE);
-  cairo_transform(cairo, &zoom);
+  gtk_widget_get_allocation(drawing_area->bonuses, &alloc);
+  cairo_matrix_init_translate(&transformation,
+                              alloc.width/2 -
+                              (10*drawing_area->cell_size)/2,
+                              0);
+  cairo_matrix_scale(&transformation,
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE);
+  cairo_transform(cairo, &transformation);
 
   matrix = tetris_player_get_matrix(player);
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
@@ -462,8 +468,8 @@ gboolean drawing_area_draw_next_piece(DrawingArea *drawing_area)
                               (NEXT_PIECE_WIDTH*drawing_area->cell_size)/2,
                               0);
   cairo_matrix_scale(&matrix,
-                          ((double) drawing_area->cell_size)/IMAGE_SIZE,
-                          ((double) drawing_area->cell_size)/IMAGE_SIZE);
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE);
   cairo_transform(cairo, &matrix);
 
   for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
