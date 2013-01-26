@@ -305,12 +305,12 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   cairo_matrix_t transformation;
   GtkAllocation alloc;
   char *notplaying = "Not playing";
+  TetrisCell field[10][22];
 
   if (!gtk_widget_get_realized(drawing_area->field))
     return FALSE;
 
   player = drawing_area->player;
-  /* It seems to be necesarry to create the cairo context every time we want to draw */
   cairo = gdk_cairo_create(drawing_area->field->window);
   status = cairo_status(cairo);
   if (status != CAIRO_STATUS_SUCCESS) {
@@ -329,29 +329,45 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
                      ((double) drawing_area->cell_size)/IMAGE_SIZE);
   cairo_transform(cairo, &transformation);
 
+  /* fill an array with the content of the field */
   matrix = tetris_player_get_matrix(player);
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
-      drawing_area_cairo_draw_cell(drawing_area, cairo, x, y,
-                                   tetris_matrix_get_cell(matrix, x, y));
+      field[x][y] = tetris_matrix_get_cell(matrix, x, y);
     }
   }
 
+#define SHADOW 100 /* yeah, ugly */
+  /* Add the shadow (before the piece) */
+  for (elem = drawing_area->shadow; elem != NULL; elem = elem->next) {
+    info = elem->data;
+    field[info->x][info->y] = SHADOW;
+  }
+
+  /* Add the piece */
   x = tetris_player_get_piece_position(player)[0];
   y = tetris_player_get_piece_position(player)[1];
   for (elem = tetris_player_get_piece(player); elem != NULL;
        elem = elem->next) {
     info = elem->data;
-    drawing_area_cairo_draw_cell(drawing_area, cairo,
-                                 x + info->x, y + info->y, info->cell);
+    if (x + info->x >= 0 && y + info->y >= 0) {
+      field[x + info->x][y + info->y] = info->cell;
+    }
   }
 
-  for (elem = drawing_area->shadow; elem != NULL; elem = elem->next) {
-    info = elem->data;
-    drawing_area_cairo_draw_shadow(drawing_area, cairo,
-                                   info->x, info->y);
+  /* Draw */
+  for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
+    for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
+      if (field[x][y] == SHADOW) {
+        drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
+        drawing_area_cairo_draw_shadow(drawing_area, cairo, x, y);
+      } else {
+        drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, field[x][y]);
+      }
+    }
   }
 
+  /* Draw optional 'Not playing' text */
   if (!tetris_player_is_playing(player)) {
     cairo_save(cairo);
     gdk_cairo_set_source_color(cairo, &white);

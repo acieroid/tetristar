@@ -13,7 +13,6 @@ Client:
   - Widget to connect as admin
   - Improve drawing performance:
     - Only draw what changed in the matrix
-    - Draw the other part when necessary (GdkEventExpose.region)
 
 Libtetris:
   - Move some lua code from the client and server to libtetris
