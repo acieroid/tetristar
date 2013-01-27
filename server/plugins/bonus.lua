@@ -43,8 +43,8 @@ function bonus.add_bonuses(id, n)
    for i = 0, n-1 do
       b = bonus.random_bonus()
       -- add the bonus to a random position
+      positions = bonus.possible_positions(id)
       if #positions ~= 0 then
-         positions = bonus.possible_positions(id)
          pos = positions[math.random(#positions)]
          tetris.matrix.set_cell(id, pos[1], pos[2], b)
       end
