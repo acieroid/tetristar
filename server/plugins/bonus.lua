@@ -96,13 +96,25 @@ function bonus.nuke(from, to)
    game.send_field(to)
 end
 
+-- Clear specials bonus
+function bonus.clear_specials(from, to)
+   for line = 0, tetris.matrix.get_height(to)-1 do
+      for column = 0, tetris.matrix.get_width(to)-1 do
+         if bonus.is_bonus(tetris.matrix.get_uncommited_cell(to, column, line)) then
+            tetris.matrix.set_cell(to, column, line, piece.random_cell())
+         end
+      end
+   end
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
-   bonus.add_line,    -- a
-   bonus.clear_line,  -- c
-   bonus.nuke,        -- n
-   bonus.dummy_bonus, -- r
-   bonus.dummy_bonus, -- s
+   bonus.add_line,       -- a
+   bonus.clear_line,     -- c
+   bonus.nuke,           -- n
+   bonus.dummy_bonus,    -- r
+   bonus.clear_specials, -- s
    bonus.dummy_bonus, -- b
    bonus.dummy_bonus, -- q
    bonus.dummy_bonus  -- o
