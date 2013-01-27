@@ -114,10 +114,10 @@ bonus.actions = {
    bonus.clear_line,     -- c
    bonus.nuke,           -- n
    bonus.dummy_bonus,    -- r
-   bonus.clear_specials, -- s
-   bonus.dummy_bonus, -- b
-   bonus.dummy_bonus, -- q
-   bonus.dummy_bonus  -- o
+   bonus.dummy_bonus,    -- s
+   bonus.clear_specials, -- b
+   bonus.dummy_bonus,    -- q
+   bonus.dummy_bonus     -- o
 }
 
 -- Called when a player uses a bonus   
