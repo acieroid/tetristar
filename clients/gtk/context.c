@@ -78,7 +78,6 @@ void context_remove_player(Context *context, TetrisPlayer *player)
   context->drawing_areas = g_slist_remove_link(context->drawing_areas,
                                                elem);
   drawing_area_free(DRAWING_AREA(drawing_area));
-
 }
 
 void context_remove_all_players(Context *context)

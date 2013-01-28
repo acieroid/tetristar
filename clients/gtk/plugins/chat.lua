@@ -55,7 +55,7 @@ end
 function chat.nicktaken(id, command, args)
    -- NICKTAKEN
    -- TODO: the disconnect event seems to be caught before the NICKTAKEN message
-   tetris.client.display_error("Nick already taken")
+   tetris.client.display_error("Nick already taken or invalid")
    tetris.client.disconnect()
 end
 
