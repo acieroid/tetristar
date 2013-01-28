@@ -119,6 +119,8 @@ function bonus.switch_fields(from, to)
          tetris.matrix.set_cell(from, column, line, tmp)
       end
    end
+   game.send_field(from)
+   game.send_field(to)
 end
 
 -- Contains the actions to do when a bonus is used
