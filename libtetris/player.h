@@ -19,7 +19,7 @@ typedef struct TetrisPlayer {
   gboolean playing;
   gchar *nick;
   TetrisMatrix *matrix;
-  GSList *piece, *next_piece;
+  GSList *piece, *next_piece, *kept_piece;
   int piece_position[2];
   GSList *bonuses;
   int points;
@@ -79,6 +79,16 @@ GSList *tetris_player_get_next_piece(TetrisPlayer *player);
  * Set the player's next piece
  */
 void tetris_player_set_next_piece(TetrisPlayer *player, GSList *piece);
+
+/**
+ * Get the player's kept piece
+ */
+GSList *tetris_player_get_kept_piece(TetrisPlayer *player);
+
+/**
+ * Set the player's kept piece
+ */
+void tetris_player_set_kept_piece(TetrisPlayer *player, GSList *piece);
 
 /**
  * Set the player's current piece position

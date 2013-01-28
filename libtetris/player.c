@@ -91,6 +91,18 @@ void tetris_player_set_next_piece(TetrisPlayer *player, GSList *piece)
   player->next_piece = piece;
 }
 
+GSList *tetris_player_get_kept_piece(TetrisPlayer *player)
+{
+  return player->kept_piece;
+}
+
+void tetris_player_set_kept_piece(TetrisPlayer *player, GSList *piece)
+{
+  g_slist_free_full(player->kept_piece,
+                    (GDestroyNotify) tetris_cell_info_free);
+  player->kept_piece = piece;
+}
+
 gboolean tetris_player_is_admin(TetrisPlayer *player)
 {
   return player->admin;
