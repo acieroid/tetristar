@@ -12,6 +12,7 @@ TetrisPlayer *tetris_player_new(int id)
   player->matrix = tetris_matrix_new(10, 22);
   player->piece = NULL;
   player->next_piece = NULL;
+  player->kept_piece = NULL;
   player->piece_position[0] = 5;
   player->piece_position[1] = 0;
   player->bonuses = NULL;
