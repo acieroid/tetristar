@@ -108,13 +108,26 @@ function bonus.clear_specials(from, to)
    game.send_field(to)
 end
 
+-- Switch fields bonus
+function bonus.switch_fields(from, to)
+   local tmp
+   for line = 0,tetris.matrix.get_height(to)-1 do
+      for column = 0, tetris.matrix.get_width(to)-1 do
+         tmp = tetris.matrix.get_cell(to, column, line)
+         tetris.matrix.set_cell(to, column, line,
+                                tetris.matrix.get_cell(from, column, line))
+         tetris.matrix.set_cell(from, column, line, tmp)
+      end
+   end
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
    bonus.add_line,       -- a
    bonus.clear_line,     -- c
    bonus.nuke,           -- n
    bonus.dummy_bonus,    -- r
-   bonus.dummy_bonus,    -- s
+   bonus.switch_fields,  -- s
    bonus.clear_specials, -- b
    bonus.dummy_bonus,    -- q
    bonus.dummy_bonus     -- o
