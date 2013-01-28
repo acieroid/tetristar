@@ -1,5 +1,7 @@
 kept = {}
 
+-- Keep the current piece, swapping it with the previously kept piece
+-- (or with a new one if no piece has been kept previously)
 function kept.keep(id, command, args)
    local kept = tetris.player.get_kept_piece(id)
    tetris.server.send(id,
