@@ -43,6 +43,7 @@ static struct {
   { GDK_KEY_9, "BONUS 9" },
   { GDK_KEY_0, "BONUS 10" },
   { GDK_KEY_d, "BONUS 0" }, /* drop bonus */
+  { GDK_KEY_c, "KEEP" },
   { GDK_KEY_VoidSymbol, NULL }
 };
 
