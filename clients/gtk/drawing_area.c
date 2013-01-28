@@ -190,13 +190,13 @@ void drawing_area_init(DrawingArea *drawing_area)
 
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece_label,
-                     TRUE, TRUE, 0);
+                     FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece,
                      TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->bonuses_label,
-                     TRUE, TRUE, 0);
+                     FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->bonuses,
                      TRUE, TRUE, 0);
