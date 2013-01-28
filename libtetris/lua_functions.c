@@ -15,6 +15,8 @@ static int l_players_get_piece_position(lua_State *l);
 static int l_players_set_piece_position(lua_State *l);
 static int l_players_get_next_piece(lua_State *l);
 static int l_players_set_next_piece(lua_State *l);
+static int l_players_get_kept_piece(lua_State *l);
+static int l_players_set_kept_piece(lua_State *l);
 static int l_players_add_bonus(lua_State *l);
 static int l_players_remove_bonus(lua_State *l);
 static int l_players_has_bonus(lua_State *l);
@@ -64,6 +66,8 @@ static struct {
       { "set_piece_position", l_players_set_piece_position },
       { "get_next_piece", l_players_get_next_piece },
       { "set_next_piece", l_players_set_next_piece },
+      { "get_kept_piece", l_players_get_kept_piece },
+      { "set_kept_piece", l_players_set_kept_piece },
       { "add_bonus", l_players_add_bonus },
       { "remove_bonus", l_players_remove_bonus },
       { "has_bonus", l_players_has_bonus },
@@ -506,6 +510,55 @@ int l_players_set_next_piece(lua_State *l)
     tetris_player_set_next_piece(player, piece);
   } else {
     g_warning("tetris.players.set_next_piece: Player %d does not exists", id);
+  }
+
+  CHECK_STACK_END(l, 0);
+  return 0;
+}
+
+int l_players_get_kept_piece(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  GSList *piece;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  player = tetris_player_find(id);
+
+  if (player != NULL) {
+    piece = tetris_player_get_kept_piece(player);
+  } else {
+    g_warning("tetris.players.get_kept_piece: Player %d does not exists", id);
+    piece = NULL;
+  }
+
+  tetris_lua_push_fieldspec(l, piece);
+  CHECK_STACK_END(l, 1);
+  return 1;
+}
+
+int l_players_set_kept_piece(lua_State *l)
+{
+  int id;
+  TetrisPlayer *player;
+  GSList *piece;
+  CHECK_STACK_START(l);
+
+  luaL_checktype(l, 1, LUA_TNUMBER);
+  id = lua_tonumber(l, 1);
+
+  luaL_checktype(l, 2, LUA_TTABLE);
+  piece = tetris_lua_get_fieldspec(l, 2);
+
+  player = tetris_player_find(id);
+
+  if (player != NULL) {
+    tetris_player_set_kept_piece(player, piece);
+  } else {
+    g_warning("tetris.players.set_kept_piece: Player %d does not exists", id);
   }
 
   CHECK_STACK_END(l, 0);
