@@ -4,8 +4,6 @@ static void context_class_init(ContextClass *klass);
 static void context_init(Context *context);
 static gint context_compare(gpointer drawing_area, gpointer player);
 
-static GStaticMutex draw_mutex = G_STATIC_MUTEX_INIT;
-
 GType context_get_type(void)
 {
   static GType context_type = 0;
@@ -71,10 +69,6 @@ void context_remove_player(Context *context, TetrisPlayer *player)
   GtkWidget *drawing_area;
   GSList *elem;
 
-  /* take care of not removing a player while we're drawing */
-  /* TODO: check the mutex use */
-  g_static_mutex_lock(&draw_mutex);
-
   elem = g_slist_find_custom(context->drawing_areas,
                              (gpointer) player,
                              (GCompareFunc) context_compare);
@@ -85,16 +79,13 @@ void context_remove_player(Context *context, TetrisPlayer *player)
                                                elem);
   drawing_area_free(DRAWING_AREA(drawing_area));
 
-  g_static_mutex_unlock(&draw_mutex);
 }
 
 void context_remove_all_players(Context *context)
 {
-  g_static_mutex_lock(&draw_mutex);
   g_slist_free_full(context->drawing_areas,
                     (GDestroyNotify) drawing_area_free);
   context->drawing_areas = NULL;
-  g_static_mutex_unlock(&draw_mutex);
 }
 
 void context_field_changed(Context *context, TetrisPlayer *player)
