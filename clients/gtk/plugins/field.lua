@@ -65,13 +65,15 @@ end
 -- Update the displayed shadow of a player
 -- TODO: only do this for the client's player
 function field.update_shadow(id)
-   local p = tetris.player.get_piece(id)
-   p = piece.shift(p, tetris.player.get_piece_position(id))
-   while field.is_valid(id, p) do
-      p = piece.move(p, "DOWN")
+   if tetris.game.is_started() then
+      local p = tetris.player.get_piece(id)
+      p = piece.shift(p, tetris.player.get_piece_position(id))
+      while field.is_valid(id, p) do
+         p = piece.move(p, "DOWN")
+      end
+      p = piece.move(p, "UP")
+      tetris.client.context_set_shadow(id, p)
    end
-   p = piece.move(p, "UP")
-   tetris.client.context_set_shadow(id, p)
 end
 
 tetris.plugin.register("RECV", field.field, "FIELD")
