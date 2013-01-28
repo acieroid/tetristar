@@ -22,6 +22,7 @@
 |            |                  | STATE ID NOTPLAYING      | When a client connects to the server when a game is on, he has that state                                                        |
 |            |                  | BONUSRCV ID TYPE         | When a client receives a bonus                                                                                                   |
 |            | BONUS TARGET     | BONUS TYPE SOURCE TARGET | Usage of a bonus (the first in the bonus list), TARGET is the target player for this bonus. If TARGET is 0, the bonus is dropped |
+|            | KEEP             | KEPT FIELDSPEC           | The player keeps the current piece on the side and receive a new piece                                                           |
 * Description of the field (FIELDSPEC)
 The FIELDSPEC part of the FIELD command describe /changes/ to the
 field. An example of a FIELD command might be:
