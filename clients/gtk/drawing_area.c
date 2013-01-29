@@ -650,7 +650,7 @@ gboolean drawing_area_draw_kept_piece(DrawingArea *drawing_area)
     return FALSE;
 
   player = drawing_area->player;
-  cairo = gdk_cairo_create(drawing_area->next_piece->window);
+  cairo = gdk_cairo_create(drawing_area->kept_piece->window);
   status = cairo_status(cairo);
   if (status != CAIRO_STATUS_SUCCESS) {
     g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
@@ -660,15 +660,15 @@ gboolean drawing_area_draw_kept_piece(DrawingArea *drawing_area)
   gtk_widget_get_allocation(drawing_area->bonuses, &alloc);
   cairo_matrix_init_translate(&matrix,
                               alloc.width/2 -
-                              (NEXT_PIECE_WIDTH*drawing_area->cell_size)/2,
+                              (KEPT_PIECE_WIDTH*drawing_area->cell_size)/2,
                               0);
   cairo_matrix_scale(&matrix,
                      ((double) drawing_area->cell_size)/IMAGE_SIZE,
                      ((double) drawing_area->cell_size)/IMAGE_SIZE);
   cairo_transform(cairo, &matrix);
 
-  for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
-    for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
+  for (x = 0; x < KEPT_PIECE_WIDTH; x++) {
+    for (y = 0; y < KEPT_PIECE_HEIGHT; y++) {
       drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
     }
   }
@@ -677,8 +677,8 @@ gboolean drawing_area_draw_kept_piece(DrawingArea *drawing_area)
        elem = elem->next) {
     info = elem->data;
     drawing_area_cairo_draw_cell(drawing_area, cairo,
-                                 info->x+NEXT_PIECE_SHIFT_X,
-                                 info->y+NEXT_PIECE_SHIFT_Y, info->cell);
+                                 info->x+KEPT_PIECE_SHIFT_X,
+                                 info->y+KEPT_PIECE_SHIFT_Y, info->cell);
   }
 
   cairo_destroy(cairo);
