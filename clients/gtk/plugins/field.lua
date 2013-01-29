@@ -68,11 +68,16 @@ function field.update_shadow(id)
    local p = tetris.player.get_piece(id)
    if #p ~= 0 then
       p = piece.shift(p, tetris.player.get_piece_position(id))
-      while field.is_valid(id, p) do
-         p = piece.move(p, "DOWN")
+      if field.is_valid(id, p) then
+         while field.is_valid(id, p) do
+            p = piece.move(p, "DOWN")
+         end
+         p = piece.move(p, "UP")
+         tetris.client.context_set_shadow(id, p)
+      else
+         -- The player has lost, no shadow
+         tetris.client.context_set_shadow(id, {})
       end
-      p = piece.move(p, "UP")
-      tetris.client.context_set_shadow(id, p)
    end
 end
 
