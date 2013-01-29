@@ -147,6 +147,7 @@ bonus.actions = {
    bonus.dummy_bonus,    -- r
    bonus.switch_fields,  -- s
    bonus.clear_specials, -- b
+   bonus.dummy_bonus,    -- g
    bonus.dummy_bonus,    -- q
    bonus.dummy_bonus     -- o
 }
@@ -158,7 +159,7 @@ function bonus.use_bonus(id, command, args)
    if b ~= 0 and tetris.player.exists(target) or target == 0 then
       tetris.player.drop_bonus(id)
       if target ~= 0 then
-         bonus.actions[b - bonus.first_bonus](id, target)
+         bonus.actions[b - bonus.first_bonus + 1](id, target)
       end
       tetris.server.send_to_all(
          string.format("BONUS %d %d %d", b, id, target))
