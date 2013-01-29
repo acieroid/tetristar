@@ -3,7 +3,8 @@
 static void launch_network(GtkWidget *widget, gpointer data);
 static void send_command(Chat *chat, const gchar *args, gpointer data);
 static void unknown_command(Chat *chat, const gchar *command, gpointer data);
-static void quit(Chat *chat, const gchar *args, gpointer data);
+static void quit_command(Chat *chat, const gchar *args, gpointer data);
+static void disconnect_command(Chat *chat, const gchar *args, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
@@ -113,11 +114,10 @@ MainWindow *mainwindow_new(void)
                      G_CALLBACK(send_command), command_info);
   }
 
-  /* TODO: this make the application segfault */
   g_signal_connect(G_OBJECT(window->chat), "disconnect",
-                   G_CALLBACK(disconnect_clicked), window);
+                   G_CALLBACK(disconnect_command), window);
   g_signal_connect(G_OBJECT(window->chat), "quit",
-                   G_CALLBACK(quit), window);
+                   G_CALLBACK(quit_command), window);
 
   g_signal_connect(G_OBJECT(window->chat), "unknown-command",
                    G_CALLBACK(unknown_command), NULL);
@@ -238,7 +238,12 @@ void unknown_command(Chat *chat, const gchar *command, gpointer data)
   chat_add_colored_text(chat, "error", ">>> Unknown command: %s\n", command);
 }
 
-void quit(Chat *chat, const gchar *args, gpointer data)
+void disconnect_command(Chat *chat, const gchar *args, gpointer data)
+{
+  disconnect_clicked(GTK_WIDGET(chat), data);
+}
+
+void quit_command(Chat *chat, const gchar *args, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   gtk_widget_destroy(GTK_WIDGET(window->window));
