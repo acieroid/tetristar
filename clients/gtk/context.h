@@ -56,6 +56,11 @@ void context_next_piece_changed(Context *context, TetrisPlayer *player);
 void context_bonuses_changed(Context *context, TetrisPlayer *player);
 
 /**
+ * Mark a player's kept piece as changed
+ */
+void context_kept_piece_changed(Context *context, TetrisPlayer *player);
+
+/**
  * Set the shadow of a player's piece
  */
 void context_set_shadow(Context *context, TetrisPlayer *player, GSList *shadow);
