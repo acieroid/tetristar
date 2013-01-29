@@ -3,6 +3,7 @@
 static void launch_network(GtkWidget *widget, gpointer data);
 static void send_command(Chat *chat, const gchar *args, gpointer data);
 static void unknown_command(Chat *chat, const gchar *command, gpointer data);
+static void quit(Chat *chat, const gchar *args, gpointer data);
 static void connected_layout(GtkWidget *widget, gpointer data);
 static void disconnected_layout(GtkWidget *widget, gpointer data);
 static void unlock_button(GtkWidget *widget, gpointer data);
@@ -19,7 +20,6 @@ static void disconnect_clicked(GtkWidget *widget, gpointer data);
 static void play_clicked(GtkWidget *widget, gpointer data);
 static void pause_clicked(GtkWidget *widget, gpointer data);
 static void stop_clicked(GtkWidget *widget, gpointer data);
-static void quit(GtkWidget *widget, gpointer data);
 static void focus_context(GtkWidget *widget, GtkDirectionType dir, gpointer data);
 
 /* TODO: use a better way to represent keybinds (they can do more than
@@ -114,12 +114,10 @@ MainWindow *mainwindow_new(void)
   }
 
   /* TODO: this make the application segfault */
-#if 0
   g_signal_connect(G_OBJECT(window->chat), "disconnect",
                    G_CALLBACK(disconnect_clicked), window);
   g_signal_connect(G_OBJECT(window->chat), "quit",
                    G_CALLBACK(quit), window);
-#endif
 
   g_signal_connect(G_OBJECT(window->chat), "unknown-command",
                    G_CALLBACK(unknown_command), NULL);
@@ -238,6 +236,13 @@ void unknown_command(Chat *chat, const gchar *command, gpointer data)
   }
 
   chat_add_colored_text(chat, "error", ">>> Unknown command: %s\n", command);
+}
+
+void quit(Chat *chat, const gchar *args, gpointer data)
+{
+  MainWindow *window = (MainWindow *) data;
+  gtk_widget_destroy(GTK_WIDGET(window->window));
+  gtk_main_quit();
 }
 
 void connected_layout(GtkWidget *widget, gpointer data)
@@ -369,12 +374,6 @@ void stop_clicked(GtkWidget *widget, gpointer data)
 {
   MainWindow *window = (MainWindow *) data;
   network_send(window->network, "STOP");
-}
-
-void quit(GtkWidget *widget, gpointer data)
-{
-  MainWindow *window = (MainWindow *) data;
-  gtk_widget_destroy(GTK_WIDGET(window));
 }
 
 void focus_context(GtkWidget *widget, GtkDirectionType dir, gpointer data)
