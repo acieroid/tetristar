@@ -65,8 +65,8 @@ end
 -- Update the displayed shadow of a player
 -- TODO: only do this for the client's player
 function field.update_shadow(id)
-   if tetris.game.is_started() then
-      local p = tetris.player.get_piece(id)
+   local p = tetris.player.get_piece(id)
+   if #p ~= 0 then
       p = piece.shift(p, tetris.player.get_piece_position(id))
       while field.is_valid(id, p) do
          p = piece.move(p, "DOWN")
