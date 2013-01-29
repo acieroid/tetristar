@@ -7,6 +7,26 @@ for i = 0, 9 do
    bonus.cells[i] = bonus.first_bonus + i
 end
 
+-- Bonus frequencies, values taken from tetrinetx
+bonus.freqs = {}
+bonus.freqs[1] = 32 -- a
+bonus.freqs[2] = 18 -- c
+bonus.freqs[3] = 1  -- n
+bonus.freqs[4] = 11 -- r
+bonus.freqs[5] = 3  -- s
+bonus.freqs[6] = 14 -- b
+bonus.freqs[7] = 1  -- g
+bonus.freqs[8] = 6  -- q
+bonus.freqs[9] = 14 -- o
+
+-- Initialize the bonus distribution
+bonus.distribution = {}
+for i, f in ipairs(bonus.freqs) do
+   for j = 0, f-1 do
+      bonus.distribution[#bonus.distribution + 1] = bonus.first_bonus + i - 1
+   end
+end
+
 -- Maximum number of bonuses a player can receive when he clears a line
 bonus.max_bonuses = 2
 
@@ -17,7 +37,7 @@ end
 
 -- Return a random bonus
 function bonus.random_bonus()
-   return bonus.cells[math.random(#bonus.cells)]
+   return bonus.cells[bonus.distribution[math.random(#bonus.distribution)] - bonus.first_bonus]
 end
 
 -- Return the possible positions where we can add a bonus for a player
