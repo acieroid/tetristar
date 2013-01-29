@@ -4,8 +4,10 @@ kept = {}
 -- (or with a new one if no piece has been kept previously)
 function kept.keep(id, command, args)
    local piece = tetris.player.get_kept_piece(id)
+
    tetris.server.send(id,
-                      string.format("KEPT %d %s", id, game.to_fieldspec(piece)))
+                      string.format("KEPT %d %s", id, 
+                                    game.to_fieldspec(tetris.player.get_piece(id))))
    tetris.player.set_kept_piece(id, tetris.player.get_piece(id))
    if #piece == 0 then
       field.new_piece(id)
