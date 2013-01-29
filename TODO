@@ -20,9 +20,7 @@ Doc:
   - Write some documentation
 
 BUGS:
-  - Sometimes the connection is closed without any reason
-  - Some problems with the signals in the client (with disconnect &
-    quit)
+  - Auto scroll the chat to the bottom
 
 Random ideas:
   - Detect and reward T-spins
