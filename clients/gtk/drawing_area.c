@@ -24,6 +24,13 @@ static gboolean drawing_area_expose_bonuses(GtkWidget *widget,
                                             GdkEventExpose *event,
                                             gpointer data);
 static gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area);
+static gboolean drawing_area_configure_kept_piece(GtkWidget *widget,
+                                                  GdkEvent *event,
+                                                  gpointer data);
+static gboolean drawing_area_expose_kept_piece(GtkWidget *widget,
+                                               GdkEventExpose *event,
+                                               gpointer data);
+static gboolean drawing_area_draw_kept_piece(DrawingArea *drawing_area);
 static void drawing_area_cairo_draw_cell(DrawingArea *drawing_area,
                                          cairo_t *cairo, int x, int y,
                                          TetrisCell cell);
@@ -141,6 +148,7 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->field = gtk_drawing_area_new();
   drawing_area->next_piece = gtk_drawing_area_new();
   drawing_area->bonuses = gtk_drawing_area_new();
+  drawing_area->kept_piece = gtk_drawing_area_new();
   drawing_area->left_vbox = gtk_vbox_new(FALSE, 0);
   drawing_area->right_vbox = gtk_vbox_new(FALSE, 0);
   drawing_area->info_hbox = gtk_hbox_new(FALSE, 0);
@@ -148,9 +156,11 @@ void drawing_area_init(DrawingArea *drawing_area)
   drawing_area->name_label = gtk_label_new("");
   drawing_area->next_piece_label = gtk_label_new("Next piece:");
   drawing_area->bonuses_label = gtk_label_new("Bonuses:");
+  drawing_area->kept_piece_label = gtk_label_new("Kept piece:");
   drawing_area->changed = TRUE;
   drawing_area->changed_next_piece = TRUE;
   drawing_area->changed_bonuses = TRUE;
+  drawing_area->changed_kept_piece = TRUE;
   drawing_area->cell_size = 0;
   drawing_area->shadow = NULL;
 
@@ -168,6 +178,11 @@ void drawing_area_init(DrawingArea *drawing_area)
                    G_CALLBACK(drawing_area_configure_bonuses), drawing_area);
   g_signal_connect(G_OBJECT(drawing_area->bonuses), "expose-event",
                    G_CALLBACK(drawing_area_expose_bonuses), drawing_area);
+
+  g_signal_connect(G_OBJECT(drawing_area->kept_piece), "configure-event",
+                   G_CALLBACK(drawing_area_configure_kept_piece), drawing_area);
+  g_signal_connect(G_OBJECT(drawing_area->kept_piece), "expose-event",
+                   G_CALLBACK(drawing_area_expose_kept_piece), drawing_area);
 
   /* we try to refresh each 100ms */
   drawing_area->timeout_tag = g_timeout_add(100, drawing_area_update, drawing_area);
@@ -193,6 +208,12 @@ void drawing_area_init(DrawingArea *drawing_area)
                      FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->next_piece,
+                     TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->kept_piece_label,
+                     FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
+                     drawing_area->kept_piece,
                      TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(drawing_area->right_vbox),
                      drawing_area->bonuses_label,
@@ -245,6 +266,26 @@ void drawing_area_set_changed(DrawingArea *drawing_area)
 void drawing_area_set_next_piece_changed(DrawingArea *drawing_area)
 {
   drawing_area->changed_next_piece = TRUE;
+}
+
+void drawing_area_set_bonuses_changed(DrawingArea *drawing_area)
+{
+  drawing_area->changed_bonuses = TRUE;
+}
+
+void drawing_area_set_kept_piece_changed(DrawingArea *drawing_area)
+{
+  drawing_area->changed_kept_piece = TRUE;
+}
+
+void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow)
+{
+  if (drawing_area->shadow != NULL) {
+    g_slist_free_full(drawing_area->shadow,
+                      (GDestroyNotify) tetris_cell_info_free);
+  }
+
+  drawing_area->shadow = shadow;
 }
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -573,17 +614,73 @@ gboolean drawing_area_draw_bonuses(DrawingArea *drawing_area)
   return TRUE;
 }
 
-void drawing_area_set_bonuses_changed(DrawingArea *drawing_area)
+gboolean drawing_area_configure_kept_piece(GtkWidget *widget,
+                                           GdkEvent *event,
+                                           gpointer data)
 {
-  drawing_area->changed_bonuses = TRUE;
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_kept_piece(drawing_area);
 }
 
-void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow)
+gboolean drawing_area_expose_kept_piece(GtkWidget *widget,
+                                        GdkEventExpose *event,
+                                        gpointer data)
 {
-  if (drawing_area->shadow != NULL) {
-    g_slist_free_full(drawing_area->shadow,
-                      (GDestroyNotify) tetris_cell_info_free);
+  DrawingArea *drawing_area = (DrawingArea *) data;
+  return drawing_area_draw_kept_piece(drawing_area);
+}
+
+#define KEPT_PIECE_WIDTH 5
+#define KEPT_PIECE_HEIGHT 5
+#define KEPT_PIECE_SHIFT_X 2
+#define KEPT_PIECE_SHIFT_Y 1
+gboolean drawing_area_draw_kept_piece(DrawingArea *drawing_area)
+{
+  TetrisPlayer *player;
+  TetrisCellInfo *info;
+  cairo_t *cairo;
+  cairo_status_t status;
+  cairo_matrix_t matrix;
+  int x, y;
+  GSList *elem;
+  GtkAllocation alloc;
+
+  if (!gtk_widget_get_realized(drawing_area->field) ||
+      drawing_area->cell_size == 0)
+    return FALSE;
+
+  player = drawing_area->player;
+  cairo = gdk_cairo_create(drawing_area->next_piece->window);
+  status = cairo_status(cairo);
+  if (status != CAIRO_STATUS_SUCCESS) {
+    g_error("Cannot create cairo context: %s", cairo_status_to_string(status));
+    g_return_val_if_reached(FALSE);
   }
 
-  drawing_area->shadow = shadow;
+  gtk_widget_get_allocation(drawing_area->bonuses, &alloc);
+  cairo_matrix_init_translate(&matrix,
+                              alloc.width/2 -
+                              (NEXT_PIECE_WIDTH*drawing_area->cell_size)/2,
+                              0);
+  cairo_matrix_scale(&matrix,
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE,
+                     ((double) drawing_area->cell_size)/IMAGE_SIZE);
+  cairo_transform(cairo, &matrix);
+
+  for (x = 0; x < NEXT_PIECE_WIDTH; x++) {
+    for (y = 0; y < NEXT_PIECE_HEIGHT; y++) {
+      drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
+    }
+  }
+
+  for (elem = tetris_player_get_kept_piece(player); elem != NULL;
+       elem = elem->next) {
+    info = elem->data;
+    drawing_area_cairo_draw_cell(drawing_area, cairo,
+                                 info->x+NEXT_PIECE_SHIFT_X,
+                                 info->y+NEXT_PIECE_SHIFT_Y, info->cell);
+  }
+
+  cairo_destroy(cairo);
+  return TRUE;
 }

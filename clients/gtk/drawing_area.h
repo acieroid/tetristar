@@ -31,13 +31,13 @@ typedef struct DrawingArea {
   GtkWidget *left_vbox, *right_vbox;
   GtkWidget *info_hbox;
   GtkWidget *number_label, *name_label;
-  GtkWidget *next_piece_label, *bonuses_label;
-  GtkWidget *field, *next_piece, *bonuses;
+  GtkWidget *next_piece_label, *bonuses_label, *kept_piece_label;
+  GtkWidget *field, *next_piece, *bonuses, *kept_piece;
 
   TetrisPlayer *player;
   GSList *shadow;
   guint timeout_tag;
-  gboolean changed, changed_next_piece, changed_bonuses;
+  gboolean changed, changed_next_piece, changed_bonuses, changed_kept_piece;
   int cell_size;
 } DrawingArea;
 
@@ -76,6 +76,11 @@ void drawing_area_set_next_piece_changed(DrawingArea *drawing_area);
  * Mark the player's bonuses as changed
  */
 void drawing_area_set_bonuses_changed(DrawingArea *drawing_area);
+
+/**
+ * Mark the player's kept piece as changed
+ */
+void drawing_area_set_kept_piece_changed(DrawingArea *drawing_area);
 
 /**
  * Set the shadow of this drawing area
