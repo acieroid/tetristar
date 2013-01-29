@@ -1,18 +1,17 @@
 Server:
-  - Bonuses
-    - Add bonus "distribution" (eg. 5% nukes, 20% add, 20% clear, ...)
-    - Implement all tetrinet's bonuses
+  - See how some bonuses (blockquake, block bomb, random clear)
+    behaves in tetrinet and implement them
   - Improve rotation (compare to other tetrises first)
     - Direction of rotation
     - Repeating layouts: S only have two rotations in tetris, but 4 in
       tetristar (two shifted by one case)
-  - "Keep" a piece on the side (c in tetrisfriends)
 
 Client:
   - Remember nickname, server name in the client
   - Widget to connect as admin
   - Improve drawing performance:
     - Only draw what changed in the matrix
+  - Factor the drawing area code
 
 Libtetris:
   - Move some lua code from the client and server to libtetris
