@@ -330,6 +330,11 @@ gboolean drawing_area_update(gpointer data)
     res = res && drawing_area_draw_bonuses(drawing_area);
   }
 
+  if (drawing_area->changed_kept_piece) {
+    drawing_area->changed_kept_piece = FALSE;
+    res =  res && drawing_area_draw_kept_piece(drawing_area);
+  }
+
   return res;
 }
 
