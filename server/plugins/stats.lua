@@ -36,10 +36,19 @@ function stats.send()
    for i, id in pairs(tetris.player.all()) do
       local cleared = stats.cleared[id]
       local dropped = stats.dropped[id]
-      local drop_per_min = (60*stats.dropped[id])/(stats.end_time[id]-stats.start_time[id])
-      tetris.server.send_to_all(
-         string.format("SERVMSG Statistics for %s: %d lines cleared, %d blocks dropped, %.2f block drop/min",
-                       tetris.player.get_nick(id), cleared, dropped, drop_per_min))
+      local start_time = stats.start_time[id]
+      local end_time = stats.end_time[id]
+      if start_time ~= nil and end_time ~= nil then
+         local drop_per_min = (60*dropped)/(end_time-start_time)
+         tetris.server.send_to_all(
+            string.format("SERVMSG Statistics for %s: %d lines cleared, %d blocks dropped, %.2f block drop/min",
+                          tetris.player.get_nick(id), cleared, dropped, drop_per_min))
+      end
    end
+   -- Reinitializes stats
+   stats.dropped = {}
+   stats.cleared = {}
+   stats.start_time = {}
+   stats.end_time = {}
 end
 
