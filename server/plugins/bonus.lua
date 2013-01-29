@@ -1,10 +1,10 @@
 bonus = {}
 
-bonus.first_bonus = #piece.pieces
+bonus.first_bonus = #piece.cells
 bonus.cells = {}
 -- Bonuses are: a, c, n, r, s, b, g, q, o
-for i = 0, 9 do
-   bonus.cells[i] = bonus.first_bonus + i
+for i = 1, 9 do
+   bonus.cells[i] = bonus.first_bonus + i - 1
 end
 
 -- Bonus frequencies, values taken from tetrinetx
@@ -27,9 +27,6 @@ for i, f in ipairs(bonus.freqs) do
    end
 end
 
--- Maximum number of bonuses a player can receive when he clears a line
-bonus.max_bonuses = 2
-
 -- Check if a cell is a bonus
 function bonus.is_bonus(cell)
    return (cell > bonus.first_bonus and cell < bonus.first_bonus + #bonus.cells)
@@ -37,7 +34,7 @@ end
 
 -- Return a random bonus
 function bonus.random_bonus()
-   return bonus.cells[bonus.distribution[math.random(#bonus.distribution)] - bonus.first_bonus]
+   return bonus.cells[bonus.distribution[math.random(#bonus.distribution)] - bonus.first_bonus + 1]
 end
 
 -- Return the possible positions where we can add a bonus for a player
@@ -59,7 +56,6 @@ end
 -- Add random bonuses to a player's matrix
 function bonus.add_bonuses(id, n)
    -- This line can be uncommented to have a different behaviour from tetrinet
-   -- n = math.random(bonus.max_bonuses) -- number of bonuses to add
    for i = 0, n-1 do
       b = bonus.random_bonus()
       -- add the bonus to a random position
