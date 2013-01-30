@@ -9,8 +9,6 @@ Server:
 Client:
   - Remember nickname, server name in the client
   - Widget to connect as admin
-  - Improve drawing performance:
-    - Only draw what changed in the matrix
   - Factor the drawing area code
 
 Libtetris:
@@ -21,6 +19,7 @@ Doc:
 
 BUGS:
   - Auto scroll the chat to the bottom
+  - Sometimes when a piece is dropped it is not displayed
 
 Random ideas:
   - Detect and reward T-spins
