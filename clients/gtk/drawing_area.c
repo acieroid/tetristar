@@ -258,8 +258,16 @@ TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area)
   return drawing_area->player;
 }
 
-void drawing_area_set_changed(DrawingArea *drawing_area)
+void drawing_area_set_changed(DrawingArea *drawing_area, GSList *changes)
 {
+  GSList *elem;
+  TetrisCellInfo *info;
+
+  for (elem = changes; elem != NULL; elem = elem->next) {
+    info = (TetrisCellInfo *) elem->data;
+    drawing_area->changes[info->x][info->y] = TRUE;
+  }
+
   drawing_area->changed = TRUE;
 }
 
@@ -299,6 +307,7 @@ gboolean drawing_area_configure(GtkWidget *widget,
   gtk_widget_get_allocation(widget, &alloc);
   drawing_area->cell_size = min(alloc.height/22, alloc.width/10);
 
+  drawing_area->draw_everything = TRUE;
   return drawing_area_draw(drawing_area);
 }
 
@@ -307,6 +316,7 @@ gboolean drawing_area_expose(GtkWidget *widget,
                              gpointer data)
 {
   DrawingArea *drawing_area = (DrawingArea *) data;
+  drawing_area->draw_everything = TRUE;
   return drawing_area_draw(drawing_area);
 }
 
@@ -398,6 +408,8 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
     info = elem->data;
     if (x + info->x >= 0 && y + info->y >= 0) {
       field[x + info->x][y + info->y] = info->cell;
+      /* always draw the piece */
+      drawing_area->changes[x + info->x][y + info->y] = TRUE;
     }
   }
 
@@ -407,11 +419,14 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
       if (field[x][y] == SHADOW) {
         drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
         drawing_area_cairo_draw_shadow(drawing_area, cairo, x, y);
-      } else {
+      } else if (drawing_area->changes[x][y] || drawing_area->draw_everything
+                 || field[x][y] == 0) {
         drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, field[x][y]);
+        drawing_area->changes[x][y] = FALSE;
       }
     }
   }
+  drawing_area->draw_everything = FALSE;
 
   /* Draw optional 'Not playing' text */
   if (!tetris_player_is_playing(player)) {

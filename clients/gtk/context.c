@@ -87,7 +87,7 @@ void context_remove_all_players(Context *context)
   context->drawing_areas = NULL;
 }
 
-void context_field_changed(Context *context, TetrisPlayer *player)
+void context_field_changed(Context *context, TetrisPlayer *player, GSList *changes)
 {
   GtkWidget *drawing_area;
   GSList *elem;
@@ -99,7 +99,7 @@ void context_field_changed(Context *context, TetrisPlayer *player)
     g_return_if_reached();
 
   drawing_area = elem->data;
-  drawing_area_set_changed(DRAWING_AREA(drawing_area));
+  drawing_area_set_changed(DRAWING_AREA(drawing_area), changes);
 }
 
 void context_next_piece_changed(Context *context, TetrisPlayer *player)

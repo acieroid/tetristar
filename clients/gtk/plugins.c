@@ -107,13 +107,17 @@ int l_context_field_changed(lua_State *l)
 {
   int id;
   TetrisPlayer *player;
+  GSList *changes;
 
   luaL_checktype(l, 1, LUA_TNUMBER);
   id = lua_tonumber(l, 1);
   player = tetris_player_find(id);
 
+  luaL_checktype(l, 2, LUA_TTABLE);
+  changes = tetris_lua_get_fieldspec(l, 2);
+
   if (player != NULL) {
-    context_field_changed(CONTEXT(main_window->context), player);
+    context_field_changed(CONTEXT(main_window->context), player, changes);
   } else {
     g_warning("tetris.client.context_field_changed: Player %d does not exists", id);
   }

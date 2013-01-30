@@ -10,7 +10,7 @@ function game.state(id, command, args)
       playing = false
    end
    tetris.player.set_playing(user_id, playing)
-   tetris.client.context_field_changed(user_id) -- refresh the drawing
+   tetris.client.context_field_changed(user_id, {}) -- refresh the drawing
 end
 
 function game.won(id, command, args)

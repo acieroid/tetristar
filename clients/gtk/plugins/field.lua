@@ -8,7 +8,7 @@ function field.field(id, command, args)
       tetris.matrix.set_cell(user_id, cell[1], cell[2], cell[3])
    end
    tetris.matrix.commit(user_id)
-   tetris.client.context_field_changed(user_id)
+   tetris.client.context_field_changed(user_id, fieldspec)
    field.update_shadow(user_id)
 end
 
@@ -16,9 +16,11 @@ function field.piece(id, command, args)
    -- PIECE ID FIELDSPEC
    local user_id, fieldspec = utils.split(args, " ", 
                                           tonumber, utils.parse_fieldspec)
+
+   tetris.client.context_field_changed(user_id, {})
+
+   -- Set new piece
    tetris.player.set_piece(user_id, fieldspec)
-   tetris.client.context_field_changed(user_id)
-   field.update_shadow(user_id)
 end
 
 function field.nextpiece(id, command, args)
@@ -35,9 +37,10 @@ function field.piecepos(id, command, args)
                                      tonumber, utils.identity)
    local x, y = utils.split(rest, ",",
                             tonumber, tonumber)
+
+   -- Set the new piece
    tetris.player.set_piece_position(user_id, {x, y})
-   tetris.client.context_field_changed(user_id)
-   field.update_shadow(user_id)
+   field.update_shadow(user_id, p)
 end
 
 function field.is_player_piece_on_cell(id, cell)

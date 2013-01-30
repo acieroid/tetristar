@@ -39,6 +39,9 @@ typedef struct DrawingArea {
   guint timeout_tag;
   gboolean changed, changed_next_piece, changed_bonuses, changed_kept_piece;
   int cell_size;
+
+  gboolean draw_everything;
+  gboolean changes[10][22];
 } DrawingArea;
 
 typedef struct DrawingAreaClass {
@@ -65,7 +68,7 @@ TetrisPlayer *drawing_area_get_player(DrawingArea *drawing_area);
  * Mark the player's field as "changed", which will have as effect that
  * the field will be refreshed on the display
  */
-void drawing_area_set_changed(DrawingArea *drawing_area);
+void drawing_area_set_changed(DrawingArea *drawing_area, GSList *changes);
 
 /**
  * Mark the player's next piece as "changed".
@@ -90,5 +93,3 @@ void drawing_area_set_shadow(DrawingArea *drawing_area, GSList *shadow);
 G_END_DECLS
 
 #endif /* DRAWING_AREA_H */
-
-
