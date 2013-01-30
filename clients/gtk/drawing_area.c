@@ -417,7 +417,9 @@ gboolean drawing_area_draw(DrawingArea *drawing_area)
   for (x = 0; x < tetris_matrix_get_width(matrix); x++) {
     for (y = 0; y < tetris_matrix_get_height(matrix); y++) {
       if (field[x][y] == SHADOW) {
-        drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
+        if (drawing_area->changes[x][y] || drawing_area->draw_everything) {
+          drawing_area_cairo_draw_cell(drawing_area, cairo, x, y, 0);
+        }
         drawing_area_cairo_draw_shadow(drawing_area, cairo, x, y);
       } else if (drawing_area->changes[x][y] || drawing_area->draw_everything
                  || field[x][y] == 0) {
