@@ -70,6 +70,10 @@ function game.start(id, command, args)
          field.new_piece(player_id)
          game.send_piece(player_id)
          game.send_next_piece(player_id)
+
+         tetris.player.set_kept_piece(player_id, {})
+         kept.send_kept_piece(player_id)
+
          stats.player_started(player_id)
       end
       -- start the game
