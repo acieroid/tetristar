@@ -17,7 +17,7 @@ bonus.freqs[5] = 3  -- s
 bonus.freqs[6] = 14 -- b
 bonus.freqs[7] = 1  -- g
 bonus.freqs[8] = 6  -- q
-bonus.freqs[9] = 1400 -- o
+bonus.freqs[9] = 14 -- o
 
 -- Initialize the bonus distribution
 bonus.distribution = {}

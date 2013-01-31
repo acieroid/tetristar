@@ -1,6 +1,4 @@
 Server:
-  - See how some bonuses (blockquake, block bomb, random clear)
-    behaves in tetrinet and implement them
 
 Client:
   - Remember nickname, server name in the client
