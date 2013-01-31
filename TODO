@@ -1,10 +1,6 @@
 Server:
   - See how some bonuses (blockquake, block bomb, random clear)
     behaves in tetrinet and implement them
-  - Improve rotation (compare to other tetrises first)
-    - Direction of rotation
-    - Repeating layouts: S only have two rotations in tetris, but 4 in
-      tetristar (two shifted by one case)
 
 Client:
   - Remember nickname, server name in the client
