@@ -120,6 +120,7 @@ function bonus.clear_random(from, to)
       local y = math.random(tetris.matrix.get_height(to))-1
       tetris.matrix.set_cell(to, x, y, 0)
    end
+   game.send_field(to)
 end                       
 
 -- Switch fields bonus
