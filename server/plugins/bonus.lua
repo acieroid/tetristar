@@ -17,7 +17,7 @@ bonus.freqs[5] = 3  -- s
 bonus.freqs[6] = 14 -- b
 bonus.freqs[7] = 1  -- g
 bonus.freqs[8] = 6  -- q
-bonus.freqs[9] = 14 -- o
+bonus.freqs[9] = 1400 -- o
 
 -- Initialize the bonus distribution
 bonus.distribution = {}
@@ -187,6 +187,41 @@ function bonus.block_quake(from, to)
    game.send_field(to)
 end
 
+-- Make the bombs blocks explose
+function bonus.block_bomb(from, to)
+   local neighbours = {{-1, -1}, { 0, -1}, { 1, -1},
+                       {-1,  0},           { 1,  0},
+                       {-1,  1}, { 0,  1}, { 1,  1}}
+   local blocks = {}
+   -- Remove the block bombs and remember the neighbour blocks
+   for line = 0, tetris.matrix.get_height(to)-1 do
+      for column = 0, tetris.matrix.get_width(to)-1 do
+         local cell = tetris.matrix.get_uncommited_cell(to, column, line)
+         if cell == bonus.first_bonus + 8 then
+            tetris.matrix.set_cell(to, column, line, 0)
+            for i, n in ipairs(neighbours) do
+               cell = tetris.matrix.get_uncommited_cell(to, column + n[1], line + n[2])
+               if cell == bonus.first_bonus + 8 then
+                  cell = 0
+               else
+                  tetris.matrix.set_cell(to, column + n[1], line + n[2], 0)
+               end
+               blocks[#blocks + 1] = cell
+            end
+         end
+      end
+   end
+
+   -- Distribute the blocks
+   for i, b in ipairs(blocks) do
+      local x = math.random(tetris.matrix.get_width(to))-1
+      local y = math.random(tetris.matrix.get_height(to)-6)-1+6
+      tetris.matrix.set_cell(to, x, y, b)
+   end
+
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
    bonus.add_line,       -- a
@@ -197,7 +232,7 @@ bonus.actions = {
    bonus.clear_specials, -- b
    bonus.block_gravity,  -- g
    bonus.block_quake,    -- q
-   bonus.dummy_bonus     -- o
+   bonus.block_bomb      -- o
 }
 
 -- Called when a player uses a bonus   
