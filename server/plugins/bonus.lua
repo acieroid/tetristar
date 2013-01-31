@@ -150,6 +150,25 @@ function bonus.clear_specials(from, to)
    game.send_field(to)
 end
 
+-- Apply gravity to the blocks
+function bonus.block_gravity(from, to)
+   -- Implementation inspired from gtetrinet
+   for line = 0, tetris.matrix.get_height(to)-1 do
+      for column = 0, tetris.matrix.get_width(to)-1 do
+         local cell = tetris.matrix.get_uncommited_cell(to, column, line)
+         if cell == 0 then
+            -- Empty cell, the blocks above fall down
+            for i = line, 1, -1 do
+               local above = tetris.matrix.get_uncommited_cell(to, column, i-1)
+               tetris.matrix.set_cell(to, column, i, above)
+            end
+            tetris.matrix.set_cell(to, column, 0, 0)
+         end
+      end
+   end
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
    bonus.add_line,       -- a
@@ -158,7 +177,7 @@ bonus.actions = {
    bonus.clear_random,   -- r
    bonus.switch_fields,  -- s
    bonus.clear_specials, -- b
-   bonus.dummy_bonus,    -- g
+   bonus.block_gravity,  -- g
    bonus.dummy_bonus,    -- q
    bonus.dummy_bonus     -- o
 }
