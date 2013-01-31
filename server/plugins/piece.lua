@@ -121,9 +121,17 @@ function piece.rotate(p, direction)
    if p[1][3] == 7 then
       -- The O don't rotate
       return p
-   elseif p[1][3] == 4 or p[1][3] == 5 or p[1][3] == 6 then
+   elseif ((p[1][3] == 4 and p[1][1] == 0) or
+           (p[1][3] == 5 and p[2][2] == 1) or
+
+           (p[1][3] == 6 and p[1][1] == 1)) then
       -- The S, Z and I only have two rotations
-      -- TODO: find a transformation that rotates them in the way they should.
+      -- Yes this is ugly.
+      if direction == "RIGHT" then
+         rot = rot_left
+      else
+         rot = rot_right
+      end
    end
 
    -- General case rotation
