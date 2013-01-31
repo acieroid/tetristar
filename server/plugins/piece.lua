@@ -112,6 +112,21 @@ function piece.rotate(p, direction)
       return p
    end
 
+   -- Empty piece
+   if #p == 0 then
+      return p
+   end
+
+   -- Special case rotations
+   if p[1][3] == 7 then
+      -- The O don't rotate
+      return p
+   elseif p[1][3] == 4 or p[1][3] == 5 or p[1][3] == 6 then
+      -- The S, Z and I only have two rotations
+      -- TODO: find a transformation that rotates them in the way they should.
+   end
+
+   -- General case rotation
    local new_p = {}
    for i, cell in pairs(p) do
       new_p[i] = {cell[1]*rot[1][1] + cell[2]*rot[1][2],
