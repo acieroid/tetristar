@@ -287,3 +287,24 @@ function field.is_valid_player_piece(id)
    p = piece.shift(p, tetris.player.get_piece_position(id))
    return field.is_valid_piece(id, p)
 end
+
+-- Shift a line of a player's field
+function field.shift_line(id, line, shift)
+   if shift > 0 then
+      for column = tetris.matrix.get_width(id)-1, 0, -1 do
+         local cell = 0
+         if column >= shift then
+            cell = tetris.matrix.get_uncommited_cell(id, column-shift, line)
+         end
+         tetris.matrix.set_cell(id, column, line, cell)
+      end
+   elseif shift < 0 then
+      for column = 0, tetris.matrix.get_width(id)-1 do
+         local cell = 0
+         if column < tetris.matrix.get_width(id)-1 + shift then
+            cell = tetris.matrix.get_uncommited_cell(id, column-shift, line)
+         end
+         tetris.matrix.set_cell(id, column, line, cell)
+      end
+   end
+end

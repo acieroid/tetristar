@@ -169,6 +169,24 @@ function bonus.block_gravity(from, to)
    game.send_field(to)
 end
 
+-- Apply a block quake, shifting each line randomly
+function bonus.block_quake(from, to)
+   -- Implementation inspired from gtetrinet
+   for line = 0, tetris.matrix.get_height(to)-1 do
+      -- Compute a random shift
+      local shift = 0
+      local n = math.random(22)
+      if n < 1 then shift = shift+1 end
+      if n < 4 then shift = shift+1 end
+      if n < 11 then shift = shift+1 end
+      if math.random(2) == 1 then shift = -shift end
+
+      -- Shift the line
+      field.shift_line(to, line, shift)
+   end
+   game.send_field(to)
+end
+
 -- Contains the actions to do when a bonus is used
 bonus.actions = {
    bonus.add_line,       -- a
@@ -178,7 +196,7 @@ bonus.actions = {
    bonus.switch_fields,  -- s
    bonus.clear_specials, -- b
    bonus.block_gravity,  -- g
-   bonus.dummy_bonus,    -- q
+   bonus.block_quake,    -- q
    bonus.dummy_bonus     -- o
 }
 
