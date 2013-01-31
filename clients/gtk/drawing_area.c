@@ -452,17 +452,16 @@ void drawing_area_cairo_draw_cell(DrawingArea *drawing_area, cairo_t *cairo, int
 {
   cairo_save(cairo);
   cairo_translate(cairo, x*IMAGE_SIZE, y*IMAGE_SIZE);
-#ifdef USE_PNG
-  cairo_rectangle(cairo, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
-
   if (cell < N_CELLS) {
+#ifdef USE_PNG
+    cairo_rectangle(cairo, 0, 0, IMAGE_SIZE, IMAGE_SIZE);
     cairo_set_source_surface(cairo, images[cell],
                              x*IMAGE_SIZE, y*IMAGE_SIZE);
-  }
-  cairo_fill(cairo);
+    cairo_fill(cairo);
 #else
-  rsvg_handle_render_cairo(images[cell], cairo);
+    rsvg_handle_render_cairo(images[cell], cairo);
 #endif
+  }
 
   cairo_restore(cairo);
 }
