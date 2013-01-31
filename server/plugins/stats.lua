@@ -23,11 +23,17 @@ end
 
 -- Called when n line are cleared by a player
 function stats.lines_cleared(id, n)
+   if stats.cleared[id] == nil then
+      stats.cleared[id] = 0
+   end
    stats.cleared[id] = stats.cleared[id] + n
 end
 
 -- Called when a block is dropped by a player
 function stats.block_dropped(id)
+   if stats.dropped[id] == nil then
+      stats.dropped[id] = 0
+   end
    stats.dropped[id] = stats.dropped[id] + 1
 end
 
