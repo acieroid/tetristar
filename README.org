@@ -1,0 +1,63 @@
+* Tetristar
+Tetristar is an extensible multiplayer tetris game, mainly inspired
+from Tetrinet and TetrisFriends. The aim of this project is to produce
+a high quality, featureful, open source and portable tetris game.
+
+** Requirements
+Tetristar requires the following libraries:
+  - [[http://enet.bespin.org/][ENet]]
+  - [[http://developer.gnome.org/glib/][GLib]]
+  - [[http://www.gtk.org/][Gtk 2]]
+  - [[http://www.cairographics.org/][Cairo]]
+  - [[https://live.gnome.org/LibRsvg][LibRsvg]]
+
+Those libraries should be available in most operating systems.
+
+To build tetristar, [[http://www.scons.org/][SCons]] is also needed.
+** Compiling Tetristar
+To build all the components of tetristar, just launch =scons= at the
+root of tetristar's directory. To only build the server, launch =scons
+server= and to only build the clients, launch =scons clients=.
+** Running Tetristar
+*** Server
+The server executable is in the =server/= subdirectory. Its behaviour
+can be configured in the =config.lua= file in the same directory. By
+defaults, it listens on =localhost:12345= and the administrator's
+password is =foo=. The available configuration options are:
+
+  - =config.server=: the address on which to listen (=localhost= by
+    default)
+  - =config.port=: the port on which to listen (=12345= by default)
+  - =config.plugins=: the list of plugins to load
+  - =config.password=: the administrator's password (=foo= by default)
+
+Once launched, one can send a =SIGUSR1= signal to the server to reload
+all the plugins.
+*** Clients
+For the moment there only exists two clients for tetristar: one in
+GTK (in =clients/gtk/=), the other in command line only used for
+debugging (in =clients/simple/=).
+
+To launch the GTK client, just launch the executable from
+=clients/gtk=. The client's layout is composed of two parts:
+  - The /context/, where the current state of the tetris game is displayed
+  - The /chat/, where the players can talk and send commands
+
+To switch the focus between those two parts, the =TAB= key should be
+used. When the context has the focus, the player can move its pieces,
+etc. When the chat has the focus, the player can type messages or
+commands.
+
+The keybinds of the context are the following:
+  - The arrow keys manipulates the piece
+  - The space key drops a piece
+  - The =d= key drops a bonus
+  - The number keys (=1=, =2=, ...) send a bonus to the corresponding
+    player
+
+The commands currently supported are the following:
+  - =/password <pass>=: authentificates to the server as administrator
+  - =/start=: start a new game if there is no current game
+  - =/stop=: stop the current game
+  - =/disconnect=: disconnect from the server
+  - =/quit=: quit the client
