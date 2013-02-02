@@ -17,6 +17,11 @@ static void chat_init(Chat *chat);
 static gboolean chat_on_keypress(GtkWidget *entry,
                                  GdkEventKey *event,
                                  gpointer data);
+static void chat_scroll_to_end(GtkTextBuffer *buffer,
+                               GtkTextIter *location,
+                               gchar *text,
+                               gint len,
+                               gpointer data);
 
 static guint chat_signals[LAST_SIGNAL] = { 0 };
 
@@ -98,8 +103,10 @@ void chat_init(Chat *chat)
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(chat->scroll),
                                  GTK_POLICY_AUTOMATIC,
                                  GTK_POLICY_AUTOMATIC);
-  gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(chat->scroll),
-                                        chat->text_view);
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(chat->scroll),
+                                      GTK_SHADOW_IN);
+
+  gtk_container_add(GTK_CONTAINER(chat->scroll), chat->text_view);
 
   gtk_table_attach(GTK_TABLE(chat), chat->scroll, 0, 1, 0, 1,
                    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND, 0, 0);
@@ -116,6 +123,9 @@ void chat_init(Chat *chat)
   gtk_text_buffer_create_tag(buff, "bad", "foreground", "#AA0000", NULL);
   gtk_text_buffer_create_tag(buff, "info", "foreground", "#333399", NULL);
   gtk_text_buffer_create_tag(buff, "error", "foreground", "#AA0000", NULL);
+
+  g_signal_connect(G_OBJECT(buff), "insert-text",
+                   G_CALLBACK(chat_scroll_to_end), chat);
 
   chat->history = NULL;
   chat->history_current = NULL;
@@ -264,4 +274,18 @@ void chat_clear(Chat *chat)
 {
   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(chat->text_view));
   gtk_text_buffer_set_text(buffer, "", 0);
+}
+
+void chat_scroll_to_end(GtkTextBuffer *buffer, GtkTextIter *location,
+                        gchar *text, gint len, gpointer data)
+{
+  Chat *chat = (Chat *) data;
+  GtkTextIter end;
+  g_warning("Scroll to end");
+
+  gtk_text_buffer_get_end_iter(buffer, &end);
+  gtk_text_buffer_create_mark(buffer, "end", &end, FALSE);
+  gtk_text_view_scroll_to_mark(GTK_TEXT_VIEW(chat->text_view),
+                               gtk_text_buffer_get_mark(buffer, "end"),
+                               0.0, TRUE, 0.0, 0.5);
 }
