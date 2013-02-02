@@ -12,12 +12,11 @@ Doc:
   - Write some documentation
 
 BUGS:
-  - Auto scroll the chat to the bottom
   - Sometimes when a piece is dropped it is not displayed
 
 Random ideas:
   - Detect and reward T-spins
-  - Find a cool way to reward combos
+  - Find a cool way to reward combos (see how it's done in tetrisfriends)
   - Teams
   - Spectators
   - Dynamically load plugin
