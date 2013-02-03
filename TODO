@@ -1,4 +1,5 @@
 Server:
+  - Save the winlist to a file and load it
 
 Client:
   - Remember nickname, server name in the client

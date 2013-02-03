@@ -1,7 +1,10 @@
 * Tetristar
 Tetristar is an extensible multiplayer tetris game, mainly inspired
 from Tetrinet and TetrisFriends. The aim of this project is to produce
-a high quality, featureful, open source and portable tetris game.
+a high quality, featureful, free and open source, portable tetris
+game.
+
+Tetristar is licensed under the 2-clause BSD license.
 
 ** Requirements
 Tetristar requires the following libraries:
