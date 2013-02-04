@@ -311,7 +311,6 @@ void chat_scroll_to_end(GtkTextBuffer *buffer, GtkTextIter *location,
 {
   Chat *chat = (Chat *) data;
   GtkTextIter end;
-  g_warning("Scroll to end");
 
   gtk_text_buffer_get_end_iter(buffer, &end);
   gtk_text_buffer_create_mark(buffer, "end", &end, FALSE);
