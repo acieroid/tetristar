@@ -34,12 +34,14 @@ static int l_send(lua_State *l);
 static int l_send_to_all(lua_State *l);
 static int l_disconnect(lua_State *l);
 static int l_get_password(lua_State *l);
+static int l_get_file(lua_State *l);
 
 static PluginFunction l_functions[] = {
   { "send", l_send },
   { "send_to_all", l_send_to_all },
   { "disconnect", l_disconnect },
   { "get_password", l_get_password },
+  { "get_file", l_get_file },
   { NULL, NULL }
 };
 
@@ -124,4 +126,20 @@ int l_get_password(lua_State *l)
   lua_pushstring(l, password);
   free(password);
   return 1;
+}
+
+int l_get_file(lua_State *l)
+{
+  const char *file;
+  char *path;
+  const char *datadir = config_get_string("datadir", "/tmp");
+
+  luaL_checktype(l, 1, LUA_TSTRING);
+  file = lua_tostring(l, 1);
+
+  path = g_strdup_printf("%s/%s", datadir, file);
+  lua_pushstring(l, path);
+  g_free(path);
+
+  return 1; /* return a string */
 }

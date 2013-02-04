@@ -29,6 +29,26 @@
 winlist = {}
 winlist.winners = {}
 
+-- Load the initial data (if they exists)
+file = io.open(tetris.server.get_file("winlist.txt"), "r+")
+if file ~= nil then
+   for line in file:lines() do
+      local nick, n = utils.split(line, ",", utils.identity, tonumber)
+      winlist.winners[nick] = n
+   end
+   file:close()
+end
+
+-- Save the winlist to a file
+function winlist.save()
+   file = io.open(tetris.server.get_file("winlist.txt"), "w+")
+   for nick, n in pairs(winlist.winners) do
+      file:write(nick, ",", n)
+   end
+   file:close()
+end
+
+-- Add a player to the winlist
 function winlist.add(id)
    last = winlist.winners[tetris.player.get_nick(id)]
    if last then
@@ -37,12 +57,15 @@ function winlist.add(id)
       winlist.winners[tetris.player.get_nick(id)] = 1
    end
    winlist.send(5)
+   winlist.save()
 end
 
+-- Compare two entries of the sorted winlist
 function winlist.compare(a, b)
    return a.wins < b.wins
 end
 
+-- Send the n players with the most wins to all connected players
 function winlist.send(n)
    -- Send the n most winning nicks to everyone
    local sorted = {}
