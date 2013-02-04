@@ -33,6 +33,8 @@ password is =foo=. The available configuration options are:
   - =config.port=: the port on which to listen (=12345= by default)
   - =config.plugins=: the list of plugins to load
   - =config.password=: the administrator's password (=foo= by default)
+  - =config.datadir=: the directory where data files are saved (=/tmp=
+    by default)
 
 Once launched, one can send a =SIGUSR1= signal to the server to reload
 all the plugins.
