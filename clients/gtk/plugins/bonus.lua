@@ -35,8 +35,9 @@ bonus.names = {
    [11]='Random clear',
    [12]='Switch fields',
    [13]='Clear specials',
-   [14]='Blockquake',
-   [15]='Block bomb'
+   [15]='Block gravity',
+   [15]='Blockquake',
+   [16]='Block bomb'
 }
 
 function bonus.receive(id, command, args)
