@@ -3,7 +3,7 @@ Import('env', 'BUILD_IN_TMP', 'LINUX', 'GLIB', 'GTK', 'LUA', 'CAIRO', 'GTHREAD',
 gtk_env = env.Clone()
 
 sources = ['main.c', 'connect.c', 'network.c', 'chat.c', 'context.c',
-           'drawing_area.c', 'mainwindow.c', 'plugins.c']
+           'drawing_area.c', 'mainwindow.c', 'plugins.c', 'config.c']
 
 if BUILD_IN_TMP:
     gtk_env.VariantDir('/tmp/tetristar/gtk', '.', duplicate=0)

@@ -40,6 +40,8 @@
 #include <glib-object.h>
 #include <gtk/gtk.h>
 
+#include "config.h"
+
 G_BEGIN_DECLS
 
 #define CONNECT_TYPE            (connect_get_type())
@@ -48,9 +50,6 @@ G_BEGIN_DECLS
 #define IS_CONNECT(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), CONNECT_TYPE))
 #define IS_CONNECT_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), CONNECT_TYPE))
 
-#define DEFAULT_SERVER "localhost"
-#define DEFAULT_PORT 12345
-
 typedef struct Connect {
   GtkVBox vbox;
 
@@ -58,6 +57,8 @@ typedef struct Connect {
   GtkWidget *server_hbox, *server_label, *server_entry;
   GtkWidget *port_hbox, *port_label, *port_spin;
   GtkWidget *button;
+
+  Config *config;
 } Connect;
 
 typedef struct ConnectClass {
