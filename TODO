@@ -1,7 +1,6 @@
 Server:
 
 Client:
-  - Remember nickname, server name in the client
   - Widget to connect as admin
   - Factor the drawing area code
 
