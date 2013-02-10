@@ -56,6 +56,7 @@ commands.
 The keybinds of the context are the following:
   - The arrow keys manipulates the piece
   - The space key drops a piece
+  - The =c= swap the current piece with the kept piece
   - The =d= key drops a bonus
   - The number keys (=1=, =2=, ...) send a bonus to the corresponding
     player
@@ -66,3 +67,42 @@ The commands currently supported are the following:
   - =/stop=: stop the current game
   - =/disconnect=: disconnect from the server
   - =/quit=: quit the client
+
+** Contributing
+This section describe the architecture of Tetristar, for those who
+would like to contribute.
+
+The protocol used between the server and the clients is described in
+=protocol.org=.
+
+Tetristar's server and GTK client both use =libtetris= to store the
+current state of the game. The complete state is known by the server, and
+the clients only know a part of this state (eg. they don't know what
+bonuses the other players have). All the state computations are done
+by the server (this is different than tetrinet, where it is the
+clients that does the computations), thus preventing cheating from
+malicious clients.
+
+The main features of the server are written with /plugins/. Plugins
+consists of lua functions registered to events. When the event occur,
+they are called with the appropriate parameters and can manipulate the
+server's state or send data to the clients. The following plugins
+exists and are activated by default:
+  - =admin.lua=: allow players to authenticate as administrator, to be
+    able to start or stop a game
+  - =bonus.lua=: implement the bonuses (called /specials/ in tetrinet)
+  - =connection.lua=: handle clients connection and disconnection
+  - =field.lua=: implement various helper functions manipulating the
+    matrix
+  - =game.lua=: the most important plugin, handle the player events
+    (drop, move, rotate, ...)
+  - =im.lua=: implement the instant messaging system to allow the
+    players to chat during a game
+  - =kept.lua=: implement the /kept/ piece and handle the related messages
+  - =piece.lua=: implement helper functions to manipulate pieces
+  - =stats.lua=: compute stats during the game and send them as server
+    messages to the clients at the end of a game
+  - =utils.lua=: some helper functions
+  - =winlist.lua=: implement the winlist, that keep tracks of the
+    most winning players
+
