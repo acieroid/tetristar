@@ -106,3 +106,14 @@ exists and are activated by default:
   - =winlist.lua=: implement the winlist, that keep tracks of the
     most winning players
 
+The GTK client also uses plugins to handle the data sent by the
+server:
+  - =bonus.lua=: handles the bonuses (print messages when they are
+    used, and display them)
+  - =chat.lua=: handle the messages to be printed in the chat
+  - =field.lua=: handle the changes in the field sent by the server
+    and compute the pieces shadows
+  - =game.lua=: handle the game status
+  - =kept.lua=: handle the kept piece
+  - =piece.lua=: implement piece transformations, used to compute the shadows
+  - =utils.lua=: implement utils to parse the field sent by the server
