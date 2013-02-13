@@ -30,7 +30,7 @@ server= and to only build the clients, launch =scons clients=.
 If Scons reports that a library is missing while it is installed, you
 might need to specify the name of the =pkg-config= description file of
 this lib. For example, if you have Lua 5.1, you might want to launch
-=scons LUA='lua5.1'=
+=scons LUA='lua-5.1'=
 ** Running Tetristar
 *** Server
 The server executable is in the =server/= subdirectory. Its behaviour
