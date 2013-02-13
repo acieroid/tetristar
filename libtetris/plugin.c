@@ -129,7 +129,7 @@ Plugin *tetris_plugin_find(LuaFunction fun)
 #if LUA_VERSION_NUM >= 502
         lua_compare(lua_state, 1, 2, LUA_OPEQ)
 #else
-        lua_equal(lua_state, 1, 2);
+        lua_equal(lua_state, 1, 2)
 #endif
         ) {
       lua_pop(lua_state, 2);
