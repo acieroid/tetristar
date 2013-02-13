@@ -13,14 +13,24 @@ Tetristar requires the following libraries:
   - [[http://www.gtk.org/][Gtk 2]]
   - [[http://www.cairographics.org/][Cairo]]
   - [[https://live.gnome.org/LibRsvg][LibRsvg]]
+  - [[http://www.lua.org/][Lua]]
 
-Those libraries should be available in most operating systems.
+Those libraries should be available in most operating systems. For
+example, in Debian based systems, the corresponding packages are:
+=libenet-dev=, =libglib2.0-dev=, =libgtk2.0-dev=, =libcairo2-dev=,
+=librsvg2-dev=, =liblua5.1-0-dev=.
 
 To build tetristar, [[http://www.scons.org/][SCons]] is also needed.
+
 ** Compiling Tetristar
 To build all the components of tetristar, just launch =scons= at the
 root of tetristar's directory. To only build the server, launch =scons
 server= and to only build the clients, launch =scons clients=.
+
+If Scons reports that a library is missing while it is installed, you
+might need to specify the name of the =pkg-config= description file of
+this lib. For example, if you have Lua 5.1, you might want to launch
+=scons LUA='lua5.1'=
 ** Running Tetristar
 *** Server
 The server executable is in the =server/= subdirectory. Its behaviour
