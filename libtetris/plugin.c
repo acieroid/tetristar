@@ -65,9 +65,15 @@ void tetris_plugin_init(lua_State *l)
 
   timer = g_timer_new();
 
+#if GLIB_CHECK_VERSION(2,32,0)
   g_thread_new("libtetris",
                (GThreadFunc) tetris_plugin_timeout_loop,
                NULL);
+#else
+  g_thread_init(NULL);
+  g_thread_create((GThreadFunc) tetris_plugin_timeout_loop, NULL,
+                  FALSE, NULL);
+#endif
 
   CHECK_STACK_END(l, 0);
 }
@@ -119,7 +125,13 @@ Plugin *tetris_plugin_find(LuaFunction fun)
     lua_rawgeti(lua_state, LUA_REGISTRYINDEX, fun);
     lua_rawgeti(lua_state, LUA_REGISTRYINDEX, plugin->function);
     /* compare the functions */
-    if (plugin->type == PLUGIN_TIMEOUT && lua_compare(lua_state, 1, 2, LUA_OPEQ)) {
+    if (plugin->type == PLUGIN_TIMEOUT &&
+#if LUA_VERSION_NUM >= 502
+        lua_compare(lua_state, 1, 2, LUA_OPEQ)
+#else
+        lua_equal(lua_state, 1, 2);
+#endif
+        ) {
       lua_pop(lua_state, 2);
       CHECK_STACK_END(lua_state, 0);
       return plugin;
