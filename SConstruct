@@ -7,7 +7,9 @@ LUA = ARGUMENTS.get('LUA', 'lua')
 GLIB = ARGUMENTS.get('GLIB', 'glib-2.0')
 GTHREAD = ARGUMENTS.get('GTHREAD', 'gthread-2.0')
 GTK = ARGUMENTS.get('GTK', 'gtk+-2.0')
-
+CAIRO = ARGUMENTS.get('CAIRO', 'cairo')
+CHECK = ARGUMENTS.get('CHECK', 'check')
+RSVG = ARGUMENTS.get('RSVG', 'librsvg-2.0')
 BUILD_IN_TMP = ARGUMENTS.get('BUILD_IN_TMP', '1')
 
 env['CFLAGS'] += ['-Wall']
@@ -16,10 +18,6 @@ if DEBUG == '1':
 
 env['CPPPATH'] += ['/usr/local/include', '#/libtetris']
 env['LIBPATH'] += ['#/libtetris', '/usr/local/lib']
-
-CAIRO = 'cairo'
-CHECK = 'check'
-RSVG = 'librsvg-2.0'
 
 Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK', 'RSVG', 'BUILD_IN_TMP')
 
