@@ -23,6 +23,9 @@ Export('env', 'LINUX', 'LUA', 'GLIB', 'GTHREAD', 'GTK', 'CAIRO', 'CHECK', 'RSVG'
 
 libtetris = SConscript('libtetris/SConscript')
 Export('libtetris')
-SConscript(['server/SConscript',
-            'clients/SConscript',
-            'tests/SConscript'])
+if 'server' in COMMAND_LINE_TARGETS:
+    SConscript('server/SConscript')
+if 'clients' in COMMAND_LINE_TARGETS:
+    SConscript('clients/SConscript')
+if 'test' in COMMAND_LINE_TARGETS:
+    SConscript('tests/SConscript')
