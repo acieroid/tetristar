@@ -241,7 +241,8 @@ void launch_network(GtkWidget *widget, gpointer data)
                (gpointer) window->network);
 #else
   g_thread_init(NULL);
-  g_thread_create((GThreadFunc) network_loop, NULL,
+  g_thread_create((GThreadFunc) network_loop,
+                  (gpointer) window->network,
                   FALSE, NULL);
 #endif
 }
