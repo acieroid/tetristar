@@ -241,7 +241,7 @@ void launch_network(GtkWidget *widget, gpointer data)
                (gpointer) window->network);
 #else
   g_thread_init(NULL);
-  g_thread_create((GThreadFunc) tetris_plugin_timeout_loop, NULL,
+  g_thread_create((GThreadFunc) network_loop, NULL,
                   FALSE, NULL);
 #endif
 }
