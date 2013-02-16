@@ -235,10 +235,15 @@ void launch_network(GtkWidget *widget, gpointer data)
 
   /* we lock the button to avoid launching multiple network threads */
   connect_lock_button(CONNECT(window->connect));
+#if GLIB_CHECK_VERSION(2,32,0)
   g_thread_new("network",
                (GThreadFunc) network_loop,
                (gpointer) window->network);
-
+#else
+  g_thread_init(NULL);
+  g_thread_create((GThreadFunc) tetris_plugin_timeout_loop, NULL,
+                  FALSE, NULL);
+#endif
 }
 
 void send_command(Chat *chat, const gchar *args, gpointer data)
@@ -333,7 +338,7 @@ void display_error(const gchar *message)
 {
   GtkWidget *dialog = gtk_message_dialog_new(NULL, 0, GTK_MESSAGE_ERROR,
                                              GTK_BUTTONS_OK,
-                                             message);
+                                             "%s", message);
   gtk_dialog_run(GTK_DIALOG(dialog));
   gtk_widget_destroy(dialog);
 }
