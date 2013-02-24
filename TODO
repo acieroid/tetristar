@@ -1,6 +1,9 @@
 Server:
+  - Increase speed with time
+  - Add sudden death
 
 Client:
+  - Display the current bonus name
   - Widget to connect as admin
   - Factor the drawing area code
 
@@ -12,6 +15,19 @@ Doc:
 
 BUGS:
   - Sometimes when a piece is dropped it is not displayed
+
+** (process:29674): DEBUG: Lua stack size changed: in tetris_plugin_action at libtetris/plugin.c:259: 10 -> 0
+** (process:29674): DEBUG: Lua stack size changed: in tetris_plugin_action at libtetris/plugin.c:259: 1 -> 0
+
+The program 'client' received an X Window System error.
+This probably reflects a bug in the program.
+The error was 'BadRequest (invalid request code or no such operation)'.
+  (Details: serial 409589 error_code 1 request_code 0 minor_code 0)
+  (Note to programmers: normally, X errors are reported asynchronously;
+   that is, you will receive the error a while after causing it.
+   To debug your program, run it with the --sync command line
+   option to change this behavior. You can then get a meaningful
+   backtrace from your debugger if you break on the gdk_x_error() function.)
 
 Random ideas:
   - Detect and reward T-spins
